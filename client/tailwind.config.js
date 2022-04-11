@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     colors: {
       fillmain: '#292F3F',
-      glassy: '#ffffff40',
+      glassy: '#00000040',
       bgdarken: '#272A35',
       bglighten: '#373E4E',
       bglighten2: '#7A8194',
