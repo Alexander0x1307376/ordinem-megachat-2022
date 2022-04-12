@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import Ava from "../shared/Ava";
 import { 
-  IoEllipsisVertical, IoExitOutline, IoNotificationsCircleOutline, IoNotificationsOffCircleOutline 
+  IoExitOutline, IoNotificationsOffCircleOutline 
 } from "react-icons/io5";
-import IconedButton from "../shared/IconedButton";
-import { Popover } from 'react-tiny-popover';
-import PopoverMenuOptions from "./PopoverMenuOptions";
 import ElementWithOptions from "./ElementWithOptions";
 
-export interface GroupItemProps {
+export interface ContactItemProps {
   name: string;
   link: string;
   description: string;
@@ -16,14 +13,14 @@ export interface GroupItemProps {
 }
 
 
-const GroupItem: React.FC<GroupItemProps> = ({ name, description, imageUrl, link}) => {
+const ContactItem: React.FC<ContactItemProps> = ({ name, description, imageUrl, link}) => {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const popoverMenuItems = [
     {
-      key: 'leaveGroup',
-      title: 'Выйти из группы',
+      key: 'blockUser',
+      title: 'Блокировать пользователя',
       icon: IoExitOutline
     },
     {
@@ -35,8 +32,8 @@ const GroupItem: React.FC<GroupItemProps> = ({ name, description, imageUrl, link
 
   return (
     <ElementWithOptions 
-      link={link}
       title={name} 
+      link={link}
       description={description} 
       imageUrl={imageUrl} 
       options={popoverMenuItems} 
@@ -44,4 +41,4 @@ const GroupItem: React.FC<GroupItemProps> = ({ name, description, imageUrl, link
   )
 }
 
-export default GroupItem;
+export default ContactItem;
