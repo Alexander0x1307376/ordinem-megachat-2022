@@ -13,6 +13,7 @@ module.exports = {
       accented2: '#03A9F1',
       accented3: '#F18303',
       textPrimary: '#FFFFFF',
+      textSecondary: '#C5C5C5',
 
       info: '#03A9F1',
       warning: '#F18303',

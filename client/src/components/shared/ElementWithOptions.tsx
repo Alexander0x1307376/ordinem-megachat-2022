@@ -6,7 +6,6 @@ import { Popover } from 'react-tiny-popover';
 import PopoverMenuOptions, {PopoverMenuOptionsProps} from "./PopoverMenuOptions";
 import { Link } from "react-router-dom";
 
-
 export interface ElementWithOptionsProps {
   title: string;
   description: string;
@@ -21,6 +20,7 @@ const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({
 }) => {
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+
 
   return (
     <div className="

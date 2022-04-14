@@ -57,12 +57,12 @@ const Groups: React.FC = () => {
     <div>
       <div className="flex flex-col">
 
-        {groupData.map(({name, description}, index) => (
+        {groupData.map(({uuid, name, description}, index) => (
 
           <GroupItem 
             key={index}
             name={name} 
-            link='/'
+            link={`/group/${uuid}`}
             description={description} 
             imageUrl="https://i.pravatar.cc/150?img=60"
           />

@@ -7,13 +7,22 @@ const Settings: React.FC = () => {
 
 
   return (
-    <div className="flex">
-      <div>
-        <div className="flex items-center">
-            <label className="form-check-label inline-block text-gray-800" htmlFor="flexCheckDefault">
-              Default checkbox
-            </label>
-            <input type="checkbox" id="flexCheckDefault" />
+    <div className="flex flex-col">
+      <div className="bg-glassy rounded-lg p-4 mb-2">
+        <h2 className="font-bold mb-2">Блок настроек 1</h2>
+        <div>
+          <p>Настройка 1</p>
+          <p>Настройка 2</p>
+          <p>Настройка 3</p>
+        </div>
+      </div>
+
+      <div className="bg-glassy rounded-lg p-4 mb-2">
+        <h2 className="font-bold mb-2">Блок настроек 1</h2>
+        <div>
+          <p>Настройка 1</p>
+          <p>Настройка 2</p>
+          <p>Настройка 3</p>
         </div>
       </div>
     </div>

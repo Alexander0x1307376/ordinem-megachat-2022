@@ -9,12 +9,21 @@ import Group from './components/pages/Group';
 import Chat from './components/pages/Chat';
 
 
-const animationFadeInOut = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
+const animatePages = {
+  initial: { 
+    opacity: 0,
+    x: -200
+  },
+  animate: { 
+    opacity: 1,
+    x: 0
+  },
+  exit: { 
+    opacity: 0, 
+    x: 200
+  },
   transition: {
-    duration: .1
+    duration: .09
   }
 }
 
@@ -23,7 +32,7 @@ const App: React.FC = () => {
 
   return (
     <div className='w-screen h-screen'>
-      <AnimatePresence>
+      <AnimatePresence exitBeforeEnter>
 
         <Routes location={location} key={location.pathname}>
 
@@ -32,26 +41,46 @@ const App: React.FC = () => {
           }>
 
             <Route path='/' element={
-              <motion.div {...animationFadeInOut}><div>Main default</div></motion.div>
+              <motion.div 
+                {...animatePages}
+              ><div>Main default</div></motion.div>
+              // <div>Main default</div>
             } />
             <Route path='/groups' element={
-              <motion.div {...animationFadeInOut}><Groups /></motion.div>
+              <motion.div 
+                {...animatePages} 
+              >
+                <Groups />
+              </motion.div>
+              // <Groups />
             } />
             <Route path='/contacts' element={
-              <motion.div {...animationFadeInOut}><Contacts /></motion.div>
+              <motion.div 
+                {...animatePages}
+              >
+                <Contacts />
+              </motion.div>
+              // <Contacts />
             } />
             <Route path='/settings' element={
-              <motion.div {...animationFadeInOut}><Settings /></motion.div>
+              <motion.div 
+                {...animatePages}
+              >
+                <Settings />
+              </motion.div>
+              // <Settings />
             } />
 
           </Route>
 
           <Route path='/group/:groupId' element={
-            <motion.div {...animationFadeInOut}><Group /></motion.div>
+            <motion.div {...animatePages}><Group /></motion.div>
+            // <Group />
           } />
 
           <Route path='/chat/:chatId' element={
-            <motion.div {...animationFadeInOut}><Chat /></motion.div>
+            <motion.div {...animatePages}><Chat /></motion.div>
+            // <Chat />
           } />
 
 
