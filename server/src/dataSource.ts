@@ -1,4 +1,7 @@
 import { DataSource } from "typeorm";
+import { Image } from "./entity/Image";
+import { User } from "./entity/User";
+import { UserToken } from "./entity/UserToken";
 
 const AppDataSource = new DataSource({
   type: "postgres",
@@ -9,7 +12,7 @@ const AppDataSource = new DataSource({
   database: "ordinem_megachat",
   synchronize: true,
   logging: true,
-  // entities: [Post, Category],
+  entities: [User, UserToken, Image],
   subscribers: [],
   migrations: [],
 });
