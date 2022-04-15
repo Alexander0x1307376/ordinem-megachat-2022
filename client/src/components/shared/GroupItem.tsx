@@ -1,11 +1,7 @@
-import React, { useState } from "react";
-import Ava from "../shared/Ava";
+import React from "react";
 import { 
-  IoEllipsisVertical, IoExitOutline, IoNotificationsCircleOutline, IoNotificationsOffCircleOutline 
+  IoExitOutline, IoNotificationsOffCircleOutline 
 } from "react-icons/io5";
-import IconedButton from "../shared/IconedButton";
-import { Popover } from 'react-tiny-popover';
-import PopoverMenuOptions from "./PopoverMenuOptions";
 import ElementWithOptions from "./ElementWithOptions";
 
 export interface GroupItemProps {
@@ -17,8 +13,6 @@ export interface GroupItemProps {
 
 
 const GroupItem: React.FC<GroupItemProps> = ({ name, description, imageUrl, link}) => {
-
-  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const popoverMenuItems = [
     {

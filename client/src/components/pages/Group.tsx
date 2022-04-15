@@ -10,11 +10,13 @@ const Group: React.FC = () => {
 
   const { groupId } = useParams();
 
-  const [layoutState, setLayoutState] = useState<DoubleSidebaredProps['layoutState']>('init');
-
   const isMdScreen = useMediaQuery({ query: '(min-width: 768px)' });
+  
+  const [
+    layoutState, setLayoutState
+  ] = useState<DoubleSidebaredProps['layoutState']>(isMdScreen ? 'rightIsOpen' : 'init');
 
-  const [lastTouched, setLastTouched] = useState<'left' | 'right' | undefined>();
+  const [lastTouched, setLastTouched] = useState<'left' | 'right' | undefined>('right');
   
   const handleLeftButtonClick = () => {
     setLastTouched('left');
@@ -51,22 +53,13 @@ const Group: React.FC = () => {
 
 
   useEffect(() => {
-    if(isMdScreen) {
-      setLastTouched('right');
-      setLayoutState('rightIsOpen');
-    }
-    else
-      setLayoutState('init');
-  }, []);
-
-  useEffect(() => {
     if(!isMdScreen && layoutState === 'bothAreOpen') {
       if(lastTouched === 'left') 
         setLayoutState('leftIsOpen');
       else 
         setLayoutState('rightIsOpen');
     }
-  }, [isMdScreen]);
+  }, [isMdScreen, lastTouched, layoutState]);
 
   return (
     <div className="h-screen w-screen flex flex-col">

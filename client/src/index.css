@@ -39,3 +39,14 @@ code {
   /* box-shadow: 0px 0px 0px 1px rgb(255, 255, 255) inset,
   0px 0px 0px 2px rgb(206, 106, 106) inset; */
 }
+
+/* Toggle B */
+input:checked ~ .dot {
+  transform: translateX(100%);
+}
+.dot + * {
+  background-color: #C5C5C5;
+}
+input:checked ~ .dot + * {
+  background-color: #03A9F1;
+}

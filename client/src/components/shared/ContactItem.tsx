@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Ava from "../shared/Ava";
 import { 
   IoExitOutline, IoNotificationsOffCircleOutline 
 } from "react-icons/io5";
@@ -14,8 +13,6 @@ export interface ContactItemProps {
 
 
 const ContactItem: React.FC<ContactItemProps> = ({ name, description, imageUrl, link}) => {
-
-  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const popoverMenuItems = [
     {

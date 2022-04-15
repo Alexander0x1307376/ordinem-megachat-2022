@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, useLocation, useRoutes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Main from './components/pages/Main';
 import { AnimatePresence, motion } from 'framer-motion';
 import Groups from './components/pages/Groups';
@@ -31,7 +31,7 @@ const App: React.FC = () => {
   const location = useLocation();
 
   return (
-    <div className='w-screen h-screen'>
+    <div className='w-screen h-screen overflow-hidden'>
       <AnimatePresence exitBeforeEnter>
 
         <Routes location={location} key={location.pathname}>

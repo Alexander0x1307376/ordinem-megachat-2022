@@ -5,6 +5,8 @@ import IconedButton from "../shared/IconedButton";
 import { Popover } from 'react-tiny-popover';
 import PopoverMenuOptions, {PopoverMenuOptionsProps} from "./PopoverMenuOptions";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 export interface ElementWithOptionsProps {
   title: string;
@@ -37,10 +39,22 @@ const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({
         </div>
       </Link>
       <div className="p-4">
+        <AnimatePresence>
         <Popover
           isOpen={isPopoverOpen}
           positions={['left', 'top', 'bottom', 'right']}
-          content={<PopoverMenuOptions options={options} />}
+          content={
+            
+              <motion.div
+                initial={{ y: -30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{duration: .2}}
+              >
+                <PopoverMenuOptions options={options} />
+              </motion.div>
+            
+          }
           align='start'
           onClickOutside={() => setIsPopoverOpen(false)}
         >
@@ -51,6 +65,7 @@ const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({
             />
           </div>
         </Popover>
+        </AnimatePresence>
       </div>
     </div>
   )
