@@ -1,7 +1,7 @@
 import { Entity, Column, OneToMany, BeforeInsert } from "typeorm";
 import Model from "./Model";
 import { UserToken } from "./UserToken";
-import bcrypt from 'bcrypt';
+import { genSalt, hash } from 'bcrypt';
 
 @Entity('users')
 export class User extends Model {
@@ -20,7 +20,7 @@ export class User extends Model {
 
   @BeforeInsert()
   async setPassword(password: string) {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(password || this.password, salt);
+    const salt = await genSalt();
+    this.password = await hash(password || this.password, salt);
   }
 }

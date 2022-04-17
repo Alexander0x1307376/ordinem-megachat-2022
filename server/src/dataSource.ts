@@ -11,7 +11,7 @@ const AppDataSource = new DataSource({
   password: "secret",
   database: "ordinem_megachat",
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: [User, UserToken, Image],
   subscribers: [],
   migrations: [],

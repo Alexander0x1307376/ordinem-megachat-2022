@@ -1,8 +1,7 @@
 import {sign} from 'jsonwebtoken';
 import { verify } from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
+import AppDataSource from '../../dataSource';
 import { UserToken } from '../../entity/UserToken';
-// import { DateTime } from 'luxon';
 
 const validateToken = (token: string, tokenToValidate: string) => {
   try {
@@ -43,11 +42,15 @@ export const generateTokens = (payload: any) => {
     // exp: DateTime.now().plus({ days: 30 }).toSeconds()
   };
 
-  const accessToken = sign(accessPayload, process.env.JWT_ACCESS_SECRET!, {
+
+  const accessSecret = process.env.JWT_ACCESS_SECRET!;
+  const refreshSecret = process.env.JWT_REFRESH_SECRET!;
+
+  const accessToken = sign(accessPayload, accessSecret, {
     expiresIn: accessTokenExpiresIn
   });
   
-  const refreshToken = sign(refreshPayload, process.env.JWT_REFRESH_SECRET!, {
+  const refreshToken = sign(refreshPayload, refreshSecret, {
     expiresIn: refreshTokenExpiresIn
   });
   
@@ -61,8 +64,8 @@ export const generateTokens = (payload: any) => {
 
 export const saveToken = async (userId: number, refreshToken: string) => {
 
-  const tokenRepository = getRepository(UserToken);
-  const tokenData = await tokenRepository.findOne({select: ['userId']});
+  const tokenRepository = AppDataSource.getRepository(UserToken);
+  const tokenData = await tokenRepository.findOne({where: {userId}, select: ['id', 'userId']});
   if(tokenData) {
     tokenData.refreshToken = refreshToken;
     await tokenData.save();
