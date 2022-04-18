@@ -3,7 +3,6 @@ import ApiError from '../../exceptions/apiError';
 import userService from "../user/userService";
 import { UserPostData } from '../user/userTypes';
 import * as tokenService from "./tokenService";
-import bcrypt from 'bcrypt';
 import { UserToken } from '../../entity/UserToken';
 
 

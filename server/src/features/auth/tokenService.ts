@@ -1,5 +1,4 @@
-import {sign} from 'jsonwebtoken';
-import { verify } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import AppDataSource from '../../dataSource';
 import { UserToken } from '../../entity/UserToken';
 
@@ -26,31 +25,19 @@ export const validateRefreshToken = (token: string) =>
 
 export const generateTokens = (payload: any) => {
 
-  // const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN;
-  // const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
-
-  const accessTokenExpiresIn = '20s';
-  const refreshTokenExpiresIn = '10d';
-
-  const accessPayload = {
-    ...payload,
-    // exp: DateTime.now().plus({ minutes: 2 }).toSeconds()
-  };
-
-  const refreshPayload = {
-    ...payload,
-    // exp: DateTime.now().plus({ days: 30 }).toSeconds()
-  };
-
+  const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN;
+  const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
+  // const accessTokenExpiresIn = '20s';
+  // const refreshTokenExpiresIn = '10d';
 
   const accessSecret = process.env.JWT_ACCESS_SECRET!;
   const refreshSecret = process.env.JWT_REFRESH_SECRET!;
 
-  const accessToken = sign(accessPayload, accessSecret, {
+  const accessToken = sign(payload, accessSecret, {
     expiresIn: accessTokenExpiresIn
   });
   
-  const refreshToken = sign(refreshPayload, refreshSecret, {
+  const refreshToken = sign(payload, refreshSecret, {
     expiresIn: refreshTokenExpiresIn
   });
   

@@ -4,10 +4,11 @@ import React from "react";
 export interface ButtonProps {
   children?: React.ReactNode;
   onClick?: () => void;
-  type?: 'default' | 'info' | 'warning' | 'accent' | 'danger' | 'brighten'
+  type?: 'default' | 'info' | 'warning' | 'accent' | 'danger' | 'brighten';
+  htmlType?: 'button' | 'submit';
 }
 
-const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'default' }) => {
+const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'default', htmlType = 'button' }) => {
 
   const styleTypes = {
     default: 'bg-bglighten',
@@ -21,6 +22,7 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'default' }) 
 
   return (
     <button 
+      type={htmlType}
       className={elementStyles} 
       onClick={onClick}
     >

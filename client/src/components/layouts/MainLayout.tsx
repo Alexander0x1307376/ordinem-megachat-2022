@@ -7,7 +7,7 @@ import {
 
 
 
-const Main: React.FC = () => {
+const MainLayout: React.FC = () => {
   
   return (
     <div className='
@@ -34,4 +34,4 @@ const Main: React.FC = () => {
   )
 }
 
-export default Main;
+export default MainLayout;

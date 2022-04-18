@@ -1,12 +1,15 @@
 import React from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import Main from './components/pages/Main';
+import MainLayout from './components/layouts/MainLayout';
+import Login from './components/pages/Login';
 import { AnimatePresence, motion } from 'framer-motion';
 import Groups from './components/pages/Groups';
 import Contacts from './components/pages/Contacts';
 import Settings from './components/pages/Settings';
 import Group from './components/pages/Group';
 import Chat from './components/pages/Chat';
+import Dashboard from './components/pages/Dashboard';
+import Register from './components/pages/Register';
 
 
 const animatePages = {
@@ -37,13 +40,13 @@ const App: React.FC = () => {
         <Routes location={location} key={location.pathname}>
 
           <Route path='/' element={
-            <Main />
+            <MainLayout />
           }>
 
             <Route path='/' element={
               <motion.div 
                 {...animatePages}
-              ><div>Main default</div></motion.div>
+              ><Dashboard /></motion.div>
               // <div>Main default</div>
             } />
             <Route path='/groups' element={
@@ -81,6 +84,14 @@ const App: React.FC = () => {
           <Route path='/chat/:chatId' element={
             <motion.div {...animatePages}><Chat /></motion.div>
             // <Chat />
+          } />
+
+          <Route path='/login' element={
+            <Login />
+          } />
+
+          <Route path='/register' element={
+            <Register />
           } />
 
 
