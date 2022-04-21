@@ -1,7 +1,8 @@
-import { Entity, Column, OneToMany, BeforeInsert } from "typeorm";
+import { Entity, Column, OneToMany, BeforeInsert, ManyToOne } from "typeorm";
 import Model from "./Model";
 import { UserToken } from "./UserToken";
 import { genSalt, hash } from 'bcrypt';
+import { Image } from "./Image";
 
 @Entity('users')
 export class User extends Model {
@@ -17,6 +18,12 @@ export class User extends Model {
 
   @OneToMany(() => UserToken, refreshToken => refreshToken.user)
   refreshTokens: UserToken;
+
+  @Column({nullable: true})
+  avaId: number;
+  
+  @ManyToOne(() => Image, {nullable: true})
+  ava: Image;
 
   @BeforeInsert()
   async setPassword(password: string) {

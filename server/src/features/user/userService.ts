@@ -16,7 +16,6 @@ export const getList = async (page: number, rowsPerPage = 10) => {
 
   return await getPaginatedList(
     repository,
-    // getRepository(User),
     {
       select: ['uuid', 'name', 'email', 'createdAt', 'updatedAt'],
       page,

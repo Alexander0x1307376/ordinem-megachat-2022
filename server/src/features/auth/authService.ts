@@ -4,24 +4,19 @@ import userService from "../user/userService";
 import { UserPostData } from '../user/userTypes';
 import * as tokenService from "./tokenService";
 import { UserToken } from '../../entity/UserToken';
+import imageService from '../image/imageService';
 
 
 
 const generateAndSaveTokens = async (
-  userId: number, payload: {uuid: string, name: string}
+  userId: number, payload: any
 ): Promise<AuthResponse> => {
 
-  const tokens = tokenService.generateTokens({
-    uuid: payload.uuid,
-    name: payload.name
-  });
+  const tokens = tokenService.generateTokens(payload);
   await tokenService.saveToken(userId, tokens.refreshToken);
 
   return {
-    userData: {
-      uuid: payload.uuid,
-      name: payload.name,
-    },
+    userData: payload,
     ...tokens
   };
 
@@ -30,11 +25,12 @@ const generateAndSaveTokens = async (
 
 export interface AuthResponse {
   userData: {
-    uuid: string,
-    name: string,
+    uuid: string;
+    name: string;
+    avaUrl?: string;
   },
-  refreshToken: string,
-  accessToken: string
+  refreshToken: string;
+  accessToken: string;
 }
 
 export default {
@@ -43,26 +39,36 @@ export default {
   registration: async ( {
     email, 
     password, 
-    name
-  }: UserPostData): Promise<AuthResponse> => {
+    name,
+    imageData
+  }: UserPostData | any): Promise<AuthResponse> => {
   
     const isUserExists = await userService.checkExistingByEmail(email);
     if (isUserExists) 
       throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`);
     
 
+    let image;
+    if (imageData)
+      image = await imageService.create(imageData);
+
+
     const user = await userService.create({
       email,
       name,
       password,
+      avaId: image?.id
     });
     await user.save();
 
-
-    const authData = await generateAndSaveTokens(user.id, {
+    
+    const tokenPayload = {
       uuid: user.uuid,
-      name: user.name
-    });
+      name: user.name,
+      avaUrl: image?.path
+    };
+
+    const authData = await generateAndSaveTokens(user.id, tokenPayload);
 
     return authData;
   },

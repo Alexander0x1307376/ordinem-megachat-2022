@@ -2,7 +2,6 @@ import { controllerFunction as cf } from '../controller';
 import authService from './authService';
 
 
-
 const defaultCookieSettings = {
   // maxAge: 30 * 24 * 60 * 60 * 1000, //30 дней
   maxAge: 2 * 60 * 1000, // 2 минуты
@@ -12,15 +11,23 @@ const defaultCookieSettings = {
 export default {
 
   register: cf(async (req, res) => {
-    const {email, name, password} = req.body;
-    const result = await authService.registration({email, name, password});
+    
+    const imageData = req.file 
+    ? {
+      name: req.file?.originalname,
+      description: req.body.description,
+      path: req.file?.path,
+    } 
+    : undefined;
+
+    const result = await authService.registration({...req.body, imageData});
+
     res.json(result);
   }),
 
   login: cf(async (req, res) => {
     const {login, password} = req.body;
     const result = await authService.login(login, password);
-    // res.cookie('refreshToken', result.refreshToken, defaultCookieSettings);
 
     res.json(result);
   }),

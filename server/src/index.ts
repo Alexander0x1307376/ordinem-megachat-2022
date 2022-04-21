@@ -20,7 +20,7 @@ app.use(queryParser({
   parseBoolean: true,
   parseNumber: true
 }));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, '../images')));
 app.use(router);
 app.use(errorMiddleware);
 

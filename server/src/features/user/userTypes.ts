@@ -1,3 +1,5 @@
+import { ImagePostData } from "../image/imageTypes";
+
 export interface User {
   uuid?: string,
   name: string,
@@ -9,4 +11,5 @@ export interface UserPostData {
   name: string;
   email: string;
   password: string;
+  avaId?: number;
 }
