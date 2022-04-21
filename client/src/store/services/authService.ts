@@ -23,6 +23,19 @@ export const authApi = createApi({
 
   endpoints: build => ({
 
+    registration: build.mutation<any, any>({
+      query: body => ({
+        url: 'registration',
+        method: 'POST',
+        body
+      }),
+      onQueryStarted: async (id, { dispatch, queryFulfilled }) => {
+        const { data } = await queryFulfilled;
+        setUserData(data);
+        dispatch(setUser(data));
+      }
+    }),
+
     login: build.mutation<LoginResponse, LoginRequest>({
       query: body => ({
         url: 'login',
@@ -50,4 +63,4 @@ export const authApi = createApi({
   })
 });
 
-export const { useLoginMutation, useLogoutMutation } = authApi;
+export const { useLoginMutation, useLogoutMutation, useRegistrationMutation } = authApi;

@@ -34,9 +34,9 @@ export const checkExistingByEmail = async (email: string) => {
 }
 
 
-
+// возвращает undefined если пользователь не найден
 export const getAccountData = async (email: string) => {
-  const user = await User.findOneOrFail({where: {email}});
+  const user = await User.findOne({where: {email}});
   return user;
 }
 

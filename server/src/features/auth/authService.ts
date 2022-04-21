@@ -5,6 +5,7 @@ import { UserPostData } from '../user/userTypes';
 import * as tokenService from "./tokenService";
 import { UserToken } from '../../entity/UserToken';
 import imageService from '../image/imageService';
+import { Image } from '../../entity/Image';
 
 
 
@@ -84,15 +85,18 @@ export default {
     if(!user) {
       throw ApiError.BadRequest(errorMessage);
     }
+
     const isPassEquals = await compare(password, user.password);
     if (!isPassEquals) {
       throw ApiError.BadRequest(errorMessage);
     }
 
+    const avatar = await Image.findOne({where: {id: user.avaId}});
 
     const authData = await generateAndSaveTokens(user.id, {
       uuid: user.uuid,
-      name: user.name
+      name: user.name,
+      avaUrl: avatar?.path
     });
 
     return authData;

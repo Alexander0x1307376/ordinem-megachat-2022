@@ -19,7 +19,9 @@ module.exports = {
       warning: '#F18303',
       accent: '#B347EA',
       danger: '#EF4444',
-      lighten: '#7A8194'
+      lighten: '#7A8194',
+
+      dangerBrighten: '#e8b4b4'
     },
     extend: {},
   },

@@ -1,5 +1,5 @@
 import jwtDecode from "jwt-decode";
-import { UserState } from "../store/authSlice";
+// import { UserState } from "../store/authSlice";
 
 // возвращает true если токен стух
 export const checkTokenExpiration = (token: string) => {
@@ -12,7 +12,7 @@ export const checkTokenExpiration = (token: string) => {
 // возвращает юзера из хранилища
 export const getUserFromLocalStorage = () => {
   const userData = localStorage.getItem('user');
-  return userData ? JSON.parse(userData) as UserState : undefined;
+  return userData ? JSON.parse(userData) : undefined;
 }
 
 
@@ -23,6 +23,6 @@ export const clearUserData = () => {
 
 
 // запись данных пользователя в хранилище
-export const setUserData = (user: UserState) => {
+export const setUserData = (user: any) => {
   localStorage.setItem('user', JSON.stringify(user));
 }

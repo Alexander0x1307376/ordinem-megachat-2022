@@ -10,6 +10,8 @@ import Group from './components/pages/Group';
 import Chat from './components/pages/Chat';
 import Dashboard from './components/pages/Dashboard';
 import Register from './components/pages/Register';
+import Logout from './components/pages/Logout';
+import ProtectedRoute from './components/utils/ProtectedRoute';
 
 
 const animatePages = {
@@ -34,20 +36,18 @@ const App: React.FC = () => {
   const location = useLocation();
 
   return (
-    <div className='w-screen h-screen overflow-hidden'>
+    <div className='w-screen h-screen overflow-x-hidden'>
       <AnimatePresence exitBeforeEnter>
-
         <Routes location={location} key={location.pathname}>
 
           <Route path='/' element={
-            <MainLayout />
+            <ProtectedRoute><MainLayout /></ProtectedRoute>
           }>
 
             <Route path='/' element={
               <motion.div 
                 {...animatePages}
               ><Dashboard /></motion.div>
-              // <div>Main default</div>
             } />
             <Route path='/groups' element={
               <motion.div 
@@ -55,7 +55,6 @@ const App: React.FC = () => {
               >
                 <Groups />
               </motion.div>
-              // <Groups />
             } />
             <Route path='/contacts' element={
               <motion.div 
@@ -63,7 +62,6 @@ const App: React.FC = () => {
               >
                 <Contacts />
               </motion.div>
-              // <Contacts />
             } />
             <Route path='/settings' element={
               <motion.div 
@@ -71,19 +69,16 @@ const App: React.FC = () => {
               >
                 <Settings />
               </motion.div>
-              // <Settings />
             } />
 
           </Route>
 
           <Route path='/group/:groupId' element={
             <motion.div {...animatePages}><Group /></motion.div>
-            // <Group />
           } />
 
           <Route path='/chat/:chatId' element={
             <motion.div {...animatePages}><Chat /></motion.div>
-            // <Chat />
           } />
 
           <Route path='/login' element={
@@ -92,6 +87,10 @@ const App: React.FC = () => {
 
           <Route path='/register' element={
             <Register />
+          } />
+
+          <Route path='/logout' element={
+            <Logout />
           } />
 
 

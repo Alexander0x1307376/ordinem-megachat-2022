@@ -4,10 +4,11 @@ import { IoAdd, IoClose } from "react-icons/io5";
 
 export interface InputLoadImageProps {
   name: string;
+  onChange?: (value: any) => void;
 }
 const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
-const InputLoadImage: React.FC<InputLoadImageProps> = ({name}) => {
+const InputLoadImage: React.FC<InputLoadImageProps> = ({name, onChange}) => {
 
   const [avaPreview, setAvaPreview] = useState<any>();
   const [fileName, setFileName] = useState<string>('');
@@ -21,17 +22,18 @@ const InputLoadImage: React.FC<InputLoadImageProps> = ({name}) => {
 
     const selected = event.target.files[0];
     if (selected && allowedTypes.includes(selected.type)) {
+
       setIsError(false);
 
       let reader = new FileReader();
       reader.onloadend = () => {
-        console.log(selected);
         setAvaPreview(reader.result);
         setFileName(selected.name)
       }
 
       reader.readAsDataURL(selected);
 
+      onChange?.(selected);
     } 
     else {
       setFileName('');
