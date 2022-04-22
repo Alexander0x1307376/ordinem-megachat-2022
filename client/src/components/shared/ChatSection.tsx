@@ -2,6 +2,7 @@ import React from "react";
 import Ava from "../shared/Ava";
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { Link } from "react-router-dom";
+import Header from "./Header";
 
 
 const messages = [
@@ -67,14 +68,15 @@ const messages = [
 const ChatSection: React.FC = () => {
 
   return (
-    <div className="h-screen flex flex-col p-4">
-      <div className="flex items-center pb-4">
-        <Link className="p-2" to='/contacts'><IoChevronBackOutline size="1.5rem" /></Link>
-        <h1 className="text-2xl font-medium">Чат с User 1</h1>
-      </div>
-      <div className="grow relative">
-        <div className="overflow-auto absolute top-0 bottom-0 w-full">
-
+    <div className="h-screen flex flex-col">
+      <Header 
+        title="Чат с User 1"
+        leftContent={
+          <Link className="p-2" to='/contacts'><IoChevronBackOutline size="1.5rem" /></Link>
+        }
+      />
+      <div className="grow px-4 overflow-y-auto">
+        <div className="">
           {messages.map(({ uuid, avaUrl, userName, date, text }) => (
 
             <div key={uuid} className="w-full flex mb-4">
@@ -85,13 +87,10 @@ const ChatSection: React.FC = () => {
                 {text}
               </div>
             </div>
-
           ))}
-
-
         </div>
       </div>
-      <div className="grow-0">
+      <div className="grow-0 px-4 pb-4">
         <input
           className="w-full p-4 rounded-lg bg-glassy font-medium text-lg outline-none"
           type="text"
