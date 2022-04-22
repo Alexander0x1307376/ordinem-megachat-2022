@@ -25,6 +25,7 @@ export class User extends Model {
   @ManyToOne(() => Image, {nullable: true})
   ava: Image;
 
+
   @BeforeInsert()
   async setPassword(password: string) {
     const salt = await genSalt();
