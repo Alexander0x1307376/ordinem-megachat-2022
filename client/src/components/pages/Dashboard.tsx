@@ -5,11 +5,11 @@ import AccountWidget from "../widgets/AccountWidget";
 const Dashboard: React.FC = () => {
   return (<>
 
-    <div className="pb-4">
+    <div className="p-4">
       <AccountWidget />
     </div>
 
-    <div className="flex flex-wrap flex-col md:flex-row">
+    <div className="flex flex-wrap flex-col md:flex-row px-4">
       <div className="md:basis-1/2 md:even:pl-2 md:odd:pr-2 pb-4">
         <div className="rounded-lg bg-glassy h-full w-full p-4">
           Какие-то данные

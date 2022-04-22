@@ -35,6 +35,8 @@ const animatePages = {
 const App: React.FC = () => {
   const location = useLocation();
 
+  const pageClasses = 'h-full';
+
   return (
     <div className='w-screen h-screen overflow-x-hidden'>
       <AnimatePresence exitBeforeEnter>
@@ -46,11 +48,13 @@ const App: React.FC = () => {
 
             <Route path='/' element={
               <motion.div 
+                className={pageClasses}
                 {...animatePages}
               ><Dashboard /></motion.div>
             } />
             <Route path='/groups' element={
               <motion.div 
+                className={pageClasses}
                 {...animatePages} 
               >
                 <Groups />
@@ -58,6 +62,7 @@ const App: React.FC = () => {
             } />
             <Route path='/contacts' element={
               <motion.div 
+                className={pageClasses}
                 {...animatePages}
               >
                 <Contacts />
@@ -65,6 +70,7 @@ const App: React.FC = () => {
             } />
             <Route path='/settings' element={
               <motion.div 
+                className={pageClasses}
                 {...animatePages}
               >
                 <Settings />

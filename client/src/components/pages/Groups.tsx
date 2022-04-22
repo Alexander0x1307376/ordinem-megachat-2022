@@ -1,5 +1,8 @@
 import React from "react";
+import { IoAdd, IoEllipsisVertical } from "react-icons/io5";
+import ListWithHeader from "../layouts/ListWithHeader";
 import GroupItem from "../shared/GroupItem";
+import PopoverButton from "../shared/PopoverButton";
 
 
 
@@ -53,24 +56,39 @@ const groupData = [
 
 const Groups: React.FC = () => {
 
+
+  const popoverMenuItems = [
+    {
+      key: 'createGroup',
+      title: 'Создать новую группу',
+      icon: IoAdd
+    }
+  ];
+
   return (
-    <div>
-      <div className="flex flex-col space-y-4">
-
-        {groupData.map(({uuid, name, description}, index) => (
-
-          <GroupItem 
-            key={index}
-            name={name} 
-            link={`/group/${uuid}`}
-            description={description} 
-            imageUrl="https://i.pravatar.cc/150?img=60"
+    <ListWithHeader
+      headerProps={{
+        title: 'Группа',
+        rightContent: (
+          <PopoverButton
+            icon={IoEllipsisVertical}
+            menuOptions={popoverMenuItems}
           />
+        )
+      }}
+    >
+      {groupData.map(({uuid, name, description}, index) => (
 
-        ))}
+        <GroupItem
+          key={index}
+          name={name}
+          link={`/group/${uuid}`}
+          description={description}
+          imageUrl="https://i.pravatar.cc/150?img=60"
+        />
 
-      </div>
-    </div>
+      ))}
+    </ListWithHeader>
   )
 }
 

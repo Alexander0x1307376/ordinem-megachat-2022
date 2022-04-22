@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import IconedButton from "../shared/IconedButton";
 import DoubleSidebared, {DoubleSidebaredProps} from "../layouts/DoubleSidebared";
 import { useMediaQuery } from "react-responsive";
+import Header from "../shared/Header";
 
 
 const Group: React.FC = () => {
@@ -63,15 +64,16 @@ const Group: React.FC = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col">
-      <div className="flex items-center p-4">
-        <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>
-        <h1 className="grow text-2xl font-medium">Группа 1</h1>
-
-          <div 
+      <Header title="Группа 12" 
+        leftContent={
+          <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>  
+        }
+        rightContent={<>
+          <div
             className={
               (layoutState === 'leftIsOpen' || layoutState === 'bothAreOpen')
-              ? "mr-4 text-textPrimary transition-colors duration-75"
-              : "mr-4 text-textSecondary transition-colors duration-75"
+                ? "mr-4 text-textPrimary transition-colors duration-75"
+                : "mr-4 text-textSecondary transition-colors duration-75"
             }
           >
             <IconedButton
@@ -79,12 +81,12 @@ const Group: React.FC = () => {
               onClick={handleLeftButtonClick}
             />
           </div>
-        
+
           <div
             className={
               (layoutState === 'rightIsOpen' || layoutState === 'bothAreOpen')
-              ? "text-textPrimary transition-colors duration-75"
-              : "text-textSecondary transition-colors duration-75"
+                ? "text-textPrimary transition-colors duration-75"
+                : "text-textSecondary transition-colors duration-75"
             }
           >
             <IconedButton
@@ -92,8 +94,8 @@ const Group: React.FC = () => {
               onClick={handleRightButtonClick}
             />
           </div>
-      </div>
-
+        </>}
+      />
 
       <DoubleSidebared
         layoutState={layoutState}

@@ -6,7 +6,7 @@ const Settings: React.FC = () => {
   
 
   return (
-    <div className="flex flex-wrap flex-col md:flex-row items-stretch">
+    <div className="flex flex-wrap flex-col md:flex-row items-stretch p-4">
       <div className="md:basis-1/2 md:even:pl-2 md:odd:pr-2 pb-4 last:pb-0">
         <div className="rounded-lg bg-glassy w-full p-4 h-full">
           

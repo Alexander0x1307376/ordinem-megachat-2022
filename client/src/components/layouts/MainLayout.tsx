@@ -16,8 +16,8 @@ const MainLayout: React.FC = () => {
     '>
       <div className='flex flex-col grow'>
         <div className='grow relative'>
-          <div className="absolute overflow-y-auto top-0 bottom-0 left-4 right-4 overflow-x-hidden">
-            <div className="py-4">
+          <div className="absolute overflow-y-auto top-0 bottom-0 left-0 right-0 overflow-x-hidden">
+            <div className="h-full">
               <Outlet />
             </div>
           </div>

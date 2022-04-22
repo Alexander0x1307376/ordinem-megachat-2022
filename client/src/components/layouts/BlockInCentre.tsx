@@ -1,10 +1,6 @@
 import React from "react";
 
-export interface BlockInCentre {
-  children: React.ReactNode;
-}
-
-const BlockInCentre: React.FC<BlockInCentre> = ({children}) => {
+const BlockInCentre: React.FC = ({children}) => {
   return (
     <div className="
       block

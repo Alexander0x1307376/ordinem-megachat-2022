@@ -13,7 +13,7 @@ export interface PopoverMenuOptionsProps {
 const PopoverMenuOptions: React.FC<PopoverMenuOptionsProps> = ({ options }) => {
   return (
     <div className="
-      p-4 rounded-lg bg-glassy text-textPrimary drop-shadow-sm
+      p-4 rounded-lg bg-glassy text-textPrimary drop-shadow-sm backdrop-blur-lg
       flex flex-col
     ">
       {
