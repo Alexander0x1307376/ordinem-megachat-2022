@@ -26,7 +26,7 @@ const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({
 
   return (
     <div className="
-      rounded-lg mb-2 bg-bglighten
+      rounded-lg bg-bglighten
       flex
     ">
       <Link className="grow flex p-4" to={link}>

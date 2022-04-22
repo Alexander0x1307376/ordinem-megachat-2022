@@ -33,7 +33,7 @@ const contactsData = [
 const Contacts: React.FC = () => {
   return (
     <div>
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-4">
 
         {contactsData.map(({ name, description, uuid }, index) => (
 

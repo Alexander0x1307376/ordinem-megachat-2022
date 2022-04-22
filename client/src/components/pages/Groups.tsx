@@ -55,7 +55,7 @@ const Groups: React.FC = () => {
 
   return (
     <div>
-      <div className="flex flex-col">
+      <div className="flex flex-col space-y-4">
 
         {groupData.map(({uuid, name, description}, index) => (
 
