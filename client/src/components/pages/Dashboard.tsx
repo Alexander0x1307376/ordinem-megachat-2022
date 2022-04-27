@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
     <div className="flex flex-wrap flex-col md:flex-row px-4">
       <div className="md:basis-1/2 md:even:pl-2 md:odd:pr-2 pb-4">
         <div className="rounded-lg bg-glassy h-full w-full p-4">
-          Какие-то данные
+          Приглашен
           <p>asdasd</p>
           <p>asdasd</p>
           <p>asdasd</p>

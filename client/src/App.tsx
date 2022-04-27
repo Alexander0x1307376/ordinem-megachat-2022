@@ -12,7 +12,7 @@ import Dashboard from './components/pages/Dashboard';
 import Register from './components/pages/Register';
 import Logout from './components/pages/Logout';
 import ProtectedRoute from './components/utils/ProtectedRoute';
-
+import CreateGroup from './components/pages/CreateGroup';
 
 const animatePages = {
   initial: { 
@@ -31,6 +31,7 @@ const animatePages = {
     duration: .09
   }
 }
+
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -85,6 +86,12 @@ const App: React.FC = () => {
 
           <Route path='/chat/:chatId' element={
             <motion.div {...animatePages}><Chat /></motion.div>
+          } />
+
+          
+
+          <Route path='/group/create' element={
+            <CreateGroup />
           } />
 
           <Route path='/login' element={

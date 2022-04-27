@@ -7,7 +7,7 @@ import {
 import { RootState } from '../store';
 import { setUser, clearUser, UserState } from '../authSlice';
 import { clearUserData, getUserFromLocalStorage, setUserData } from '../../utils/authUtils';
-import { BASE_API_URL } from '../../config/server';
+import { BASE_API_URL } from '../../config';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_API_URL,

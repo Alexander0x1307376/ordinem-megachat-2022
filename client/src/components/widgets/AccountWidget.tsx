@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { getUserFromLocalStorage } from "../../utils/authUtils";
 import Ava from "../shared/Ava";
-import { BASE_API_URL } from "../../config/server";
+import { BASE_API_URL } from "../../config";
 import { IoEllipsisVertical, IoExitOutline, IoPersonCircle } from "react-icons/io5";
 import PopoverMenuOptions from "../shared/PopoverMenuOptions";
 import IconedButton from "../shared/IconedButton";

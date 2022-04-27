@@ -21,7 +21,9 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
   let buttonContent;
 
 
-  const handleClick = () => setIsPopoverOpen(!isPopoverOpen)
+  const handleClick = () => {
+    setIsPopoverOpen(!isPopoverOpen);
+  }
 
   if (Icon) 
     buttonContent = <IconedButton title={text} onClick={handleClick} icon={Icon} />
@@ -47,7 +49,7 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
               exit={{ opacity: 0 }}
               transition={{ duration: .2 }}
             >
-              <PopoverMenuOptions options={menuOptions} />
+              <PopoverMenuOptions onOptionClick={handleClick} options={menuOptions} />
             </motion.div>
 
           }

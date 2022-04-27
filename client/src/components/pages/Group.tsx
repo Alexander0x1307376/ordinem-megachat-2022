@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { IoChevronBackOutline, IoEllipsisVertical, IoPeopleCircleOutline } from "react-icons/io5";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import IconedButton from "../shared/IconedButton";
 import DoubleSidebared, {DoubleSidebaredProps} from "../layouts/DoubleSidebared";
 import { useMediaQuery } from "react-responsive";
 import Header from "../shared/Header";
-
+// import { io } from 'socket.io-client';
+// import useGroupChat from "../../hooks/useGroupChat";
 
 const Group: React.FC = () => {
 
-  const { groupId } = useParams();
+
+  // const chateg = useGroupChat();
+
+
+  // const { groupId } = useParams();
 
   const isMdScreen = useMediaQuery({ query: '(min-width: 768px)' });
   
