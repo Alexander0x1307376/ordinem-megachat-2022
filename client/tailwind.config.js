@@ -22,6 +22,18 @@ module.exports = {
       danger: '#EF4444',
       lighten: '#7A8194',
 
+      infoDarken: '#006c9b',
+      warningDarken: '#a85a00',
+      accentDarken: '#8133a8',
+      dangerDarken: '#a32f2f',
+      lightenDarken: '#4b4f5b',
+
+      infoBrighten: '#a1d7ee',
+      warningBrighten: '#eac8a2',
+      accentBrighten: '#dcc8e6',
+      dangerBrighten: '#ecb4b4',
+      lightenBrighten: '#abb0bd',
+
       dangerBrighten: '#e8b4b4'
     },
     extend: {},

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-  IoExitOutline, IoNotificationsOffCircleOutline 
+  IoExitOutline, IoNotificationsOffCircleOutline, IoPersonCircleSharp 
 } from "react-icons/io5";
 import ElementWithOptions from "./ElementWithOptions";
 
@@ -8,7 +8,7 @@ export interface ContactItemProps {
   name: string;
   link: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 
@@ -33,6 +33,7 @@ const ContactItem: React.FC<ContactItemProps> = ({ name, description, imageUrl, 
       link={link}
       description={description} 
       imageUrl={imageUrl} 
+      imagePlaceholder={IoPersonCircleSharp}
       options={popoverMenuItems} 
     />
   )

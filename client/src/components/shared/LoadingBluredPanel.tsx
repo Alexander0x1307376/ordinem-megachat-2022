@@ -11,8 +11,8 @@ export interface LoadingBluredPanelProps {
 
 const LoadingBluredPanel: React.FC<LoadingBluredPanelProps> = ({ isPanelDisplayed }) => {
   return (<>
-    { isPanelDisplayed && (
       <AnimatePresence>
+    { isPanelDisplayed && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -27,8 +27,8 @@ const LoadingBluredPanel: React.FC<LoadingBluredPanelProps> = ({ isPanelDisplaye
           <AiOutlineLoading3Quarters className="animate-spin" size={'5rem'} />
           <span className="mt-4">Загрузка...</span>
         </motion.div>
-      </AnimatePresence>
     )}
+    </AnimatePresence>
   </>)
 }
 

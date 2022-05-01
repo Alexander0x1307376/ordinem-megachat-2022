@@ -3,11 +3,12 @@ import { IoAdd, IoClose, IoEllipsisVertical } from "react-icons/io5";
 import GroupItem from "../shared/GroupItem";
 import PopoverButton from "../shared/PopoverButton";
 import FramerModal from "../shared/FramerModal";
-import InputText from "../shared/InputText";
-import Button from "../shared/Button";
-import InputLoadImage from "../shared/InputLoadImage";
 import ButtonInlineText from "../shared/ButtonInlineText";
 import Header from "../shared/Header";
+import CreateGroupForm from "../forms/CreateGroupForm";
+import { useCreateGroupMutation, useUserGroupsQuery } from "../../store/services/groupsService";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { BASE_API_URL } from "../../config";
 
 const groupData = [
   {
@@ -66,10 +67,21 @@ const Groups: React.FC = () => {
   const handleCloseModal = () => { setIsModalOpen(false); }
 
   
+  const [createGroup, {isLoading: isCreateGroupLoading}] = useCreateGroupMutation();
+  const { isLoading, data } = useUserGroupsQuery({});
+  // console.log(data);
 
-  const handleCreateGroup = (event: FormEvent<HTMLFormElement>) => {
+  const handleCreateGroup = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.target as HTMLFormElement);
+    try {
+      const result = await createGroup(data).unwrap();
+      console.log(result);
+      setIsModalOpen(false);
+    } catch (e) {
+
+    }
+    // console.log(Object.fromEntries(data.entries()));
   }
 
   return (<>
@@ -83,18 +95,7 @@ const Groups: React.FC = () => {
             <IoClose size={'2rem'} />
           </button>
         </div>
-
-        <form encType="multipart/form-data" onSubmit={handleCreateGroup}>
-          <InputLoadImage name="ava" />
-
-          <InputText name="name" label="Название" />
-          <InputText name="description" label="Описание" />
-
-          <div className="flex flex-col mt-8">
-            <Button type="accent" htmlType="submit">Войти</Button>
-          </div>
-
-        </form>
+        <CreateGroupForm onSubmit={handleCreateGroup} />
     </div>
     </FramerModal>
     <div className="flex flex-col h-full">
@@ -109,34 +110,58 @@ const Groups: React.FC = () => {
       }} />
       <div className="grow w-full h-full bg overflow-y-auto">
 
-        <div className="text-center text-textSecondary p-4">
-          Вы не состоите ни в одной группе. Дождитесь приглашения или &nbsp;
-          <ButtonInlineText onClick={handleOpenCreateGroup} text="создайте свою" />
-        </div>
-        
-        <div className="flex flex-col px-4">
-          <h2 className="text-textSecondary">Ваши группы</h2>
-          <div className="space-y-4 py-4">
-            {groupData.map(({ uuid, name, description }, index) => (
-
-              <GroupItem
-                key={index}
-                name={name}
-                link={`/group/${uuid}`}
-                description={description}
-                imageUrl="https://i.pravatar.cc/150?img=60"
-              />
-
-            ))}
+        {!(data?.groupsWhereOwner.length && data?.groupsWhereMember.length) && (
+          <div className="text-center text-textSecondary p-4">
+            Вы не состоите ни в одной группе. Дождитесь приглашения или &nbsp;
+            <ButtonInlineText onClick={handleOpenCreateGroup} text="создайте свою" />
           </div>
-        </div>
+        )}
         
-        <div className="flex flex-col px-4">
-          <h2 className="text-textSecondary">Группы, где вы состоите</h2>
-          <div className="space-y-4 py-4">
-            atata
+        {isLoading 
+        ? (
+          <div className="flex flex-col items-center text-textSecondary">
+            <AiOutlineLoading3Quarters className="animate-spin" size={'5rem'} />
+            <span className="mt-4 ">Загрузка...</span>
           </div>
-        </div>
+        )
+        : (<>
+
+          {data?.groupsWhereOwner.length && (
+            <div className="flex flex-col px-4">
+              <h2 className="text-textSecondary">Ваши группы</h2>
+              <div className="space-y-4 py-4">
+                {data?.groupsWhereOwner.map(({ uuid, name, description, avaUrl }: any, index: number) => (
+                  <GroupItem
+                    key={uuid}
+                    name={name}
+                    link={`/group/${uuid}`}
+                    description={description}
+                    imageUrl={avaUrl ? BASE_API_URL + avaUrl : undefined}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        
+          {data?.groupsWhereMember.length && (
+            <div className="flex flex-col px-4">
+              <h2 className="text-textSecondary">Группы, где вы состоите</h2>
+              <div className="space-y-4 py-4">
+
+                {data?.groupsWhereMember.map(({ uuid, name, description, avaUrl }: any, index: number) => (
+                  <GroupItem
+                    key={uuid}
+                    name={name}
+                    link={`/group/${uuid}`}
+                    description={description}
+                    imageUrl={BASE_API_URL + avaUrl}
+                  />
+                ))}
+                
+              </div>
+            </div>
+          )}
+        </>)}
       </div>
     </div>
   </>)

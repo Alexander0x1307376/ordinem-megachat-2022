@@ -1,5 +1,5 @@
 import React from "react";
-import { IoEllipsisVertical } from "react-icons/io5";
+import { IoEllipsisVertical, IoPersonAddSharp } from "react-icons/io5";
 import ListWithHeader from "../layouts/ListWithHeader";
 import ContactItem from "../shared/ContactItem";
 import PopoverButton from "../shared/PopoverButton";
@@ -34,6 +34,17 @@ const contactsData = [
 ];
 
 const Contacts: React.FC = () => {
+
+
+  const popoverMenuItems = [
+    {
+      key: 'setContact',
+      title: 'Начать чат с чуваком или чувихой',
+      icon: IoPersonAddSharp,
+      onClick: () => {}
+    }
+  ];
+
   return (
     <ListWithHeader
       headerProps={{
@@ -41,7 +52,7 @@ const Contacts: React.FC = () => {
         rightContent: (
           <PopoverButton
             icon={IoEllipsisVertical}
-            menuOptions={[]}
+            menuOptions={popoverMenuItems}
           />
         )
       }}
@@ -53,7 +64,6 @@ const Contacts: React.FC = () => {
           name={name}
           link={`/chat/${uuid}`}
           description={description}
-          imageUrl="https://i.pravatar.cc/150?img=60"
         />
 
       ))}

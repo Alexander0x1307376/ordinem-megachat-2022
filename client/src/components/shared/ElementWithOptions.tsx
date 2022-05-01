@@ -1,25 +1,24 @@
 import React, { useState } from "react";
 import Ava from "../shared/Ava";
 import { IoEllipsisVertical } from "react-icons/io5";
-import IconedButton from "../shared/IconedButton";
-import { Popover } from 'react-tiny-popover';
-import PopoverMenuOptions, {PopoverMenuOptionsProps} from "./PopoverMenuOptions";
+import {PopoverMenuOptionsProps} from "./PopoverMenuOptions";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import PopoverButton from "./PopoverButton";
+import { IconType } from "react-icons";
 
 
 export interface ElementWithOptionsProps {
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imagePlaceholder: IconType;
   link: string;
   options: PopoverMenuOptionsProps['options'];
 }
 
 
 const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({ 
-  title, description, imageUrl, options, link
+  title, description, imageUrl, options, link, imagePlaceholder: Iph
 }) => {
 
   return (
@@ -29,7 +28,11 @@ const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({
     ">
       <Link className="grow flex p-4" to={link}>
         <div className="mr-4">
-          <Ava imageUrl={imageUrl} />
+          {
+            imageUrl
+            ? <Ava imageUrl={imageUrl} />
+            : <Iph className="h-10 w-10" />
+          }
         </div>
         <div className="grow">
           <h2 className="text-lg font-semibold">{title}</h2>
