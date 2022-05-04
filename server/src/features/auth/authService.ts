@@ -125,10 +125,12 @@ export default {
     
 
     const user = await userService.getItem(userData.uuid);
+    const avatar = await Image.findOne({ where: { id: user.avaId } });
 
     const authData = await generateAndSaveTokens(user.id, {
       uuid: user.uuid,
-      name: user.name
+      name: user.name,
+      avaUrl: avatar?.path
     });
 
     return authData;

@@ -2,10 +2,26 @@ import { User } from "../../entity/User";
 import { getPaginatedList } from "../../utils/serviceUtils";
 import { UserPostData } from "./userTypes";
 import AppDataSource from "../../dataSource";
+import { ILike } from "typeorm";
+
+export const friends = async (userUuid: string) => {
+  // const friends = await User.findOneOrFail({where: { uuid: id }});
+  // return friends;
+}
 
 export const getItem = async (id: string) => {
   const user = await User.findOneOrFail({where: { uuid: id }});
   return user;
+}
+
+export const searchByName = async (search: string) => {
+  const queryResult = await AppDataSource.createQueryBuilder()
+    .from('users', 'u')
+    .select('u.uuid, u.name, i.path as "avaPath"')
+    .where({ name: ILike(`%${search}%`) })
+    .leftJoin('u.ava', 'i')
+    .getRawMany();
+  return queryResult;
 }
 
 
@@ -55,5 +71,7 @@ export default {
   getList,
   checkExistingByEmail,
   getAccountData,
-  create
+  create,
+  searchByName,
+  friends
 }

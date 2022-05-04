@@ -7,10 +7,18 @@ import errorMiddleware from './middlewares/errorMiddleware';
 import AppDataSource from './dataSource';
 import { queryParser } from 'express-query-parser';
 import path from 'path';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
+import socketServer from './sockets/socketServer';
 
 export const app = express();
 
-app.use(cors());
+const corsOrigin = process.env.ALLOWED_ORIGIN;
+const port = process.env.PORT || 8000;
+
+app.use(cors({
+  origin: corsOrigin
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -24,8 +32,19 @@ app.use('/images', express.static(path.join(__dirname, '../images')));
 app.use(router);
 app.use(errorMiddleware);
 
-const port = process.env.PORT || 8000;
 
+
+// web-socket сервер
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: corsOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }
+});
+io.on('connection', (socket) => socketServer(io, socket));
+
+// запуск api сервера
 const start = async () => {
   try {
     app.listen(port, () => {
@@ -38,29 +57,7 @@ const start = async () => {
   }
 }
 
-
+// инициализация БД и запуск api-сервера после этого
 AppDataSource.initialize()
   .then(start)
   .catch(error => console.log(error));
-
-  
-// import { AppDataSource } from "./data-source"
-// import { User } from "./entity/User";
-
-// AppDataSource.initialize().then(async () => {
-
-//   console.log("Inserting a new user into the database...")
-//   const user = new User()
-//   user.firstName = "Timber"
-//   user.lastName = "Saw"
-//   user.age = 25
-//   await AppDataSource.manager.save(user)
-//   console.log("Saved a new user with id: " + user.id)
-
-//   console.log("Loading users from the database...")
-//   const users = await AppDataSource.manager.find(User)
-//   console.log("Loaded users: ", users)
-
-//   console.log("Here you can setup and run express / fastify / any other framework.")
-
-// }).catch(error => console.log(error))

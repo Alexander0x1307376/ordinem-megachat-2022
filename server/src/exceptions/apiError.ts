@@ -10,8 +10,12 @@ export default class ApiError extends CustomError {
     this.errors = errors;
   }
 
-  static UnauthorizedError() {
-    return new ApiError(401, 'Пользователь не авторизован');
+  static UnauthorizedError(message: string = 'Пользователь не авторизован') {
+    return new ApiError(401, message);
+  }
+
+  static ForbiddenError(message: string = 'Отказано в доступе') {
+    return new ApiError(403, message);
   }
 
   static BadRequest(message: string = 'Неверный запрос', errors: any[] = []) {

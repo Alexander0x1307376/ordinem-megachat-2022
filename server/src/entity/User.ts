@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, BeforeInsert, ManyToOne } from "typeorm";
+import { Entity, Column, OneToMany, BeforeInsert, ManyToOne, ManyToMany, JoinTable } from "typeorm";
 import Model from "./Model";
 import { UserToken } from "./UserToken";
 import { genSalt, hash } from 'bcrypt';
@@ -25,7 +25,10 @@ export class User extends Model {
   @ManyToOne(() => Image, {nullable: true})
   ava: Image;
 
-
+  @ManyToMany(() => User)
+  @JoinTable()
+  friends: User[];
+  
   @BeforeInsert()
   async setPassword(password: string) {
     const salt = await genSalt();
