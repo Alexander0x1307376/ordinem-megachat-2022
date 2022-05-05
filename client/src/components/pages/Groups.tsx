@@ -7,8 +7,8 @@ import ButtonInlineText from "../shared/ButtonInlineText";
 import Header from "../shared/Header";
 import CreateGroupForm from "../forms/CreateGroupForm";
 import { useCreateGroupMutation, useUserGroupsQuery } from "../../store/services/groupsService";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BASE_API_URL } from "../../config";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 const groupData = [
   {
@@ -90,7 +90,7 @@ const Groups: React.FC = () => {
         md:rounded-lg md:w-[46rem] md:h-[calc(100vh-5rem)] overflow-y-auto drop-shadow"
       >
         <div className="flex mb-4">
-          <div className="grow text-lg font-semibold">Заголовок</div>
+          <div className="grow text-lg font-semibold">Создать группу</div>
           <button onClick={handleCloseModal}>
             <IoClose size={'2rem'} />
           </button>
@@ -120,13 +120,13 @@ const Groups: React.FC = () => {
         {isLoading 
         ? (
           <div className="flex flex-col items-center text-textSecondary">
-            <AiOutlineLoading3Quarters className="animate-spin" size={'5rem'} />
+            <LoadingSpinner />
             <span className="mt-4 ">Загрузка...</span>
           </div>
         )
         : (<>
 
-          {data?.groupsWhereOwner.length && (
+          {data?.groupsWhereOwner.length !== 0 && (
             <div className="flex flex-col px-4">
               <h2 className="text-textSecondary">Ваши группы</h2>
               <div className="space-y-4 py-4">
@@ -143,7 +143,7 @@ const Groups: React.FC = () => {
             </div>
           )}
         
-          {data?.groupsWhereMember.length && (
+          {data?.groupsWhereMember.length !== 0 && (
             <div className="flex flex-col px-4">
               <h2 className="text-textSecondary">Группы, где вы состоите</h2>
               <div className="space-y-4 py-4">
@@ -162,6 +162,7 @@ const Groups: React.FC = () => {
             </div>
           )}
         </>)}
+        
       </div>
     </div>
   </>)

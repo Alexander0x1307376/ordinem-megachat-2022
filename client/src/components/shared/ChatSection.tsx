@@ -1,7 +1,7 @@
 import React from "react";
 import Ava from "../shared/Ava";
 import { IoChevronBackOutline } from 'react-icons/io5';
-import { Link } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./Header";
 
 
@@ -67,12 +67,17 @@ const messages = [
 
 const ChatSection: React.FC = () => {
 
+  const navigate = useNavigate();
+  const location: any = useLocation();
+  
+  let previousPath = location.state?.previousPath || "/contacts";
+
   return (
     <div className="h-screen flex flex-col">
       <Header 
         title="Чат с User 1"
         leftContent={
-          <Link className="p-2" to='/contacts'><IoChevronBackOutline size="1.5rem" /></Link>
+          <Link className="p-2" to={previousPath}><IoChevronBackOutline size="1.5rem" /></Link>
         }
       />
       <div className="grow px-4 overflow-y-auto">

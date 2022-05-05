@@ -22,7 +22,8 @@ const PopoverMenuOptions: React.FC<PopoverMenuOptionsProps> = ({ options, onOpti
         options.map(({key, title, icon: Icon, onClick}) => (
           <button 
             key={key} 
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onOptionClick?.();
               onClick?.();
             }} 

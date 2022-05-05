@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
 import { IconType } from 'react-icons';
 
 export interface IconedButtonProps {
   title?: string;
   size?: string | number;
   icon: IconType;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
 }
 
 const IconedButton: React.FC<IconedButtonProps> = ({ title, onClick, icon: Icon, size = '2rem' }) => {

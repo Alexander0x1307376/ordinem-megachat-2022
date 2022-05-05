@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import LoadingSpinner from "./LoadingSpinner";
 
 
 // блок, в котором размещаем данный компонент, должен быть relative
@@ -24,7 +24,7 @@ const LoadingBluredPanel: React.FC<LoadingBluredPanelProps> = ({ isPanelDisplaye
               flex flex-col justify-center items-center
               "
         >
-          <AiOutlineLoading3Quarters className="animate-spin" size={'5rem'} />
+          <LoadingSpinner />
           <span className="mt-4">Загрузка...</span>
         </motion.div>
     )}

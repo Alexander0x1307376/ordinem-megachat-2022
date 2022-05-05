@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, MouseEvent } from "react";
 import { IconType } from "react-icons";
 import { Popover } from "react-tiny-popover";
 import Button from "./Button";
@@ -21,7 +21,8 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
   let buttonContent;
 
 
-  const handleClick = () => {
+  const handleClick = (e: MouseEvent) => {
+    e.stopPropagation();
     setIsPopoverOpen(!isPopoverOpen);
   }
 
@@ -49,12 +50,14 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
               exit={{ opacity: 0 }}
               transition={{ duration: .2 }}
             >
-              <PopoverMenuOptions onOptionClick={handleClick} options={menuOptions} />
+              <PopoverMenuOptions onOptionClick={() => setIsPopoverOpen(false)} options={menuOptions} />
             </motion.div>
 
           }
           align='start'
-          onClickOutside={() => setIsPopoverOpen(false)}
+          onClickOutside={() => {
+            setIsPopoverOpen(false);
+          }}
         >
           <div>
             {buttonContent}
