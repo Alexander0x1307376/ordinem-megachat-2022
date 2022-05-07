@@ -1,6 +1,6 @@
 import React from "react";
 import { 
-  IoExitOutline, IoNotificationsOffCircleOutline, IoPeopleCircleSharp 
+  IoExitOutline, IoNotificationsOffCircleOutline 
 } from "react-icons/io5";
 import ElementWithOptions from "./ElementWithOptions";
 
@@ -33,7 +33,6 @@ const GroupItem: React.FC<GroupItemProps> = ({ name, description, imageUrl, link
       title={name} 
       description={description} 
       imageUrl={imageUrl} 
-      imagePlaceholder={IoPeopleCircleSharp}
       options={popoverMenuItems} 
     />
   )

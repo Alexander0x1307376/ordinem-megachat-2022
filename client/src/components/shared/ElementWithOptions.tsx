@@ -1,46 +1,47 @@
 import React, { useState } from "react";
-import Ava from "../shared/Ava";
 import { IoEllipsisVertical } from "react-icons/io5";
 import {PopoverMenuOptionsProps} from "./PopoverMenuOptions";
 import { Link } from "react-router-dom";
 import PopoverButton from "./PopoverButton";
-import { IconType } from "react-icons";
+import AvaOrLetter from "../features/icons/AvaOrLetter";
 
 
 export interface ElementWithOptionsProps {
   title: string;
   description: string;
   imageUrl?: string;
-  imagePlaceholder: IconType;
   link: string;
   options: PopoverMenuOptionsProps['options'];
+  routeState?: any;
 }
 
 
 const ElementWithOptions: React.FC<ElementWithOptionsProps> = ({ 
-  title, description, imageUrl, options, link, imagePlaceholder: Iph
+  title, description, imageUrl, options, link, routeState
 }) => {
 
   return (
-    <div className="
-      rounded-lg bg-bglighten
-      flex
-    ">
-      <Link className="grow flex p-4" to={link}>
-        <div className="mr-4">
-          {
-            imageUrl
-            ? <Ava imageUrl={imageUrl} />
-            : <Iph className="h-10 w-10" />
-          }
+    <div className="p-2 flex bg-glassy 
+          rounded-l-[50px] rounded-r relative
+          hover:bg-glassydarken cursor-pointer
+        "> 
+    <Link 
+      className="grow flex"
+      to={link}
+      state={routeState}
+    >
+      <AvaOrLetter imageUrl={imageUrl} text={title} />
+
+      <div className="grow ml-4 relative">
+        <div className="flex flex-col absolute left-0 right-0 top-0 bottom-0">
+          <span className="truncate">{title}</span>
+          <span className="truncate text-sm text-textSecondary">{description}</span>
         </div>
-        <div className="grow">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <h3 className="">{description}</h3>
-        </div>
-      </Link>
-      <div className="p-4">
-        <PopoverButton 
+      </div>
+    </Link>
+
+      <div className="flex items-center justify-center">
+        <PopoverButton
           menuOptions={options}
           icon={IoEllipsisVertical}
         />

@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { getUserFromLocalStorage } from "../../utils/authUtils";
-import Ava from "../shared/Ava";
 import { BASE_API_URL } from "../../config";
-import { IoEllipsisVertical, IoExitOutline, IoPersonCircle } from "react-icons/io5";
+import { IoEllipsisVertical, IoExitOutline } from "react-icons/io5";
 import PopoverMenuOptions from "../shared/PopoverMenuOptions";
 import IconedButton from "../shared/IconedButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { Popover } from "react-tiny-popover";
 import { useNavigate } from "react-router-dom";
+import AvaOrLetter from "../features/icons/AvaOrLetter";
 
 const AccountWidget: React.FC = () => {
 
@@ -33,11 +33,7 @@ const AccountWidget: React.FC = () => {
       user
       ? (
         <div className="rounded-lg bg-glassy w-full p-4 flex items-center">
-          {
-            user.userData.avaUrl
-            ? <Ava imageUrl={BASE_API_URL + user?.userData.avaUrl} />
-            : <IoPersonCircle className="h-10 w-10" />
-          }
+          <AvaOrLetter imageUrl={BASE_API_URL + user?.userData.avaUrl} text={user?.userData.name} />
           <p className="mx-4 grow">{user?.userData.name}</p>
           <span className="mx-4">в сети</span>
           <div>

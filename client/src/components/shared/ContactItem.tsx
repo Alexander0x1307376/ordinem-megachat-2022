@@ -32,8 +32,7 @@ const ContactItem: React.FC<ContactItemProps> = ({ name, description, imageUrl, 
       title={name} 
       link={link}
       description={description} 
-      imageUrl={imageUrl} 
-      imagePlaceholder={IoPersonCircleSharp}
+      imageUrl={imageUrl}
       options={popoverMenuItems} 
     />
   )
