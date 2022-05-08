@@ -1,5 +1,5 @@
 import React from "react";
-import Ava from "../shared/Ava";
+import Ava from "../features/icons/Ava";
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./Header";

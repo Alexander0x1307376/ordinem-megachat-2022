@@ -57,10 +57,10 @@ const Contacts: React.FC = () => {
         )
       }}
     >
-      {contactsData.map(({ name, description, uuid }, index) => (
+      {contactsData.map(({ name, description, uuid }: any) => (
 
         <ContactItem
-          key={index}
+          key={uuid}
           name={name}
           link={`/chat/${uuid}`}
           description={description}

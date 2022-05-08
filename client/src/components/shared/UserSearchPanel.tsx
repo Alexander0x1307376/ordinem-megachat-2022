@@ -3,12 +3,17 @@ import { IoPersonCircle } from "react-icons/io5";
 import { BASE_API_URL } from "../../config";
 import { useSendFriendRequestMutation } from "../../store/services/friendRequestsService";
 import { useLazyUserSearchQuery } from "../../store/services/usersService";
-import Ava from "./Ava";
+import Ava from "../features/icons/Ava";
 import InputSearch from "./InputSearch";
 import LoadingSpinner from "./LoadingSpinner";
 
+export interface UserSearchPanelProps {
+  onRequestSent?: () => void;
+}
 
-const UserSearchPanel: React.FC = () => {
+const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
+  onRequestSent
+}) => {
 
   const [searchUsers, { data: userSearch, isLoading }] = useLazyUserSearchQuery();
   const [sendFriendRequest, {}] = useSendFriendRequestMutation();
@@ -18,8 +23,9 @@ const UserSearchPanel: React.FC = () => {
       searchUsers(value);
   }
 
-  const handleSendFriendRequest = (uuid: string) => {
-    sendFriendRequest(uuid);
+  const handleSendFriendRequest = async (uuid: string) => {
+    await sendFriendRequest(uuid);
+    onRequestSent?.();
   }
 
 

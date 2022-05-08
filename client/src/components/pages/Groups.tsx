@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from "react";
-import { IoAdd, IoClose, IoEllipsisVertical } from "react-icons/io5";
+import { IoAdd, IoEllipsisVertical } from "react-icons/io5";
 import GroupItem from "../shared/GroupItem";
 import PopoverButton from "../shared/PopoverButton";
 import FramerModal from "../shared/FramerModal";
@@ -9,6 +9,8 @@ import CreateGroupForm from "../forms/CreateGroupForm";
 import { useCreateGroupMutation, useUserGroupsQuery } from "../../store/services/groupsService";
 import { BASE_API_URL } from "../../config";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import NotificationWidget from "../features/notifications/NotificationWidget";
+import ModalWindow from "../layouts/ModalWindow";
 
 const groupData = [
   {
@@ -86,27 +88,24 @@ const Groups: React.FC = () => {
 
   return (<>
     <FramerModal isOpen={isModalOpen} onOutlineClick={handleCloseModal}>
-      <div className="relative bg-fillmain rounded-none w-full h-full p-4
-        md:rounded-lg md:w-[46rem] md:h-[calc(100vh-5rem)] overflow-y-auto drop-shadow"
+      <ModalWindow
+        onClose={handleCloseModal}
+        title="Создать группу"
       >
-        <div className="flex mb-4">
-          <div className="grow text-lg font-semibold">Создать группу</div>
-          <button onClick={handleCloseModal}>
-            <IoClose size={'2rem'} />
-          </button>
-        </div>
         <CreateGroupForm onSubmit={handleCreateGroup} />
-    </div>
+
+      </ModalWindow>
     </FramerModal>
     <div className="flex flex-col h-full">
       <Header {...{
         title: 'Группа',
-        rightContent: (
+        rightContent: (<div className="flex space-x-2">
+          <NotificationWidget />
           <PopoverButton
             icon={IoEllipsisVertical}
             menuOptions={popoverMenuItems}
           />
-        )
+        </div>)
       }} />
       <div className="grow w-full h-full bg overflow-y-auto">
 
