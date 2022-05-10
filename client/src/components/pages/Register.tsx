@@ -15,7 +15,7 @@ const Register: React.FC = () => {
     const data = new FormData(event.target as HTMLFormElement);
 
     try {
-      await registration(data).unwrap();
+      await registration(data as any).unwrap();
       navigate('/');
     } catch(e) {
 

@@ -1,10 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
-import { LoginRequest, LoginResponse } from "../../types";
 import { clearUserData, setUserData } from "../../utils/authUtils";
 import { clearUser, setUser } from "../authSlice";
 import { RootState } from "../store";
-
+import { 
+  LoginResponse, 
+  LoginPostData, 
+  RegistrationPostData,
+  RefreshResponse 
+} from '@apiTypes/authTypes';
 
 
 export const authApi = createApi({
@@ -23,7 +27,7 @@ export const authApi = createApi({
 
   endpoints: build => ({
 
-    registration: build.mutation<any, any>({
+    registration: build.mutation<RefreshResponse, RegistrationPostData>({
       query: body => ({
         url: 'registration',
         method: 'POST',
@@ -36,7 +40,7 @@ export const authApi = createApi({
       }
     }),
 
-    login: build.mutation<LoginResponse, LoginRequest>({
+    login: build.mutation<LoginResponse, LoginPostData>({
       query: body => ({
         url: 'login',
         method: 'POST',

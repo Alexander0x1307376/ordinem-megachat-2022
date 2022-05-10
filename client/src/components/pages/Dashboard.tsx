@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { BASE_API_URL } from "../../config";
-import { useAcceptRequestMutation, useDeclineRequestMutation, useFriendRequestsQuery, useRecallRequestMutation } from "../../store/services/friendRequestsService";
 import ModalWindow from "../layouts/ModalWindow";
 import AcceptDeclineMessage from "../shared/AcceptDeclineMessage";
 import ActionItem from "../shared/ActionItem";
@@ -9,8 +8,11 @@ import FramerModal from "../shared/FramerModal";
 import UserSearchPanel from "../shared/UserSearchPanel";
 import AccountWidget from "../widgets/AccountWidget";
 import { GiBootKick } from "react-icons/gi";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import UserItem from "../shared/UserItem";
+import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/usersService";
+import { useSelector } from "react-redux";
+import { selectFriendRequests } from "src/features/socketMessageSystem/messageSystemSlice";
 
 const friends = [
   {
@@ -71,30 +73,30 @@ const Dashboard: React.FC = () => {
     setIsAddFriendModalOpen(false);
   }
 
-  // запросы по работе с друзьями
-  const { data, isLoading } = useFriendRequestsQuery({});
-  const [recallRequest] = useRecallRequestMutation();
-  const [acceptRequest] = useAcceptRequestMutation();
-  const [declineRequest] = useDeclineRequestMutation();
+  const requests = useSelector(selectFriendRequests);
+  console.log('requests', requests);
 
   const recallFriendRequest = (uuid: string) => {
-    recallRequest(uuid);
+    // recallRequest(uuid);
   }
-
   const acceptFriendRequest = (uuid: string) => {
-    acceptRequest(uuid);
+    // acceptRequest(uuid);
+  }
+  const declineFriendRequest = (uuid: string) => {
+    // declineRequest(uuid);
   }
 
-  const declineFriendRequest = (uuid: string) => {
-    declineRequest(uuid);
+  // непосредственно друзья
+  const { data: friends, isLoading: areFriendsLoading } = useFriendsQuery({});
+  const [removeFriend, {isLoading: isFriendRemoving}] = useRemoveFriendMutation();
+  const removeFriendRequest = (friendUuid: string) => {
+    console.log(friendUuid);
+    removeFriend(friendUuid);
   }
+
 
   // навигация
-  const navigate = useNavigate();
   const location = useLocation();
-  const goToUserDialog = (uuid: string) => {
-    navigate(`/chat/${uuid}`, { state: { previousPath: location.pathname} });
-  }
 
 
   return (<>
@@ -102,7 +104,7 @@ const Dashboard: React.FC = () => {
     {/* Модальное окно поиска друзей */}
     <FramerModal isOpen={isAddFriendModalOpen} onOutlineClick={handleCloseAddFriendModal}>
       <ModalWindow title="Добавить друга" onClose={handleCloseAddFriendModal}>
-        <UserSearchPanel />
+        <UserSearchPanel onRequestSent={handleCloseAddFriendModal} />
       </ModalWindow>
     </FramerModal>
 
@@ -115,19 +117,26 @@ const Dashboard: React.FC = () => {
         
         <div className="rounded-lg bg-bglighten h-full w-full p-4">
           <div className="flex pb-4">
-            <h2 className="grow font-semibold">Запросы дружбы (999)</h2>
+            <h2 className="grow font-semibold">Запросы дружбы</h2>
           </div>
           <div className="space-y-4">
-            {data?.requestsToUser.map(({ uuid, requesterName }: any) => (
+            {requests?.requestsToUser.length 
+            
+            ? requests.requestsToUser.map(({ uuid, requesterName }: any) => (
               <AcceptDeclineMessage key={uuid} 
                 message={`${requesterName}: запрос дружбы`} 
                 onAcceptClick={() => acceptFriendRequest(uuid)}
                 onDeclineClick={() => declineFriendRequest(uuid)}
               />
-            ))}
+            ))
+
+            : <p className="text-textSecondary">сейчас нет запросов дружбы</p>
+          }
           </div>
         </div>
       </div>
+
+
       <div className="md:basis-1/2 md:even:pl-2 md:odd:pr-2 pb-4">
         <div className="rounded-lg bg-bglighten h-full w-full p-4">
           <div className="flex items-center pb-4">
@@ -140,7 +149,8 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
           <div className="space-y-4">
-            {data?.userRequests.map(({ uuid, requestedName }: any) => (
+            {requests?.userRequests.length
+            ? requests?.userRequests.map(({ uuid, requestedName }: any) => (
               <ActionItem
                 key={uuid}
                 message={requestedName}
@@ -148,32 +158,36 @@ const Dashboard: React.FC = () => {
                 buttonIcon={IoCloseSharp}
                 onActionClick={() => recallFriendRequest(uuid)}
               />
-            ))}
+            ))
+            : <p className="text-textSecondary">нет активных запросов</p>
+ 
+          }
           </div>
         </div>
       </div>
+
+
       <div className="md:basis-1/2 md:even:pl-2 md:odd:pr-2 pb-4">
         <div className="rounded-lg bg-bglighten h-full w-full">
           <div className="flex p-4">
             <h2 className="grow font-semibold">Друзья</h2>
           </div>
           <div className="px-2 pb-2 space-y-2">
-            {friends.map(({uuid, name, avaPath, status}: any) => (
+            {friends?.map(({uuid, name, avaPath}: any) => (
 
               <UserItem 
                 key={uuid}
                 uuid={uuid}  
-                avaPath={avaPath}
+                avaPath={BASE_API_URL + avaPath}
                 name={name}
-                status={status}
-                onBlockClick={() => { goToUserDialog(uuid); }}
+                status={'status'}
+                link={`/chat/${uuid}`}
+                routeState={{ previousPath: location.pathname }}
                 options={[{
                   key: 'kickOut',
                   title: 'удалить из друзей',
                   icon: GiBootKick,
-                  onClick: () => {
-                    console.log('oprtion')
-                  }
+                  onClick: () => removeFriendRequest(uuid)
                 }]}
               />
 

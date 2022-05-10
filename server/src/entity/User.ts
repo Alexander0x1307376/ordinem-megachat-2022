@@ -25,7 +25,7 @@ export class User extends Model {
   @ManyToOne(() => Image, {nullable: true})
   ava: Image;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, (user) => user.friends)
   @JoinTable()
   friends: User[];
   

@@ -1,31 +1,16 @@
 import { Server, Socket } from "socket.io";
+import friendRequestService from "../../features/friendRequest/friendRequestService";
+import {MessageSystemEvents as msEvents} from '../../webSocketMessages/messageSystemEvents';
 
-const messages: any = {};
-
-const messageHandlers = (io: Server, socket: Socket | any) => {
+export const messageHandlers = (io: Server, socket: Socket | any) => {
   // извлекаем идентификатор комнаты
-  const { roomId } = socket;
+  const { roomId, userUuid } = socket;
 
-  // утилита для обновления списка сообщений
-  const updateMessageList = () => {
-    io.to(roomId).emit('message_list:update', messages[roomId]);
-  };
+  socket.on(msEvents.REQUEST_INFO, async () => {
 
-  // обрабатываем получение сообщений
-  socket.on('message:get', async () => {
-    try {
-      // получаем сообщения по `id` комнаты
-      // const _messages = await Message.find({
-      //   roomId
-      // })
-      // инициализируем хранилище сообщений
-      // messages[roomId] = _messages
-
-      // обновляем список сообщений
-      updateMessageList()
-    } catch (e) {
-      // onError(e)
-    }
+    console.log('get info?!!!!');
+    const info = await friendRequestService.getRequests(userUuid);
+    io.to(roomId).emit(msEvents.REQUEST_INFO_IS_SENT, info);
   });
 
   socket.on('message:add', (message: any) => {

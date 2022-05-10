@@ -6,6 +6,11 @@
       "dom.iterable",
       "esnext"
     ],
+    "baseUrl": ".",
+    "paths": {
+      "@apiTypes/*": [ "../server/src/apiTypes/*" ],
+      "@webSocketMessages/*": [ "../server/src/webSocketMessages/*" ]
+    },
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

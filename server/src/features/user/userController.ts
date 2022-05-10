@@ -4,6 +4,12 @@ import userService from './userService';
 
 export default {
 
+  removeFriend: cf(async (req: any, res) => {
+    const {id} = req.params;
+    const result = await userService.removeFriend(req.user.uuid, id);
+    res.json(result);
+  }),
+
   friends: cf(async (req: any, res) => {
     const result = await userService.friends(req.user.uuid);
     res.json(result);

@@ -15,6 +15,7 @@ export const app = express();
 
 const corsOrigin = process.env.ALLOWED_ORIGIN;
 const port = process.env.PORT || 8000;
+const webSocketsPort = process.env.WS_PORT || 4000;
 
 app.use(cors({
   origin: corsOrigin
@@ -35,8 +36,8 @@ app.use(errorMiddleware);
 
 
 // web-socket сервер
-const server = createServer(app);
-const io = new Server(server, {
+const webSocketServer = createServer(app);
+const io = new Server(webSocketServer, {
   cors: {
     origin: corsOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"]
@@ -44,20 +45,22 @@ const io = new Server(server, {
 });
 io.on('connection', (socket) => socketServer(io, socket));
 
+
+const startWebSocketServer = async () => {
+  webSocketServer.listen(webSocketsPort, () => {
+    console.log(`web socket server is listening on port ${webSocketsPort}`);
+  });
+}
+
 // запуск api сервера
-const start = async () => {
-  try {
-    app.listen(port, () => {
-      console.clear();
-      console.log(`server is listening on port ${port}`)
-    });
-  }
-  catch (error) {
-    console.error(error);
-  }
+const startApiServer = async () => {
+  app.listen(port, () => {
+    console.log(`api server is listening on port ${port}`);
+  });
 }
 
 // инициализация БД и запуск api-сервера после этого
 AppDataSource.initialize()
-  .then(start)
+  .then(startApiServer)
+  .then(startWebSocketServer)
   .catch(error => console.log(error));

@@ -1,10 +1,9 @@
 import { nanoid } from 'nanoid';
-import ApiError from "../../exceptions/apiError";
 import AppDataSource from "../../dataSource";
 import { User } from '../../entity/User';
 import { FriendRequest, FriendRequestStatus } from '../../entity/FriendRequest';
-import { Not } from 'typeorm';
-
+import { RequestResponse, RequestsInfo } from '../../apiTypes/friendRequestTypes';
+import { omit } from 'lodash';
 
 
 const checkFriendRelation = async (firstUserId: number, secondUserId: number): Promise<boolean> => {
@@ -36,7 +35,7 @@ const createFriendRelation = async (firstUserId: number, secondUserId: number) =
 
 
 
-const getRequests = async (userUuid: string) => {
+const getRequests = async (userUuid: string): Promise<RequestsInfo> => {
   const currentUser = await User.findOneOrFail({
     where: { uuid: userUuid }
   });
@@ -62,10 +61,11 @@ const getRequests = async (userUuid: string) => {
     .getRawMany();
 
 
-  return {
+  const result: RequestsInfo = {
     userRequests,
     requestsToUser
-  }
+  };
+  return result;
 }
 
 
@@ -99,16 +99,21 @@ const reqsToCurrentUser = async (requesterUuid: string) => {
 // создать приглашение дружить
 // если есть встречное приглашение - создаём связь
 // если уже ранее отправляли приглашение - пересоздаём его
-const createRequest = async (requesterUuid: string, requestedUuid: string) => {  
-  const requester = await User.findOneOrFail({ 
-    select: ['id'],
-    where: { uuid: requesterUuid } 
-  });
+const createRequest = async (requesterUuid: string, requestedUuid: string): Promise<RequestResponse | any> => {  
 
-  const requested = await User.findOneOrFail({ 
-    select: ['id'],
-    where: { uuid: requestedUuid } 
-  });
+  const requester = await AppDataSource.createQueryBuilder()
+    .select('u.id, u.uuid, u.name, i.path as "avaPath"')
+    .from(User, 'u')
+    .leftJoin('u.ava', 'i')
+    .where({ uuid: requesterUuid })
+    .getRawOne();
+
+  const requested = await AppDataSource.createQueryBuilder() 
+    .select('u.id, u.uuid, u.name, i.path as "avaPath"')
+    .from(User, 'u')
+    .leftJoin('u.ava', 'i')
+    .where({ uuid: requestedUuid })
+    .getRawOne();
 
   // проверить наличие дружественной связи
   const areAlreadyFriends = await checkFriendRelation(requester.id, requested.id);
@@ -145,11 +150,18 @@ const createRequest = async (requesterUuid: string, requestedUuid: string) => {
   });
   await friendRequest.save();
 
-  return friendRequest;
+  const result: RequestResponse = {
+    uuid: friendRequest.uuid,
+    requester: omit(requester, ['id']) as RequestResponse['requester'],
+    requested: omit(requested, ['id']) as RequestResponse['requested'],
+    createdAt: friendRequest.createdAt,
+    updatedAt: friendRequest.updatedAt
+  }
+  return result;
 }
 
 // отменить (снести) приглашение.
-const cancelRequest = async (userUuid: string, requestUuid: string) => {
+const recallRequest = async (userUuid: string, requestUuid: string) => {
 
   const currentUser = await User.findOneOrFail({
     where: { uuid: userUuid }
@@ -205,7 +217,7 @@ const acceptRequest = async (userUuid: string, requestUuid: string) => {
 }
 
 // отклонить запрос на дружбу (тупо сносим его)
-const rejectRequest = async (userUuid: string, requestUuid: string) => {
+const declineRequest = async (userUuid: string, requestUuid: string) => {
 
   const friendRequest = await FriendRequest.findOneOrFail({
     where: { uuid: requestUuid, status: FriendRequestStatus.PENDING }
@@ -216,9 +228,9 @@ const rejectRequest = async (userUuid: string, requestUuid: string) => {
 
 export default {
   createRequest,
-  cancelRequest,
+  recallRequest,
   acceptRequest,
-  rejectRequest,
+  declineRequest,
   reqsOfCurrentUser,
   reqsToCurrentUser,
   getRequests

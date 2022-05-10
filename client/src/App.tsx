@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import Login from './components/pages/Login';
@@ -37,7 +37,7 @@ const App: React.FC = () => {
   const location = useLocation();
 
   const pageClasses = 'h-full';
-
+  
   return (
     <div className='w-screen h-screen overflow-x-hidden'>
       <AnimatePresence exitBeforeEnter>

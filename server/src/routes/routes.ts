@@ -37,10 +37,11 @@ router.get('/friend-requests', authMiddleware, friendRequestController.requests)
 router.post('/friend-request/:requestedUuid/create', authMiddleware, friendRequestController.create);
 router.post('/friend-request/:requestUuid/accept', authMiddleware, friendRequestController.accept);
 router.post('/friend-request/:requestUuid/recall', authMiddleware, friendRequestController.recall);
-router.post('/friend-request/:requestUuid/reject', authMiddleware, friendRequestController.reject);
+router.post('/friend-request/:requestUuid/decline', authMiddleware, friendRequestController.reject);
 
 // друзья
-router.get('/friends', authMiddleware, userController.friends);
+router.get('/users/friends', authMiddleware, userController.friends);
+router.post('/users/friend/:id/remove', authMiddleware, userController.removeFriend);
 
 router.get('/users/search', userController.search);
 

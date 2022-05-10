@@ -7,9 +7,11 @@ export default {
 
   
   requests: cf(async (req: any, res) => {
+
     const userUuid = req.user.uuid;
     const result = await friendRequestService.getRequests(userUuid);
     res.json(result);
+    
   }),
 
   create: cf(async (req: any, res) => {
@@ -25,7 +27,7 @@ export default {
 
     const { requestUuid } = req.params;
     const userUuid = req.user.uuid;
-    const result = await friendRequestService.cancelRequest(userUuid, requestUuid);
+    const result = await friendRequestService.recallRequest(userUuid, requestUuid);
     res.json(result);
 
   }),
@@ -43,7 +45,7 @@ export default {
 
     const { requestUuid } = req.params;
     const userUuid = req.user.uuid;
-    const result = await friendRequestService.rejectRequest(userUuid, requestUuid);
+    const result = await friendRequestService.declineRequest(userUuid, requestUuid);
     res.json(result);
 
   }),

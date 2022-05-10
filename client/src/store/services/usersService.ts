@@ -32,14 +32,29 @@ export const userApi = createApi({
     }),
 
 
-    // friends: build.query<any, any>({
-    //   query: () => ({
-    //     url: ''
-    //   })
-    // })
+    friends: build.query<any, any>({
+      query: () => ({
+        url: 'users/friends',
+        method: 'GET'
+      }),
+      providesTags: ['friends']
+    }),
+    
+    removeFriend: build.mutation<any, any>({
+      query: (friendUuid: string) => ({
+        url: `users/friend/${friendUuid}/remove`,
+        method: 'POST'
+      }),
+      invalidatesTags: ['friends']
+    })
 
   })
 
 });
 
-export const { useUserSearchQuery, useLazyUserSearchQuery } = userApi;
+export const { 
+  useUserSearchQuery, 
+  useLazyUserSearchQuery, 
+  useFriendsQuery,
+  useRemoveFriendMutation 
+} = userApi;

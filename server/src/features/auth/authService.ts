@@ -7,7 +7,14 @@ import { UserToken } from '../../entity/UserToken';
 import imageService from '../image/imageService';
 import { Image } from '../../entity/Image';
 
-
+import { 
+  AuthResponse,
+  LoginResponse,
+  RefreshResponse,
+  RegistrationResponse,
+  LoginPostData,
+  RegistrationPostData 
+} from '../../apiTypes/authTypes';
 
 const generateAndSaveTokens = async (
   userId: number, payload: any
@@ -23,17 +30,6 @@ const generateAndSaveTokens = async (
 
 }
 
-
-export interface AuthResponse {
-  userData: {
-    uuid: string;
-    name: string;
-    avaUrl?: string;
-  },
-  refreshToken: string;
-  accessToken: string;
-}
-
 export default {
 
   // регистрация
@@ -42,7 +38,7 @@ export default {
     password, 
     name,
     imageData
-  }: UserPostData | any): Promise<AuthResponse> => {
+  }: UserPostData | any): Promise<RegistrationResponse> => {
   
     const isUserExists = await userService.checkExistingByEmail(email);
     if (isUserExists) 
@@ -77,7 +73,7 @@ export default {
 
 
   // логин
-  login: async (email: string, password: string)/*: Promise<AuthResponse>*/ => {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
     const user = await userService.getAccountData(email);
     
     
@@ -112,7 +108,7 @@ export default {
 
 
   // обновление токена
-  refresh: async (refreshToken: string): Promise<AuthResponse> => {
+  refresh: async (refreshToken: string): Promise<RefreshResponse> => {
     
     if (!refreshToken) 
       throw ApiError.UnauthorizedError();
