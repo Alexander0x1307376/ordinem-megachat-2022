@@ -4,9 +4,9 @@
    "main": "index.js",
    "license": "MIT",
    "scripts": {
-      "dev": "yarn nodemon --require dotenv/config ./src/index.ts --inspect",
+      "start": "yarn nodemon --require dotenv/config ./src/index.ts --inspect",
       "lint": "yarn tslint ./src/index.ts",
-      "start": "ts-node src/index.ts",
+      "ts-node:start": "ts-node src/index.ts",
       "typeorm": "typeorm-ts-node-commonjs",
       "test": "jest"
    },
