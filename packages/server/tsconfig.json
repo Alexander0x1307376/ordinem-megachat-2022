@@ -1,6 +1,6 @@
 {
-   "compilerOptions": {
-
+  "compilerOptions": {
+    "jsx": "react-jsx",
     /* Language and Environment */
     "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
@@ -8,8 +8,8 @@
 
     /* Modules */
     "module": "CommonJS",                                /* Specify what module code is generated. */
-    "rootDir": ".",                                  /* Specify the root folder within your source files. */
-    "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
+    // "rootDir": ".",                                  /* Specify the root folder within your source files. */
+    // "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
 
     /* Emit */
     "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
@@ -26,5 +26,13 @@
 
     /* Completeness */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "./types/",
+    "./node_modules",
+    "../../node_modules"
+  ]
 }

@@ -13,6 +13,8 @@ import Register from './components/pages/Register';
 import Logout from './components/pages/Logout';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import CreateGroup from './components/pages/CreateGroup';
+import { useDispatch } from 'react-redux';
+import { friendshipSystemActions } from './features/socketMessageSystem/friendshipSystemSlice';
 
 const animatePages = {
   initial: { 
@@ -34,6 +36,14 @@ const animatePages = {
 
 
 const App: React.FC = () => {
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(friendshipSystemActions.startConnecting());
+  }, []);
+
+
   const location = useLocation();
 
   const pageClasses = 'h-full';

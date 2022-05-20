@@ -56,5 +56,7 @@ export const {
   useUserSearchQuery, 
   useLazyUserSearchQuery, 
   useFriendsQuery,
-  useRemoveFriendMutation 
+  useRemoveFriendMutation
 } = userApi;
+
+export default userApi;

@@ -8,7 +8,7 @@ import {
   LoginPostData, 
   RegistrationPostData,
   RefreshResponse 
-} from '@apiTypes/authTypes';
+} from '@ordinem-megachat-2022/shared/src/apiTypes/authTypes';
 
 
 export const authApi = createApi({

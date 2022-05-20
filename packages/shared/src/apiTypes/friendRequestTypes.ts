@@ -1,6 +1,6 @@
 import { User } from "./userTypes";
 
-export type RequestResponse = {
+export type FriendRequest = {
   uuid: string;
   requester: User;
   requested: User;
@@ -8,22 +8,16 @@ export type RequestResponse = {
   updatedAt: string | Date;
 }
 
-
-// наш реквест
-
-// реквест стороннего чувака
-
 export type RequestsInfo = {
-  userRequests: {
-    uuid: string;
-    requesterUuid: string;
-    requestedName: string;
-    avaPath: string;
-  }[];
-  requestsToUser: {
-    uuid: string;
-    requestedUuid: string;
-    requesterName: string;
-    avaPath: string;
-  }[];
+  friendRequests: {
+    outcomingRequests: FriendRequest[];
+    incomingRequests: FriendRequest[];
+  };
+  friendsStatuses: Record<string, {status: string}>;
+}
+
+export type FriendRequestUuids = {
+  uuid: string;
+  requesterUuid: string;
+  requestedUuid: string;
 }

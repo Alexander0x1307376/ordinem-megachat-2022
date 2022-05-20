@@ -1,7 +1,11 @@
 {
   "main": "index.ts",
-  "name": "ordinem-megachat-2022-shared",
+  "name": "@ordinem-megachat-2022/shared",
+  "version": "1.0.0",
   "packageManager": "yarn@3.2.0",
+  "scripts": {
+    "start": "tsc --watch"
+  },
   "devDependencies": {
     "typescript": "4.5.2"
   }

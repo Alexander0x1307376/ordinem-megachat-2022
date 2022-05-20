@@ -1,6 +1,8 @@
 import React from "react";
 import { IoPersonCircle } from "react-icons/io5";
+import { useDispatch } from "react-redux";
 import { BASE_API_URL } from "../../config";
+import { friendshipSystemActions } from "../../features/socketMessageSystem/friendshipSystemSlice";
 import { useSendFriendRequestMutation } from "../../store/services/friendRequestsService";
 import { useLazyUserSearchQuery } from "../../store/services/usersService";
 import Ava from "../features/icons/Ava";
@@ -15,8 +17,11 @@ const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
   onRequestSent
 }) => {
 
+  const dispatch = useDispatch();
+
+
   const [searchUsers, { data: userSearch, isLoading }] = useLazyUserSearchQuery();
-  const [sendFriendRequest, {}] = useSendFriendRequestMutation();
+  // const [sendFriendRequest, {}] = useSendFriendRequestMutation();
 
   const handleSearch = (value: string) => {
     if(value)
@@ -24,7 +29,8 @@ const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
   }
 
   const handleSendFriendRequest = async (uuid: string) => {
-    await sendFriendRequest(uuid);
+    // await sendFriendRequest(uuid);
+    dispatch(friendshipSystemActions.sendFriendRequest(uuid));
     onRequestSent?.();
   }
 

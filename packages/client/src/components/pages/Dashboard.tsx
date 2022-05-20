@@ -11,61 +11,63 @@ import { GiBootKick } from "react-icons/gi";
 import { useLocation } from "react-router-dom";
 import UserItem from "../shared/UserItem";
 import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/usersService";
-import { useSelector } from "react-redux";
-import { selectFriendRequests } from "src/features/socketMessageSystem/messageSystemSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/socketMessageSystem/friendshipSystemSlice";
 
-const friends = [
-  {
-    uuid: '001',
-    name: 'Vasya',
-    avaPath: 'https://i.pravatar.cc/150?img=21',
-    status: 'в сети'
-  },
-  {
-    uuid: '002',
-    name: 'Petya',
-    avaPath: 'https://i.pravatar.cc/150?img=22',
-    status: 'отошёл'
-  },
-  {
-    uuid: '003',
-    name: 'Kolya',
-    avaPath: 'https://i.pravatar.cc/150?img=23',
-    status: 'занят'
-  },
-  {
-    uuid: '004',
-    name: `Abdul Abraham ibnHattab de San Huan Ab'Akan`,
-    avaPath: 'https://i.pravatar.cc/150?img=24',
-    status: 'жызнь нужна пражыть как настаящий падонак еб вашу мать'
-  },
-  {
-    uuid: '005',
-    name: 'Алексей Выкторович Крякопузько',
-    // avaPath: 'https://i.pravatar.cc/150?img=25',
-    status: 'не беспокоить'
-  },
-];
+const requests = {
+  userRequests: [
+    {
+      uuid: '001',
+      requestedName: 'Vasya',
+      avaPath: 'https://i.pravatar.cc/150?img=21',
+    },
+    {
+      uuid: '002',
+      requestedName: 'Petya',
+      avaPath: 'https://i.pravatar.cc/150?img=22',
+    },
+    {
+      uuid: '003',
+      requestedName: 'Kolya',
+      avaPath: 'https://i.pravatar.cc/150?img=23',
+    },
+    {
+      uuid: '004',
+      requestedName: `Abdul Abraham ibnHattab de San Huan Ab'Akan`,
+      avaPath: 'https://i.pravatar.cc/150?img=24'
+    },
+  ],
+  requestsToUser: [
+    {
+      uuid: '006',
+      requesterName: 'Biba',
+      avaPath: 'https://i.pravatar.cc/150?img=7'
+    },
+    {
+      uuid: '007',
+      requesterName: 'Boba',
+      avaPath: 'https://i.pravatar.cc/150?img=9'
+    },
+    {
+      uuid: '008',
+      requesterName: 'Pussy Destroyeer Pussy Destroyeer Pussy Destroyeer',
+      avaPath: 'https://i.pravatar.cc/150?img=10'
+    },
+  ]
+}
 
-const yourFriendRequests = [
-  {
-    uuid: '006',
-    name: 'Biba',
-    avaPath: 'https://i.pravatar.cc/150?img=7'    
-  },
-  {
-    uuid: '007',
-    name: 'Boba',
-    avaPath: 'https://i.pravatar.cc/150?img=9'
-  },
-  {
-    uuid: '008',
-    name: 'Pussy Destroyeer Pussy Destroyeer Pussy Destroyeer',
-    avaPath: 'https://i.pravatar.cc/150?img=10'
-  },
-];
 
 const Dashboard: React.FC = () => {
+
+  const dispatch = useDispatch();
+  const location = useLocation();
+
+  // запросы дружбы
+  const requests = useSelector(selectFriendRequests);
+  // статусы друзей
+  const friendStatuses = useSelector(selectFriendStatuses);
+  console.log('friendStatuses', friendStatuses);
+
 
   // модалка поиска и добавления друга
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState<boolean>(false);
@@ -73,17 +75,15 @@ const Dashboard: React.FC = () => {
     setIsAddFriendModalOpen(false);
   }
 
-  const requests = useSelector(selectFriendRequests);
-  console.log('requests', requests);
 
   const recallFriendRequest = (uuid: string) => {
-    // recallRequest(uuid);
+    dispatch(msActions.recallFriendRequest(uuid));
   }
   const acceptFriendRequest = (uuid: string) => {
-    // acceptRequest(uuid);
+    dispatch(msActions.acceptFriendRequest(uuid));
   }
   const declineFriendRequest = (uuid: string) => {
-    // declineRequest(uuid);
+    dispatch(msActions.declineFriendRequest(uuid));
   }
 
   // непосредственно друзья
@@ -93,10 +93,7 @@ const Dashboard: React.FC = () => {
     console.log(friendUuid);
     removeFriend(friendUuid);
   }
-
-
-  // навигация
-  const location = useLocation();
+  
 
 
   return (<>
@@ -120,11 +117,11 @@ const Dashboard: React.FC = () => {
             <h2 className="grow font-semibold">Запросы дружбы</h2>
           </div>
           <div className="space-y-4">
-            {requests?.requestsToUser.length 
+            {requests?.incomingRequests.length 
             
-            ? requests.requestsToUser.map(({ uuid, requesterName }: any) => (
+            ? requests.incomingRequests.map(({ uuid, requester }) => (
               <AcceptDeclineMessage key={uuid} 
-                message={`${requesterName}: запрос дружбы`} 
+                message={`${requester.name}: запрос дружбы`} 
                 onAcceptClick={() => acceptFriendRequest(uuid)}
                 onDeclineClick={() => declineFriendRequest(uuid)}
               />
@@ -149,11 +146,11 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
           <div className="space-y-4">
-            {requests?.userRequests.length
-            ? requests?.userRequests.map(({ uuid, requestedName }: any) => (
+            {requests?.outcomingRequests.length
+            ? requests?.outcomingRequests.map(({ uuid, requested }) => (
               <ActionItem
                 key={uuid}
-                message={requestedName}
+                message={requested.name}
                 buttonText='отозвать запрос'
                 buttonIcon={IoCloseSharp}
                 onActionClick={() => recallFriendRequest(uuid)}
@@ -173,14 +170,16 @@ const Dashboard: React.FC = () => {
             <h2 className="grow font-semibold">Друзья</h2>
           </div>
           <div className="px-2 pb-2 space-y-2">
-            {friends?.map(({uuid, name, avaPath}: any) => (
+            {friends?.map(({uuid, name, avaPath}: any) => {
 
-              <UserItem 
+              const status = friendStatuses?.[uuid] || undefined;
+
+              return <UserItem 
                 key={uuid}
                 uuid={uuid}  
                 avaPath={BASE_API_URL + avaPath}
                 name={name}
-                status={'status'}
+                status={status?.status || 'не в сети'}
                 link={`/chat/${uuid}`}
                 routeState={{ previousPath: location.pathname }}
                 options={[{
@@ -191,7 +190,7 @@ const Dashboard: React.FC = () => {
                 }]}
               />
 
-            ))}
+            })}
           </div>
         </div>
       </div>
