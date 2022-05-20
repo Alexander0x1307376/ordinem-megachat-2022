@@ -26,10 +26,7 @@ const InitFriendshipSystemHandlers = (
       try {
         const result: RequestsInfo = {
           friendRequests: await friendRequestService.getRequests(userUuid),
-          friendsStatuses: usersOnlineStore.getFriendsOnline(userUuid)?.reduce((acc, item) => {
-            acc[item] = { status: 'в сети' }
-            return acc;
-          }, {} as Record<string, {status: string}>) || {}
+          friendsStatuses: usersOnlineStore.getFriendsData(userUuid) 
         };
         
         io.to(socketId).emit(msEvents.REQUEST_INFO_SUCCESS, result);
@@ -66,7 +63,7 @@ const InitFriendshipSystemHandlers = (
         io.to(socketId).emit(msEvents.ACCEPT_FRIEND_REQUEST_SUCCESS, result);
 
         const requesterSocketId = usersOnlineStore.getSocketId(result.requesterUuid);
-        if (requesterSocketId)
+        if (requesterSocketId) 
           io.to(requesterSocketId).emit(msEvents.FRIEND_REQUEST_IS_ACCEPTED, result);
 
       } catch (e: any) {
@@ -122,21 +119,51 @@ const InitFriendshipSystemHandlers = (
 
   };
 
-  // события от сторонних систем
-  friendshipEventEmitter.on(fsEventTypes.FRIEND_LIST_IS_CHANGED, ({ userUuid }) => {
 
-    const adresseSocketId = usersOnlineStore.getSocketId(userUuid);
-    if (adresseSocketId)
-      io.to(adresseSocketId).emit(msEvents.UNFRIENDED);
+  friendshipEventEmitter.on(fsEventTypes.BECAME_FRIENDS, ({userUuid_1, userUuid_2}) => {
 
+    const user_1 = usersOnlineStore.getItem(userUuid_1);
+    const user_2 = usersOnlineStore.getItem(userUuid_2);
+
+    usersOnlineStore.addFriendship(userUuid_1, userUuid_2);
+    
+    console.log('BECAME_FRIENDS', user_1, user_2);
+
+    if(user_1) {
+      const friendStatuses_1 = usersOnlineStore.getFriendsData(userUuid_1);
+      io.to(user_1.socketId).emit(msEvents.FRIEND_STATUSES, friendStatuses_1);
+    }
+    if(user_2) {
+      const friendStatuses_2 = usersOnlineStore.getFriendsData(userUuid_2);
+      io.to(user_2.socketId).emit(msEvents.FRIEND_STATUSES, friendStatuses_2);
+    }
+    
   });
+
+  friendshipEventEmitter.on(fsEventTypes.UNFRIENDED, ({ userUuid_1, userUuid_2}) => {
+    // получаем пользователей
+    const user_1 = usersOnlineStore.getItem(userUuid_1);
+    const user_2 = usersOnlineStore.getItem(userUuid_2);
+    
+    // правим онлайн хранилище
+    usersOnlineStore.removeFriendship(userUuid_1, userUuid_2);
+
+    if(user_1)
+      io.to(user_1.socketId).emit(msEvents.UNFRIENDED);
+    if(user_2)
+      io.to(user_2.socketId).emit(msEvents.UNFRIENDED);
+  });
+
+
 
   usersOnlineStore.on(UsersStoreEvents.USER_ONLINE, (userData: Required<UserData>) => {
     const sockets = usersOnlineStore.getUserSocketIdsOfUserFriends(userData.uuid);
-    io.to(sockets).emit(msEvents.FRIEND_IS_ONLINE, { 
-      uuid: userData.uuid,
-      status: 'в сети' 
-    });
+    if (sockets.length) {
+      io.to(sockets).emit(msEvents.FRIEND_IS_ONLINE, { 
+        uuid: userData.uuid,
+        status: 'в сети' 
+      });
+    }
   });
   
   usersOnlineStore.on(UsersStoreEvents.USER_OFFLINE, (userData: Required<UserData>) => {

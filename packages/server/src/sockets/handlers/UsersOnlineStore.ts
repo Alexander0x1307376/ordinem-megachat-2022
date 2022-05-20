@@ -28,6 +28,30 @@ class UsersOnlineStore extends EventEmitter {
     this.list.delete(userUuid);
   }
 
+  addFriendship = (userUuid_1: string, userUuid_2: string) => {
+    const user_1 = this.list.get(userUuid_1);
+    const user_2 = this.list.get(userUuid_2);
+    if (user_1)
+      user_1.friends.push(userUuid_2);
+    if (user_2)
+      user_2.friends.push(userUuid_1);
+  }
+  removeFriendship = (userUuid_1: string, userUuid_2: string) => {
+    const user_1 = this.list.get(userUuid_1);
+    const user_2 = this.list.get(userUuid_2);
+
+    if(user_1) {
+      const friendIndex_1 = user_1?.friends.indexOf(userUuid_2);
+      if (friendIndex_1 !== -1)
+        user_1.friends.splice(friendIndex_1, 1);
+    }
+    if(user_2) {
+      const friendIndex_2 = user_2?.friends.indexOf(userUuid_1);
+      if (friendIndex_2 !== -1)
+        user_2.friends.splice(friendIndex_2, 1);
+    }
+  }
+
   getItem = (userUuid: string) => {
     return this.list.get(userUuid);
   }
@@ -50,12 +74,17 @@ class UsersOnlineStore extends EventEmitter {
     return sockets;
   }
 
-  getFriendsOnline = (userUuid: string) => {
-    console.log('getFriendsOnline', this.list);
+  getFriendsData = (userUuid: string) => {
     const friendUuids = this.list.get(userUuid)?.friends;
     const friendUuidsOnline = friendUuids?.filter(uuid => this.list.get(uuid));
-    return friendUuidsOnline;
+
+    const friendsData = friendUuidsOnline?.reduce((acc, item) => {
+      acc[item] = { status: 'в сети' };
+      return acc;
+    }, {} as Record<string, { status: string }>) || {};
+    return friendsData;
   }
+  
 }
 
 export default UsersOnlineStore;

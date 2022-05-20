@@ -13,11 +13,11 @@ class FriendshipSystemEventEmitter extends EventEmitter {
   }
 
   becameFriends = (userUuid_1: string, userUuid_2: string) => {
-    this.emit(EventTypes.BECAME_FRIENDS);
+    this.emit(EventTypes.BECAME_FRIENDS, { userUuid_1, userUuid_2 });
   }
 
   unfriended = (userUuid_1: string, userUuid_2: string) => {
-    this.emit(EventTypes.UNFRIENDED);
+    this.emit(EventTypes.UNFRIENDED, { userUuid_1, userUuid_2 });
   }
 }
 

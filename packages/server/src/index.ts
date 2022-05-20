@@ -34,9 +34,11 @@ const authService = createAuthService(userService);
 const authController = createAuthController(authService);
 
 
-const friendRequestService = createFriendRequestService();
+const friendRequestService = createFriendRequestService({
+  friendshipEventEmitter
+});
 const friendRequestController = createFriendRequestController({
-  friendRequestService, friendshipEventEmitter, userService
+  friendRequestService, userService
 });
 
 

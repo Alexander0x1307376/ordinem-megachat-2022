@@ -15,10 +15,9 @@ export interface IFriendRequestController {
 }
 
 export const createFriendRequestController = ({ 
-  friendRequestService, friendshipEventEmitter, userService 
+  friendRequestService, userService 
 }:{
   friendRequestService: IFriendRequestService, 
-  friendshipEventEmitter: FriendshipSystemEventEmitter,
   userService: IUserService
 }) => {
   
@@ -26,8 +25,6 @@ export const createFriendRequestController = ({
     removeFriend: cf(async (req: any, res) => {
       const { id } = req.params;
       const result = await userService.removeFriend(req.user.uuid, id);
-      friendshipEventEmitter.friendsIsChanged(req.user.uuid);
-      friendshipEventEmitter.friendsIsChanged(id);
       res.json(result);
     }),
 

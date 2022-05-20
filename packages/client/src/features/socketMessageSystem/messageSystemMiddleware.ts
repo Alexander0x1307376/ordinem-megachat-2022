@@ -45,7 +45,6 @@ const messageSystemMiddleware: Middleware = store => {
 
       // запрос всей информации о запросах дружбы
       socket.on(msEvents.REQUEST_INFO_SUCCESS, (requestData: RequestsInfo) => {
-        console.log('REQUEST_INFO_SUCCESS', requestData);
         store.dispatch(msActions.setFriendInfo(requestData));
       });
 
@@ -109,13 +108,15 @@ const messageSystemMiddleware: Middleware = store => {
 
       // друг онлайн
       socket.on(msEvents.FRIEND_IS_ONLINE, (userData) => {
-        console.log('friend is online', userData);
         store.dispatch(msActions.friendOnline(userData));
       });
       // друг оффлайн
       socket.on(msEvents.FRIEND_IS_OFFLINE, (userData) => {
-        // console.log('friend is offline', userData);
         store.dispatch(msActions.friendOffline(userData));
+      });
+
+      socket.on(msEvents.FRIEND_STATUSES, (statusesData) => {
+        store.dispatch(msActions.setFriendStatuses(statusesData));
       });
     }
 

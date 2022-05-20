@@ -73,14 +73,16 @@ const createUserService = ({
       .execute();
 
     friendshipEventEmitter.unfriended(currentUserUuid, friendUuid);
-
+    // friendshipEventEmitter.friendsIsChanged(currentUserUuid);
     return result;
   }
+
 
   const getItem = async (id: string) => {
     const user = await User.findOneOrFail({ where: { uuid: id } });
     return user;
   }
+
 
   const searchByName = async (currentUserUuid: string, search: string) => {
 
@@ -101,7 +103,6 @@ const createUserService = ({
   }
 
 
-
   const getList = async (page: number, rowsPerPage = 10) => {
 
     const repository = AppDataSource.getRepository(User);
@@ -120,7 +121,6 @@ const createUserService = ({
   }
 
 
-
   const checkExistingByEmail = async (email: string) => {
     return !!(await User.count({ where: { email } }));
   }
@@ -132,12 +132,14 @@ const createUserService = ({
     return user;
   }
 
+
   const create = async (data: UserPostData) => {
     const user = User.create(data);
     await user.save();
     return user;
   }
 
+  
   return {
     getItem,
     getList,

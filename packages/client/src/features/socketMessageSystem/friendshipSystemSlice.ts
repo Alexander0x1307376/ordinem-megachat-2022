@@ -37,6 +37,10 @@ const friendshipSystemSlice = createSlice({
       state.friendsOnline = action.payload.friendsStatuses;
     },
 
+    setFriendStatuses:(state, action: PayloadAction<any>) => {
+      state.friendsOnline = action.payload;
+    },
+
     // отправка запроса (мы - стороннему чуваку)
     sendFriendRequest: (state, action: PayloadAction<string>) => {},
     sendFriendRequestSucsess: ({friendRequests: {outcomingRequests}}, action: PayloadAction<FriendRequest>) => {

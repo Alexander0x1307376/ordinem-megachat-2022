@@ -4,6 +4,8 @@ import { FriendRequest } from '../../entity/FriendRequest';
 import { FriendRequest as FriendRequestType, RequestsInfo, FriendRequestUuids } from '@ordinem-megachat-2022/shared';
 import { omit } from 'lodash';
 import ApiError from '../../exceptions/apiError';
+import FriendshipSystemEventEmitter from "./friendshipSystemEventEmitter";
+
 
 type ResultMessage = {
   message: string;
@@ -22,7 +24,11 @@ export interface IFriendRequestService {
   getRequests: (userUuid: string) => Promise<RequestsInfo['friendRequests']>;
 }
 
-export const createFriendRequestService = () => {
+export const createFriendRequestService = ({
+  friendshipEventEmitter
+}: {
+    friendshipEventEmitter: FriendshipSystemEventEmitter
+}) => {
 
 
   const checkFriendRelation = async (firstUserId: number, secondUserId: number): Promise<boolean> => {
@@ -174,6 +180,7 @@ export const createFriendRequestService = () => {
         .execute();
 
       await createFriendRelation(requester.id, requested.id);
+      friendshipEventEmitter.becameFriends(requesterUuid, requestedUuid);
       return {
         message: 'There was a counter request. The friend relation was created',
         type: 'counterRequest',
@@ -295,6 +302,8 @@ export const createFriendRequestService = () => {
 
     // сохраняем отношение
     await createFriendRelation(currentUser.id, friendRequest.requesterId);
+
+    friendshipEventEmitter.becameFriends(currentUser.uuid, friendRequest.requesterUuid);
     return {
       uuid: friendRequest.uuid,
       requesterUuid: friendRequest.requesterUuid,

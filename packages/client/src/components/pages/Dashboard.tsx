@@ -14,48 +14,6 @@ import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/u
 import { useDispatch, useSelector } from "react-redux";
 import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/socketMessageSystem/friendshipSystemSlice";
 
-const requests = {
-  userRequests: [
-    {
-      uuid: '001',
-      requestedName: 'Vasya',
-      avaPath: 'https://i.pravatar.cc/150?img=21',
-    },
-    {
-      uuid: '002',
-      requestedName: 'Petya',
-      avaPath: 'https://i.pravatar.cc/150?img=22',
-    },
-    {
-      uuid: '003',
-      requestedName: 'Kolya',
-      avaPath: 'https://i.pravatar.cc/150?img=23',
-    },
-    {
-      uuid: '004',
-      requestedName: `Abdul Abraham ibnHattab de San Huan Ab'Akan`,
-      avaPath: 'https://i.pravatar.cc/150?img=24'
-    },
-  ],
-  requestsToUser: [
-    {
-      uuid: '006',
-      requesterName: 'Biba',
-      avaPath: 'https://i.pravatar.cc/150?img=7'
-    },
-    {
-      uuid: '007',
-      requesterName: 'Boba',
-      avaPath: 'https://i.pravatar.cc/150?img=9'
-    },
-    {
-      uuid: '008',
-      requesterName: 'Pussy Destroyeer Pussy Destroyeer Pussy Destroyeer',
-      avaPath: 'https://i.pravatar.cc/150?img=10'
-    },
-  ]
-}
-
 
 const Dashboard: React.FC = () => {
 
@@ -66,7 +24,6 @@ const Dashboard: React.FC = () => {
   const requests = useSelector(selectFriendRequests);
   // статусы друзей
   const friendStatuses = useSelector(selectFriendStatuses);
-  console.log('friendStatuses', friendStatuses);
 
 
   // модалка поиска и добавления друга
@@ -90,7 +47,6 @@ const Dashboard: React.FC = () => {
   const { data: friends, isLoading: areFriendsLoading } = useFriendsQuery({});
   const [removeFriend, {isLoading: isFriendRemoving}] = useRemoveFriendMutation();
   const removeFriendRequest = (friendUuid: string) => {
-    console.log(friendUuid);
     removeFriend(friendUuid);
   }
   
