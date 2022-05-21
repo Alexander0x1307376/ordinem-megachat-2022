@@ -22,7 +22,6 @@ const InitFriendshipSystemHandlers = (
 
     // запрос информации о реквестах и статусе друзей при подключении
     socket.on(msEvents.REQUEST_INFO, async () => {
-
       try {
         const result: RequestsInfo = {
           friendRequests: await friendRequestService.getRequests(userUuid),
@@ -126,8 +125,6 @@ const InitFriendshipSystemHandlers = (
     const user_2 = usersOnlineStore.getItem(userUuid_2);
 
     usersOnlineStore.addFriendship(userUuid_1, userUuid_2);
-    
-    console.log('BECAME_FRIENDS', user_1, user_2);
 
     if(user_1) {
       const friendStatuses_1 = usersOnlineStore.getFriendsData(userUuid_1);

@@ -37,8 +37,10 @@ const messageSystemMiddleware: Middleware = store => {
       // ставим состояние "соединение установлено" и запрашиваем по сокету данные с сервера
       socket.on('connect', () => {
         store.dispatch(msActions.connectionEstablished());
-        socket.emit(msEvents.REQUEST_INFO);
         console.log('connection established!');
+        
+        // по неясной причине запрос не отправляется моментально, поэтому так
+        setTimeout(() => socket.emit(msEvents.REQUEST_INFO) , 200);
       });
 
       // подписываемся на сокет-сообщения
@@ -121,6 +123,11 @@ const messageSystemMiddleware: Middleware = store => {
     }
 
     if (isConnectionEstablished && socket) {
+
+      // if(msActions.connectionEstablished.match(action)) {
+      //   console.log('msEvents.REQUEST_INFO!!!');
+      //   socket.emit(msEvents.REQUEST_INFO);
+      // }
 
       // отправить запос другому
       if(msActions.sendFriendRequest.match(action)) {
