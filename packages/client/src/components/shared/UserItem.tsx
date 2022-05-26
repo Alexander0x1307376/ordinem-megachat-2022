@@ -7,10 +7,10 @@ export interface UserItemProps {
   uuid: string;
   name: string;
   status: string;
-  avaPath: string;
+  avaPath?: string;
   options: PopoverMenuOptionsProps['options'];
   link: string;
-  routeState: any;
+  routeState?: any;
 }
 
 const UserItem: React.FC<UserItemProps> = ({

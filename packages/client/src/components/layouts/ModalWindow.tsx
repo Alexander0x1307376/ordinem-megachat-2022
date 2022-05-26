@@ -6,14 +6,23 @@ export interface ModalWindowProps {
   title?: string;
   onClose: () => void;
   children: React.ReactNode;
+  isAutoSize?: boolean;
 }
 
 const ModalWindow: React.FC<ModalWindowProps> = ({
-  onClose, title, children
+  onClose, title, children, isAutoSize
 }) => {
+
+  const classes = `
+    relative bg-fillmain rounded-none w-full h-full p-4
+    md:rounded-lg overflow-hidden flex flex-col
+    ${isAutoSize ? '' : ' md:w-[46rem] md:h-[calc(100vh-5rem)]'}
+  `;
+
+
+
   return (
-    <div className="relative bg-fillmain rounded-none w-full h-full p-4
-        md:rounded-lg md:w-[46rem] md:h-[calc(100vh-5rem)] overflow-hidden flex flex-col"
+    <div className={classes}
     >
       <div className="flex mb-4">
         <div className="grow text-lg font-semibold">{title}</div>

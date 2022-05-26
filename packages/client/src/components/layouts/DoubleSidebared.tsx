@@ -51,6 +51,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
       
       {/* главный блок */}
       <motion.div 
+        initial='init'
         animate={layoutState}
         transition={transition}
         variants={mainAnim}
@@ -58,6 +59,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
           p-4 h-full w-full
         '
       >
+        {/* полупрозрачный блок, появляющийся когда экран небольшого размера */}
         <AnimatePresence>
           {(layoutState !== 'init' && !isMdScreen) && (
             <motion.div 
@@ -74,7 +76,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
       </motion.div>
 
       {/* левый сайдбар */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
       {(layoutState === 'leftIsOpen' || layoutState === 'bothAreOpen') && (
         <motion.aside 
           key='leftSidebar'
@@ -84,7 +86,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
           variants={leftSidebarAnim}
           transition={transition}
           className='
-            absolute z-40 p-4 h-full w-72 top-0 left-0
+            absolute z-20 p-4 h-full w-72 top-0 left-0
           '
         >
           {leftSidebarContent}
@@ -93,7 +95,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
       </AnimatePresence>
       
       {/* правый сайдбар */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
       {(layoutState === 'rightIsOpen' || layoutState === 'bothAreOpen') && (
         <motion.aside 
           key='rightSidebar'
@@ -103,7 +105,7 @@ const DoubleSidebared: React.FC<DoubleSidebaredProps> = ({
           transition={transition}
           variants={rightSidebarAnim}
           className='
-            absolute top-0 right-0 h-full w-72 z-40 p-4
+            absolute top-0 right-0 h-full w-72 z-20 p-4
           '
         >
           {rightSidebarContent}

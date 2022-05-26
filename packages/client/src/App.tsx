@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import Login from './components/pages/Login';
-import { AnimatePresence, motion } from 'framer-motion';
 import Groups from './components/pages/Groups';
 import Contacts from './components/pages/Contacts';
 import Settings from './components/pages/Settings';
@@ -15,6 +14,7 @@ import ProtectedRoute from './components/utils/ProtectedRoute';
 import CreateGroup from './components/pages/CreateGroup';
 import { useDispatch } from 'react-redux';
 import { friendshipSystemActions } from './features/socketMessageSystem/friendshipSystemSlice';
+import ChannelChat from './components/pages/ChannelChat';
 
 const animatePages = {
   initial: { 
@@ -36,66 +36,59 @@ const animatePages = {
 
 
 const App: React.FC = () => {
-
+  
+  const pageClasses = 'h-full';
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(friendshipSystemActions.startConnecting());
-  }, []);
+  }, [dispatch]);
 
 
   const location = useLocation();
 
-  const pageClasses = 'h-full';
   
   return (
     <div className='w-screen h-screen overflow-x-hidden'>
-      <AnimatePresence exitBeforeEnter>
-        <Routes location={location} key={location.pathname}>
+        <Routes location={location}>
 
           <Route path='/' element={
             <ProtectedRoute><MainLayout /></ProtectedRoute>
           }>
 
-            <Route path='/' element={
-              <motion.div 
-                className={pageClasses}
-                {...animatePages}
-              ><Dashboard /></motion.div>
+            <Route path='/' 
+              key="dashboard"
+              element={
+                <Dashboard />
             } />
-            <Route path='/groups' element={
-              <motion.div 
-                className={pageClasses}
-                {...animatePages} 
-              >
+            <Route path='/groups'
+              key="groups"
+              element={
                 <Groups />
-              </motion.div>
             } />
-            <Route path='/contacts' element={
-              <motion.div 
-                className={pageClasses}
-                {...animatePages}
-              >
+            <Route path='/contacts' 
+              key="contacts"
+              element={
                 <Contacts />
-              </motion.div>
             } />
-            <Route path='/settings' element={
-              <motion.div 
-                className={pageClasses}
-                {...animatePages}
-              >
+            <Route path='/settings' 
+              key="settings"
+              element={
                 <Settings />
-              </motion.div>
             } />
 
           </Route>
 
           <Route path='/group/:groupId' element={
-            <motion.div {...animatePages}><Group /></motion.div>
-          } />
+            <Group />
+          }>
+            <Route path=':channelId' element={
+              <ChannelChat />
+            } />
+          </Route>
 
           <Route path='/chat/:chatId' element={
-            <motion.div {...animatePages}><Chat /></motion.div>
+            <Chat />
           } />
 
           
@@ -115,10 +108,7 @@ const App: React.FC = () => {
           <Route path='/logout' element={
             <Logout />
           } />
-
-
         </Routes>
-      </AnimatePresence>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
-import InputOptions from "../shared/InputOptions";
-import InputSwitch from "../shared/InputSwitch";
+import InputOptions from "../inputControls/InputOptions";
+import InputSwitch from "../inputControls/InputSwitch";
 
 const Settings: React.FC = () => {
   

@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
 import Button from "../shared/Button";
-import InputText from "../shared/InputText";
+import InputText from "../inputControls/InputText";
 
 export interface LoginFormProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;

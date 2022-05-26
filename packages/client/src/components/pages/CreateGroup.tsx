@@ -1,8 +1,8 @@
 import React, { FormEvent } from "react";
 import BlockInCentre from "../layouts/BlockInCentre";
 import Button from "../shared/Button";
-import InputLoadImage from "../shared/InputLoadImage";
-import InputText from "../shared/InputText";
+import InputLoadImage from "../inputControls/InputLoadImage";
+import InputText from "../inputControls/InputText";
 
 const CreateGroup: React.FC = () => {
 

@@ -37,9 +37,20 @@ export const groupApi = createApi({
       invalidatesTags: ['userGroups']
 
     }),
+
+    groupDetails: build.query<any, any>({
+      query: (uuid: string) => ({
+        url: `group/${uuid}`,
+        method: 'GET'
+      })
+    })
   
   })
 
 });
 
-export const { useCreateGroupMutation, useUserGroupsQuery } = groupApi;
+export const { 
+  useCreateGroupMutation, 
+  useUserGroupsQuery, 
+  useGroupDetailsQuery
+} = groupApi;

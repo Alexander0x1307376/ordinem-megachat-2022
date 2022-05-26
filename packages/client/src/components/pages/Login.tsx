@@ -4,7 +4,7 @@ import { useLoginMutation } from "../../store/services/authService";
 import LoginForm from "../forms/LoginForm";
 import BlockInCentre from "../layouts/BlockInCentre";
 import Button from "../shared/Button";
-import InputText from "../shared/InputText";
+import InputText from "../inputControls/InputText";
 import LoadingBluredPanel from "../shared/LoadingBluredPanel";
 
 const Login: React.FC = () => {

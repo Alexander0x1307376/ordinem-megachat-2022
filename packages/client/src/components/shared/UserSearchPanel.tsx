@@ -6,7 +6,7 @@ import { friendshipSystemActions } from "../../features/socketMessageSystem/frie
 import { useSendFriendRequestMutation } from "../../store/services/friendRequestsService";
 import { useLazyUserSearchQuery } from "../../store/services/usersService";
 import Ava from "../features/icons/Ava";
-import InputSearch from "./InputSearch";
+import InputSearch from "../inputControls/InputSearch";
 import LoadingSpinner from "./LoadingSpinner";
 
 export interface UserSearchPanelProps {

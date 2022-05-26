@@ -22,7 +22,7 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
 
 
   const handleClick = (e: MouseEvent) => {
-    e.stopPropagation();
+    // e.stopPropagation();
     setIsPopoverOpen(!isPopoverOpen);
   }
 
@@ -38,8 +38,9 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
 
   return (
     <div>
-      <AnimatePresence>
+      <AnimatePresence exitBeforeEnter>
         <Popover
+          containerClassName="z-50"
           isOpen={isPopoverOpen}
           positions={['left', 'top', 'bottom', 'right']}
           content={
@@ -58,6 +59,7 @@ const PopoverButton: React.FC<PopoverButtonProps> = ({ icon: Icon, text, menuOpt
           onClickOutside={() => {
             setIsPopoverOpen(false);
           }}
+          
         >
           <div>
             {buttonContent}
