@@ -15,6 +15,9 @@ import IntegratedMenu from "../layouts/IntegratedMenu";
 import FramerModal from "../shared/FramerModal";
 import ModalWindow from "../layouts/ModalWindow";
 import CreateChannelForm from "../forms/CreateChannelForm";
+import { useChannelListQuery, useCreateChannelMutation } from "../../store/services/channelsService";
+import { ChannelPostData } from "@ordinem-megachat-2022/shared";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 const channels = [
   {
@@ -125,19 +128,37 @@ const Group: React.FC = () => {
   // #endregion
 
 
+  // #region группы
   const { groupId } = useParams();
-  const { data: groupData, isLoading } = useGroupDetailsQuery(groupId);
+  const { data: groupData, isLoading: isGroupDataLoading } = useGroupDetailsQuery(groupId);
+  // #endregion
 
 
-  const handleSubmitCreateChannel = (event: FormEvent<HTMLFormElement>) => {
+  // #region каналы
+
+  // создание каналов
+  const [createChannel, {isLoading: createChannelLoading}] = useCreateChannelMutation();
+  const handleSubmitCreateChannel = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.target as HTMLFormElement);
     try {
-      
+      const postData: ChannelPostData = {
+        ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
+        groupUuid: groupId!
+      };
+      const result = await createChannel(postData).unwrap();
+      (event.target as any).reset();
+      handleCreateChannelModalClose();
     } catch (e) {
 
     }
   }
+
+  // список каналов
+  const { data: channelList, isLoading: ischannelListLoading} = useChannelListQuery(groupId!);
+
+
+  // #endregion
 
   return (<>
     <FramerModal isOpen={isCreateChannelModalOpen} onOutlineClick={handleCreateChannelModalClose}>
@@ -212,20 +233,30 @@ const Group: React.FC = () => {
               </IntegratedMenu>
             </div>
             <div className="flex flex-col space-y-1">
-              {channels.map(({uuid, name}) => 
-                <NavLink 
-                  className={({isActive}) => {
-                    return isActive 
-                    ? `py-2 px-4 hover:bg-glassydarken transition
-                      duration-100 truncate text-textPrimary font-medium`
-                    : `py-2 px-4 hover:bg-glassy transition 
-                      duration-100 truncate text-textSecondary font-medium`
+              {ischannelListLoading
+              ? (
+                <div className="flex space-x-2 p-4 text-textSecondary">
+                  <LoadingSpinner size='1.5rem' />
+                  <span>загрузка...</span>
+                </div>
+              )
+              : (
+                channelList!.channels.map(({uuid, name}) =>
+                <NavLink
+                  className={({ isActive }) => {
+                    return isActive
+                      ? `py-2 px-4 hover:bg-glassydarken transition
+                        duration-100 truncate text-textPrimary font-medium`
+                      : `py-2 px-4 hover:bg-glassy transition 
+                        duration-100 truncate text-textSecondary font-medium`
                   }}
                   key={uuid} to={uuid}
                 >
                   {name}
                 </NavLink>
+              )
               )}
+              
             </div>
           </div>
         }
@@ -271,7 +302,7 @@ const Group: React.FC = () => {
         onOutlineClick={() => setLayoutState('init') }
       >
         {/* центральная часть */}
-        <div className="rounded-lg bg-bglighten h-full w-full p-4">
+        <div className="rounded-lg bg-bglighten h-full w-full">
           <Outlet />
         </div>
       </DoubleSidebared>

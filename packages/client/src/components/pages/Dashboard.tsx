@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 import UserItem from "../shared/UserItem";
 import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/usersService";
 import { useDispatch, useSelector } from "react-redux";
-import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/socketMessageSystem/friendshipSystemSlice";
+import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/friendshipSystem/friendshipSystemSlice";
 import useWebsocketFriendshipSystemEmitter from "../../features/friendshipSystem/useWebsocketFriendshipSystemEmitter";
 
 

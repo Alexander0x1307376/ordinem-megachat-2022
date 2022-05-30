@@ -13,7 +13,7 @@ import Logout from './components/pages/Logout';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import CreateGroup from './components/pages/CreateGroup';
 import { useDispatch } from 'react-redux';
-import { friendshipSystemActions } from './features/socketMessageSystem/friendshipSystemSlice';
+import { friendshipSystemActions } from './features/friendshipSystem/friendshipSystemSlice';
 import ChannelChat from './components/pages/ChannelChat';
 
 const animatePages = {

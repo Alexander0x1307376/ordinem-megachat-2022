@@ -18,12 +18,17 @@ import createUserService from './features/user/userService';
 import createUserController from './features/user/userController';
 import createAuthService from './features/auth/authService';
 import createAuthController from './features/auth/authController';
+import createChannelService from './features/channels/channelService';
+import createChannelController from './features/channels/channelController';
 
 export const app = express();
 
 const corsOrigin = process.env.ALLOWED_ORIGIN;
 const port = process.env.PORT || 8000;
 const webSocketsPort = process.env.WS_PORT || 4000;
+
+const channelService = createChannelService();
+const channelController = createChannelController({channelService});
 
 const friendshipEventEmitter = new FriendshipSystemEventEmitter();
 
@@ -45,7 +50,8 @@ const friendRequestController = createFriendRequestController({
 const router = createRouter({
   friendRequestController,
   userController,
-  authController
+  authController,
+  channelController
 });
 
 // #region Настройка приложения

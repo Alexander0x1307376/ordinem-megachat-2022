@@ -1,0 +1,1 @@
+export type SocketUserData = { userUuid: string, userName: string, avaPath: string }

@@ -3,6 +3,7 @@ import { IFriendRequestService } from "../../features/friendshipSystem/friendReq
 import { RequestsInfo, MessageSystemEvents as msEvents } from "@ordinem-megachat-2022/shared";
 import FriendshipSystemEventEmitter, {EventTypes as fsEventTypes} from "../../features/friendshipSystem/friendshipSystemEventEmitter";
 import UsersOnlineStore, { UserData, UsersStoreEvents } from "./UsersOnlineStore";
+import { SocketUserData } from "../socketTypes";
 
 
 
@@ -16,9 +17,12 @@ const InitFriendshipSystemHandlers = (
   }
 ) => {
 
-  const friendshipSystemHandlers = (io: Server, socket: Socket | any) => {
-    // извлекаем идентификатор комнаты
-    const { userUuid, id: socketId } = socket;
+  const friendshipSystemHandlers = (
+    io: Server, socket: Socket, userData: SocketUserData
+  ) => {
+
+    const { id: socketId } = socket;
+    const { userUuid } = userData;
 
     // запрос информации о реквестах и статусе друзей при подключении
     socket.on(msEvents.REQUEST_INFO, async () => {

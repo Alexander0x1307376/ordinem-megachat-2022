@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import { RequestsInfo, MessageSystemEvents as msEvents, FriendRequest, FriendRequestUuids } from '@ordinem-megachat-2022/shared';
-import { friendshipSystemActions as msActions } from "../socketMessageSystem/friendshipSystemSlice";
+import { friendshipSystemActions as msActions } from "./friendshipSystemSlice";
 import userApi from "../../store/services/usersService";
 
 // принимает сообщения от вебсокет-сервера и правит стейт соответствующим образом

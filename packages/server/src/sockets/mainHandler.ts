@@ -41,7 +41,9 @@ export const CreateMainHandler = (socketServer: Server, {
     socket.userName = name;
     socket.userUuid = uuid;
 
-    friendshipSystemHandlers(io, socket);
+    friendshipSystemHandlers(io, socket, {
+      userUuid: uuid, userName: name, avaPath: avaUrl
+    });
 
     socket.on('disconnect', (reason: any) => {
       console.log(`user ${name} has disconnected`);

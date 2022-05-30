@@ -4602,6 +4602,7 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
     react-icons: ^4.3.1
+    react-intersection-observer: ^9.2.0
     react-modal: ^3.14.4
     react-redux: ^8.0.0
     react-responsive: ^9.0.0-beta.6
@@ -11564,6 +11565,15 @@ __metadata:
   peerDependencies:
     react: "*"
   checksum: 2cc608acdd3e906aa3aaee290b8398220639677c949382d86e554020e5dab6a9f1ed7484418aa5272cb5c5c018e1fc9a323d433d901697a76530029f9ecb1263
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "react-intersection-observer@npm:9.2.0"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0|| ^18.0.0
+  checksum: cab57ea88217d9697c9c3763fa9db3ac4cb31b8061f13990fedb8e732eac41f5ed196c6e31ba78181f1f60eaaa861aedcdb037d038338171703dea3e84c36868
   languageName: node
   linkType: hard
 

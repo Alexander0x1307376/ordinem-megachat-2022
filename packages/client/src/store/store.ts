@@ -4,8 +4,8 @@ import { authApi } from "./services/authService";
 import { groupApi } from "./services/groupsService";
 import { userApi } from "./services/usersService";
 import { channelsApi } from "./services/channelsService";
-import { friendfhipSystemReducer } from "../features/socketMessageSystem/friendshipSystemSlice";
-import { chatSystemReducer } from "../features/socketMessageSystem/chatSystemSlice";
+import { friendfhipSystemReducer } from "../features/friendshipSystem/friendshipSystemSlice";
+import { chatSystemReducer } from "../features/chatMessageSystem/chatSystemSlice";
 
 export const store = configureStore({
   reducer: {

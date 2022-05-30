@@ -5,15 +5,17 @@ import groupController from '../features/group/groupController';
 import upload from '../features/fileUploader/uploadMiddleware';
 import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
 import { IUserController } from '../features/user/userController';
+import { IChannelController } from '../features/channels/channelController';
 
 export interface IControllers {
   friendRequestController: IFriendRequestController;
   userController: IUserController;
   authController: IAuthController;
+  channelController: IChannelController;
 }
 
 const createRouter = ({
-  friendRequestController, userController, authController
+  friendRequestController, userController, authController, channelController
 }: IControllers) => {
   
   const router = Router();
@@ -35,11 +37,17 @@ const createRouter = ({
 
   router.put('/group/:id/update', authMiddleware, upload.single('ava'), groupController.update);
   router.delete('/group/:id/remove', authMiddleware, groupController.remove);
-
   router.get('/group/:id', authMiddleware, groupController.show);
-
   // список групп пользователя и групп где он состоит
   router.get('/user-groups', authMiddleware, groupController.userGroups);
+
+
+  // каналы
+  router.get('/channel/:groupId/list', authMiddleware, channelController.list);
+  router.post('/channel/create', authMiddleware, channelController.create);
+  router.put('/channel/:channelId/update', authMiddleware, channelController.update);
+  router.delete('/channel/:channelId/remove', authMiddleware, channelController.remove);
+  router.get('/channel/:channelId', authMiddleware, channelController.show);
 
 
   // запросы дружбы
