@@ -13,12 +13,15 @@ import UserItem from "../shared/UserItem";
 import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/usersService";
 import { useDispatch, useSelector } from "react-redux";
 import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/socketMessageSystem/friendshipSystemSlice";
+import useWebsocketFriendshipSystemEmitter from "../../features/friendshipSystem/useWebsocketFriendshipSystemEmitter";
 
 
 const Dashboard: React.FC = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
+
+  const friendshipEmiiters = useWebsocketFriendshipSystemEmitter();
 
   // запросы дружбы
   const requests = useSelector(selectFriendRequests);
@@ -34,13 +37,13 @@ const Dashboard: React.FC = () => {
 
 
   const recallFriendRequest = (uuid: string) => {
-    dispatch(msActions.recallFriendRequest(uuid));
+    friendshipEmiiters.recallFriendRequest(uuid);
   }
   const acceptFriendRequest = (uuid: string) => {
-    dispatch(msActions.acceptFriendRequest(uuid));
+    friendshipEmiiters.acceptFriendRequest(uuid);
   }
   const declineFriendRequest = (uuid: string) => {
-    dispatch(msActions.declineFriendRequest(uuid));
+    friendshipEmiiters.declineFriendRequest(uuid);
   }
 
   // непосредственно друзья

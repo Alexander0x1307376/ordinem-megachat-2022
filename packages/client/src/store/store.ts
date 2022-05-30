@@ -1,16 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
-import messageSystemMiddleware from "../features/socketMessageSystem/messageSystemMiddleware";
-import { friendfhipSystemReducer } from "../features/socketMessageSystem/friendshipSystemSlice";
 import { authReducer } from "./authSlice";
 import { authApi } from "./services/authService";
 import { groupApi } from "./services/groupsService";
 import { userApi } from "./services/usersService";
+import { channelsApi } from "./services/channelsService";
+import { friendfhipSystemReducer } from "../features/socketMessageSystem/friendshipSystemSlice";
+import { chatSystemReducer } from "../features/socketMessageSystem/chatSystemSlice";
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
     [groupApi.reducerPath]: groupApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [channelsApi.reducerPath]: channelsApi.reducer,
+    chatSystem: chatSystemReducer,
     messageSystem: friendfhipSystemReducer,
     auth: authReducer
   },
@@ -18,7 +21,7 @@ export const store = configureStore({
     authApi.middleware,
     groupApi.middleware,
     userApi.middleware,
-    messageSystemMiddleware
+    channelsApi.middleware
   ])
 });
 
