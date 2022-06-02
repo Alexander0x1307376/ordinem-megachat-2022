@@ -21,7 +21,7 @@ export class Group extends Model {
   @Column({ nullable: true })
   avaId: number;
 
-  @ManyToOne(() => Image, { nullable: true })
+  @ManyToOne(() => Image, { nullable: true, onDelete: 'SET NULL' })
   ava: Image;
 
   @ManyToMany((type) => User)

@@ -11,7 +11,7 @@ export class Message extends Model {
 
   @Column()
   channelId: number;
-  @ManyToOne(() => User)
+  @ManyToOne(() => Channel)
   channel: Channel;
 
   @Column()

@@ -22,7 +22,7 @@ export class User extends Model {
   @Column({nullable: true})
   avaId: number;
   
-  @ManyToOne(() => Image, {nullable: true})
+  @ManyToOne(() => Image, {nullable: true, onDelete: 'SET NULL'})
   ava: Image;
 
   @ManyToMany(() => User, (user) => user.friends)
