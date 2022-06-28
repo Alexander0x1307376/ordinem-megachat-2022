@@ -6,11 +6,13 @@ import FramerModal from "../shared/FramerModal";
 import ButtonInlineText from "../shared/ButtonInlineText";
 import Header from "../shared/Header";
 import CreateGroupForm from "../forms/CreateGroupForm";
-import { useCreateGroupMutation, useUserGroupsQuery } from "../../store/services/groupsService";
 import { BASE_API_URL } from "../../config";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import NotificationWidget from "../features/notifications/NotificationWidget";
 import ModalWindow from "../layouts/ModalWindow";
+import { 
+  useCreateGroupMutation, useUserGroupsQuery 
+} from "../../features/groups/groupsService";
 
 const groupData = [
   {
@@ -68,10 +70,11 @@ const Groups: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const handleCloseModal = () => { setIsModalOpen(false); }
 
-  
   const [createGroup, {isLoading: isCreateGroupLoading}] = useCreateGroupMutation();
-  const { isLoading, data } = useUserGroupsQuery({});
-  // console.log(data);
+  const { 
+    isLoading: isUserGroupsDataLoading, 
+    data: userGroupsData
+  } = useUserGroupsQuery({});
 
   const handleCreateGroup = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -81,9 +84,8 @@ const Groups: React.FC = () => {
       console.log(result);
       setIsModalOpen(false);
     } catch (e) {
-
+      console.error(e);
     }
-    // console.log(Object.fromEntries(data.entries()));
   }
 
   return (<>
@@ -98,7 +100,7 @@ const Groups: React.FC = () => {
     </FramerModal>
     <div className="flex flex-col h-full">
       <Header {...{
-        title: 'Группа',
+        title: 'Группы',
         rightContent: (<div className="flex space-x-2">
           <NotificationWidget />
           <PopoverButton
@@ -109,14 +111,14 @@ const Groups: React.FC = () => {
       }} />
       <div className="grow w-full h-full bg overflow-y-auto">
 
-        {!(data?.groupsWhereOwner.length && data?.groupsWhereMember.length) && (
+        {!(userGroupsData?.groupsWhereOwner.length && userGroupsData?.groupsWhereMember.length) && (
           <div className="text-center text-textSecondary p-4">
             Вы не состоите ни в одной группе. Дождитесь приглашения или &nbsp;
             <ButtonInlineText onClick={handleOpenCreateGroup} text="создайте свою" />
           </div>
         )}
         
-        {isLoading 
+        {isUserGroupsDataLoading 
         ? (
           <div className="flex flex-col items-center text-textSecondary">
             <LoadingSpinner />
@@ -125,11 +127,11 @@ const Groups: React.FC = () => {
         )
         : (<>
 
-          {data?.groupsWhereOwner.length !== 0 && (
+          {userGroupsData?.groupsWhereOwner.length !== 0 && (
             <div className="flex flex-col px-4">
               <h2 className="text-textSecondary">Ваши группы</h2>
               <div className="space-y-4 py-4">
-                {data?.groupsWhereOwner.map(({ uuid, name, description, avaUrl }: any, index: number) => (
+                {userGroupsData?.groupsWhereOwner.map(({ uuid, name, description, avaUrl }: any) => (
                   <GroupItem
                     key={uuid}
                     name={name}
@@ -142,18 +144,18 @@ const Groups: React.FC = () => {
             </div>
           )}
         
-          {data?.groupsWhereMember.length !== 0 && (
+          {userGroupsData?.groupsWhereMember.length !== 0 && (
             <div className="flex flex-col px-4">
               <h2 className="text-textSecondary">Группы, где вы состоите</h2>
               <div className="space-y-4 py-4">
 
-                {data?.groupsWhereMember.map(({ uuid, name, description, avaUrl }: any, index: number) => (
+                {userGroupsData?.groupsWhereMember.map(({ uuid, name, description, avaUrl }: any) => (
                   <GroupItem
                     key={uuid}
                     name={name}
                     link={`/group/${uuid}`}
                     description={description}
-                    imageUrl={BASE_API_URL + avaUrl}
+                    imageUrl={avaUrl ? BASE_API_URL + avaUrl : undefined}
                   />
                 ))}
                 

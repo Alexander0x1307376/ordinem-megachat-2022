@@ -25,10 +25,10 @@ export const validateRefreshToken = (token: string) =>
 
 export const generateTokens = (payload: any) => {
 
-  const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN;
-  const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
-  // const accessTokenExpiresIn = '20s';
-  // const refreshTokenExpiresIn = '10d';
+  // const accessTokenExpiresIn = process.env.ACCESS_TOKEN_EXPIRES_IN;
+  // const refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN;
+  const accessTokenExpiresIn = '2m';
+  const refreshTokenExpiresIn = '10d';
 
   const accessSecret = process.env.JWT_ACCESS_SECRET!;
   const refreshSecret = process.env.JWT_REFRESH_SECRET!;

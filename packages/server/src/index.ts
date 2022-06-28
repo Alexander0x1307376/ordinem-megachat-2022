@@ -13,13 +13,14 @@ import CreateMainHandler from './sockets/mainHandler';
 import createFriendRequestService from './features/friendshipSystem/friendRequestService';
 import createFriendRequestController from './features/friendshipSystem/friendRequestController';
 import FriendshipSystemEventEmitter from './features/friendshipSystem/friendshipSystemEventEmitter';
-import UsersOnlineStore from './sockets/handlers/UsersOnlineStore';
+import UsersOnlineStore from './features/usersOnlineStore/UsersOnlineStore';
 import createUserService from './features/user/userService';
 import createUserController from './features/user/userController';
 import createAuthService from './features/auth/authService';
 import createAuthController from './features/auth/authController';
 import createChannelService from './features/channels/channelService';
 import createChannelController from './features/channels/channelController';
+import createMessageService from './features/messages/messageService';
 
 export const app = express();
 
@@ -27,13 +28,18 @@ const corsOrigin = process.env.ALLOWED_ORIGIN;
 const port = process.env.PORT || 8000;
 const webSocketsPort = process.env.WS_PORT || 4000;
 
-const channelService = createChannelService();
+const channelService = createChannelService({ dataSource: AppDataSource });
 const channelController = createChannelController({channelService});
 
 const friendshipEventEmitter = new FriendshipSystemEventEmitter();
 
-const userService = createUserService({friendshipEventEmitter});
+const userService = createUserService({
+  dataSource: AppDataSource,
+  friendshipEventEmitter
+});
 const userController = createUserController(userService);
+
+const messageService = createMessageService({ dataSource: AppDataSource });
 
 const authService = createAuthService(userService);
 const authController = createAuthController(authService);
@@ -77,6 +83,7 @@ app.use(errorMiddleware);
 const webSocketServer = createServer(app);
 const io = new Server(webSocketServer, {
   cors: {
+    credentials: true,
     origin: corsOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
@@ -84,11 +91,14 @@ const io = new Server(webSocketServer, {
 
 const usersOnlineStore = new UsersOnlineStore();
 
+// обработчики веб-сокета
 CreateMainHandler(io, {
   friendshipEventEmitter,
   friendRequestService,
   usersOnlineStore,
-  userService
+  userService,
+  messageService,
+  channelService
 });
 
 

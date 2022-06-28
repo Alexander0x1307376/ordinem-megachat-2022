@@ -4,8 +4,8 @@ export type FriendRequest = {
   uuid: string;
   requester: User;
   requested: User;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type RequestsInfo = {

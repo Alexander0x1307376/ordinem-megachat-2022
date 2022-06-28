@@ -1,10 +1,9 @@
 import { User } from "../../entity/User";
 import { getPaginatedList, PaginationData } from "../../utils/serviceUtils";
-import { UserPostData } from "./userTypes";
-import AppDataSource from "../../dataSource";
+import { UserPostData } from "@ordinem-megachat-2022/shared";
 import { DeleteResult, ILike, In, Not } from "typeorm";
 import FriendshipSystemEventEmitter from "../friendshipSystem/friendshipSystemEventEmitter";
-
+import { DataSource } from "typeorm";
 
 export type UserItem = {
   uuid: string;
@@ -24,9 +23,11 @@ export interface IUserService {
 }
 
 const createUserService = ({
-  friendshipEventEmitter
+  friendshipEventEmitter,
+  dataSource
 }: {
-  friendshipEventEmitter: FriendshipSystemEventEmitter
+  friendshipEventEmitter: FriendshipSystemEventEmitter,
+  dataSource: DataSource
 }) => {
 
 
@@ -38,7 +39,7 @@ const createUserService = ({
     });
 
 
-    const friends = await AppDataSource.query(`
+    const friends = await dataSource.query(`
     SELECT u.uuid, u.name, i.path AS "avaPath"
     FROM users AS u
     LEFT JOIN images AS i ON u."avaId" = i.id
@@ -57,7 +58,7 @@ const createUserService = ({
   const removeFriend = async (currentUserUuid: string, friendUuid: string) => {
 
 
-    const userIdsResult = await AppDataSource.createQueryBuilder()
+    const userIdsResult = await dataSource.createQueryBuilder()
       .select('u.id')
       .from(User, 'u')
       .where({ uuid: In([currentUserUuid, friendUuid]) })
@@ -65,7 +66,7 @@ const createUserService = ({
 
     const userIds = userIdsResult.map(({ u_id }) => u_id);
 
-    const result = await AppDataSource.createQueryBuilder()
+    const result = await dataSource.createQueryBuilder()
       .delete()
       .from('users_friends_users')
       .where({ usersId_1: userIds[0], usersId_2: userIds[1] })
@@ -90,7 +91,7 @@ const createUserService = ({
       where: { uuid: currentUserUuid }
     });
 
-    const queryResult = await AppDataSource.createQueryBuilder()
+    const queryResult = await dataSource.createQueryBuilder()
       .from('users', 'u')
       .select('u.uuid, u.name, i.path as "avaPath"')
       .where({
@@ -105,7 +106,7 @@ const createUserService = ({
 
   const getList = async (page: number, rowsPerPage = 10) => {
 
-    const repository = AppDataSource.getRepository(User);
+    const repository = dataSource.getRepository(User);
 
     return await getPaginatedList(
       repository,

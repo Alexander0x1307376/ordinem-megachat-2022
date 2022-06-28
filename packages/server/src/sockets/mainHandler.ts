@@ -1,24 +1,42 @@
 import { Server, Socket } from "socket.io";
 import { IFriendRequestService } from "../features/friendshipSystem/friendRequestService";
-import FriendshipSystemEventEmitter from "../features/friendshipSystem/friendshipSystemEventEmitter";
 import { IUserService } from "../features/user/userService";
-import InitFriendshipSystemHandlers from "./handlers/friendshipSystemHandlers";
-import UsersOnlineStore from "./handlers/UsersOnlineStore";
+import { IMessageService } from "../features/messages/messageService";
+import { IChannelService } from "../features/channels/channelService";
+import FriendshipSystemEventEmitter from "../features/friendshipSystem/friendshipSystemEventEmitter";
+import InitFriendshipSystemHandlers from "../features/friendshipSystem/friendshipSystemHandlers";
+import UsersOnlineStore from "../features/usersOnlineStore/UsersOnlineStore";
+import InitChatSystemHandlers from "../features/chatSystem/chatSystemHandlers";
 
 
-export const CreateMainHandler = (socketServer: Server, {
-  usersOnlineStore, friendshipEventEmitter, friendRequestService, userService
-}: {
+interface ICreateMainHandler {
   friendshipEventEmitter: FriendshipSystemEventEmitter;
   usersOnlineStore: UsersOnlineStore;
   friendRequestService: IFriendRequestService;
   userService: IUserService;
-}) => {
+  messageService: IMessageService;
+  channelService: IChannelService;
+}
+
+export const CreateMainHandler = (socketServer: Server, {
+  usersOnlineStore, 
+  friendshipEventEmitter, 
+  friendRequestService, 
+  userService, 
+  messageService,
+  channelService
+}: ICreateMainHandler) => {
 
   const friendshipSystemHandlers = InitFriendshipSystemHandlers(socketServer, {
     usersOnlineStore,
     friendRequestService,
     friendshipEventEmitter
+  });
+
+  const chatSystemHandlers = InitChatSystemHandlers(socketServer, {
+    usersOnlineStore,
+    channelService,
+    messageService
   });
 
 
@@ -37,13 +55,14 @@ export const CreateMainHandler = (socketServer: Server, {
       friends: userFriends.map((item: any) => item.uuid)
     });
 
-
-    socket.userName = name;
-    socket.userUuid = uuid;
-
-    friendshipSystemHandlers(io, socket, {
+    const userData = {
       userUuid: uuid, userName: name, avaPath: avaUrl
-    });
+    };
+
+    // подключаем обработчики
+    friendshipSystemHandlers(io, socket, userData);
+    chatSystemHandlers(io, socket, userData);
+
 
     socket.on('disconnect', (reason: any) => {
       console.log(`user ${name} has disconnected`);

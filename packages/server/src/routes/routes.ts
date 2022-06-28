@@ -1,8 +1,8 @@
 import { Request, Router } from 'express';
 import authMiddleware from '../features/auth/authMiddleware';
-import authController, { IAuthController } from '../features/auth/authController';
 import groupController from '../features/group/groupController';
 import upload from '../features/fileUploader/uploadMiddleware';
+import { IAuthController } from '../features/auth/authController';
 import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
 import { IUserController } from '../features/user/userController';
 import { IChannelController } from '../features/channels/channelController';

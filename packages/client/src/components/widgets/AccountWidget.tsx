@@ -33,7 +33,7 @@ const AccountWidget: React.FC = () => {
       user
       ? (
         <div className="rounded-lg bg-glassy w-full p-4 flex items-center">
-          <AvaOrLetter imageUrl={BASE_API_URL + user?.userData.avaUrl} text={user?.userData.name} />
+            <AvaOrLetter imageUrl={user?.userData.avaUrl ? BASE_API_URL + user?.userData.avaUrl : undefined} text={user?.userData.name} />
           <p className="mx-4 grow">{user?.userData.name}</p>
           <span className="mx-4">в сети</span>
           <div>

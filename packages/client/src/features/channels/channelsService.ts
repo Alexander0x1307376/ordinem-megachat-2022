@@ -1,8 +1,8 @@
-import { ChannelItem, ChannelList, ChannelPostData } from "@ordinem-megachat-2022/shared";
+import { Channel as ChannelItem, ChannelList, ChannelPostData } from "@ordinem-megachat-2022/shared";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
-import { RootState } from "../store";
-import { baseQueryWithReauth } from "../utils/reauthBaseQuery";
+import { RootState } from "../../store/store";
+import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery"; 
 
 export const channelsApi = createApi({
   reducerPath: 'channelsApi',

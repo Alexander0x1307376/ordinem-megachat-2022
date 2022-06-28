@@ -1,9 +1,11 @@
-import { ChannelItem, ChannelList, ChannelPostData } from "@ordinem-megachat-2022/shared";
+import { Channel as ChannelItem, ChannelList, ChannelPostData } from "@ordinem-megachat-2022/shared";
 import { omit } from "lodash";
-import AppDataSource from "../../dataSource";
+// import dataSource from "../../dataSource";
 import { Channel } from "../../entity/Channel";
 import { Group } from "../../entity/Group";
 import ApiError from "../../exceptions/apiError";
+import { DataSource } from "typeorm";
+
 
 export interface IChannelService {
   getList: (groupUuid: string) => Promise<ChannelList>;
@@ -11,12 +13,17 @@ export interface IChannelService {
   createChannel: (channelPostData: ChannelPostData) => Promise<ChannelItem>;
   updateChannel: (channelUuid: string, channelPostData: ChannelPostData) => Promise<ChannelItem>;
   removeChannel: (channelUuid: string) => Promise<ChannelItem>;
+  checkIfChannelExists: (channelUuid: string) => Promise<boolean>;
 }
 
-const createChannelService = () => {
+const createChannelService = ({
+  dataSource
+}: { 
+  dataSource: DataSource 
+}) => {
   
   const getList = async (groupUuid: string): Promise<ChannelList> => {
-    const result = await AppDataSource
+    const result = await dataSource
       .getRepository(Channel)
       .createQueryBuilder('c')
       .select('c.uuid, c.name, c.description, c."createdAt", c."updatedAt"')
@@ -35,7 +42,7 @@ const createChannelService = () => {
   
   const getChannelDetails = async (channelUuid: string): Promise<ChannelItem> => {
 
-    const result = await AppDataSource
+    const result = await dataSource
       .getRepository(Channel)
       .createQueryBuilder()
       .select(['uuid', 'name', 'description', 'createdAt', 'updatedAt'])
@@ -86,12 +93,19 @@ const createChannelService = () => {
     return omit(channel, ['id', 'groupId']) as ChannelItem;
   }
 
+
+  const checkIfChannelExists = async (uuid: string) => {
+    const channel = await Channel.findOne({where: { uuid }, select: ['id']});
+    return !!channel;
+  }
+
   const result: IChannelService = {
     getList,
     getChannelDetails,
     createChannel,
     updateChannel,
-    removeChannel
+    removeChannel,
+    checkIfChannelExists
   };
   return result;
 }

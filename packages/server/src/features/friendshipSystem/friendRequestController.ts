@@ -1,6 +1,5 @@
 import { controllerFunction as cf } from '../controller';
 import { IFriendRequestService } from './friendRequestService';
-import FriendshipSystemEventEmitter from './friendshipSystemEventEmitter';
 import { IUserService } from '../user/userService';
 import { ControllerMethod } from '../../types';
 

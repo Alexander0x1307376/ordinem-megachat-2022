@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User } from '../types';
-import {checkTokenExpiration} from '../utils/authUtils';
-import { RootState } from './store';
+import { User } from '../../types';
+import {checkTokenExpiration} from '../../utils/authUtils';
+import { RootState } from '../../store/store';
 
 
 export interface UserState {

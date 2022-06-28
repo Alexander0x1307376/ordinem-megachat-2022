@@ -15,7 +15,10 @@ const userGroups = async (userUuid: string) => {
 
 
   const groupsWhereMember = await AppDataSource.createQueryBuilder()
-    .select('g.uuid, g.name, g.description, image.path as "avaUrl"')
+    .select(
+      `g.uuid, g.name, g.description, u.uuid as "ownerUuid", 
+      image.path as "avaUrl", g."createdAt", g."updatedAt"`
+    )
     .from(Group, 'g')
     .where((qb) => {
       const subQuery = qb.subQuery()
@@ -26,15 +29,19 @@ const userGroups = async (userUuid: string) => {
       return 'g.id IN ' + subQuery;
     })
     .leftJoin('g.ava', 'image')
+    .leftJoin('g.owner', 'u')
     .setParameter('userId', currentUser.id)
     .getRawMany();
 
   
   const groupsWhereOwner = await AppDataSource.createQueryBuilder()
-    .select('g.uuid, g.name, g.description, image.path as "avaUrl"')
+    .select(
+      `g.uuid, g.name, g.description, u.uuid as "ownerUuid", 
+      image.path as "avaUrl", g."createdAt", g."updatedAt"`)
     .from(Group, 'g')
     .where('g.ownerId = :ownerId', { ownerId: currentUser.id})
     .leftJoin('g.ava', 'image')
+    .leftJoin('g.owner', 'u')
     .getRawMany();
   
 

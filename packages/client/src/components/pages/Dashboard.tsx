@@ -10,10 +10,9 @@ import AccountWidget from "../widgets/AccountWidget";
 import { GiBootKick } from "react-icons/gi";
 import { useLocation } from "react-router-dom";
 import UserItem from "../shared/UserItem";
-import { useFriendsQuery, useRemoveFriendMutation } from "../../store/services/usersService";
 import { useDispatch, useSelector } from "react-redux";
 import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/friendshipSystem/friendshipSystemSlice";
-import useWebsocketFriendshipSystemEmitter from "../../features/friendshipSystem/useWebsocketFriendshipSystemEmitter";
+import useWebsocketFriendshipEmitter from "../../features/friendshipSystem/useWebsocketFriendshipEmitter";
 
 
 const Dashboard: React.FC = () => {
@@ -21,7 +20,7 @@ const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const friendshipEmiiters = useWebsocketFriendshipSystemEmitter();
+  const friendshipEmiiters = useWebsocketFriendshipEmitter();
 
   // запросы дружбы
   const requests = useSelector(selectFriendRequests);
@@ -47,10 +46,7 @@ const Dashboard: React.FC = () => {
   }
 
   // непосредственно друзья
-  const { data: friends, isLoading: areFriendsLoading } = useFriendsQuery({});
-  const [removeFriend, {isLoading: isFriendRemoving}] = useRemoveFriendMutation();
   const removeFriendRequest = (friendUuid: string) => {
-    removeFriend(friendUuid);
   }
   
 
@@ -129,14 +125,14 @@ const Dashboard: React.FC = () => {
             <h2 className="grow font-semibold">Друзья</h2>
           </div>
           <div className="px-2 pb-2 space-y-2">
-            {friends?.map(({uuid, name, avaPath}: any) => {
+            {[].map(({uuid, name, avaPath}: any) => {
 
               const status = friendStatuses?.[uuid] || undefined;
 
               return <UserItem 
                 key={uuid}
                 uuid={uuid}  
-                avaPath={BASE_API_URL + avaPath}
+                avaPath={avaPath ? BASE_API_URL + avaPath : undefined}
                 name={name}
                 status={status?.status || 'не в сети'}
                 link={`/chat/${uuid}`}

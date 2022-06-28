@@ -5,7 +5,7 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query';
 import { RootState } from '../store';
-import { setUser, clearUser, UserState } from '../authSlice';
+import { setUser, clearUser, UserState } from '../../features/auth/authSlice';
 import { clearUserData, getUserFromLocalStorage, setUserData } from '../../utils/authUtils';
 import { BASE_API_URL } from '../../config';
 

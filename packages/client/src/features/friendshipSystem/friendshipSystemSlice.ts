@@ -121,11 +121,11 @@ export const friendshipSystemActions = friendshipSystemSlice.actions;
 export const friendfhipSystemReducer = friendshipSystemSlice.reducer;
 
 export const selectFriendRequests = (state: RootState) => {
-  return state.messageSystem.friendRequests;
+  return state.friendshipSystem.friendRequests;
 }
 
 export const selectFriendStatuses = (state: RootState) => {
-  return state.messageSystem.friendsOnline;
+  return state.friendshipSystem.friendsOnline;
 }
 
 export default friendshipSystemSlice;

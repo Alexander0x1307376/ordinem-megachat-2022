@@ -1,23 +1,19 @@
-import React, { FormEvent, useEffect, useRef, useState } from "react";
-import { IoChevronBackOutline, IoClose, IoEllipsisVertical, IoPeopleCircleOutline } from "react-icons/io5";
+import React, { FormEvent, useEffect, useState } from "react";
+import { IoChevronBackOutline, IoEllipsisVertical, IoPeopleCircleOutline } from "react-icons/io5";
 import { Link, NavLink, Outlet, useParams } from "react-router-dom";
 import IconedButton from "../shared/IconedButton";
 import DoubleSidebared, {DoubleSidebaredProps} from "../layouts/DoubleSidebared";
 import { useMediaQuery } from "react-responsive";
 import Header from "../shared/Header";
-import { useGroupDetailsQuery, useUserGroupsQuery } from "../../store/services/groupsService";
-import Button from "../shared/Button";
 import UserItemMember from "../shared/UserItemMember";
-import { AnimatePresence } from "framer-motion";
-import { motion } from "framer-motion";
-import useOutsideClickHandler from "../../utils/useOutsideClickHandler";
 import IntegratedMenu from "../layouts/IntegratedMenu";
 import FramerModal from "../shared/FramerModal";
 import ModalWindow from "../layouts/ModalWindow";
 import CreateChannelForm from "../forms/CreateChannelForm";
-import { useChannelListQuery, useCreateChannelMutation } from "../../store/services/channelsService";
 import { ChannelPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import { useChannelListQuery, useCreateChannelMutation } from "../../features/channels/channelsService";
+import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 
 const channels = [
   {
@@ -58,11 +54,10 @@ const users = [
 
 const Group: React.FC = () => {
 
-  const isMdScreen = useMediaQuery({ query: '(min-width: 768px)' });
-  
   // #region Состояние представления
-
+  
   // состояние лэйаута
+  const isMdScreen = useMediaQuery({ query: '(min-width: 768px)' });
   const [
     layoutState, setLayoutState
   ] = useState<DoubleSidebaredProps['layoutState']>(isMdScreen ? 'rightIsOpen' : 'init');
@@ -130,7 +125,10 @@ const Group: React.FC = () => {
 
   // #region группы
   const { groupId } = useParams();
-  const { data: groupData, isLoading: isGroupDataLoading } = useGroupDetailsQuery(groupId);
+  const { 
+    isLoading,
+    data: groupData
+  } = useGroupDetailsQuery(groupId);
   // #endregion
 
 
@@ -146,7 +144,7 @@ const Group: React.FC = () => {
         ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
         groupUuid: groupId!
       };
-      const result = await createChannel(postData).unwrap();
+      // const result = await createChannel(postData).unwrap();
       (event.target as any).reset();
       handleCreateChannelModalClose();
     } catch (e) {
@@ -155,7 +153,9 @@ const Group: React.FC = () => {
   }
 
   // список каналов
-  const { data: channelList, isLoading: ischannelListLoading} = useChannelListQuery(groupId!);
+  const { 
+    data: channelList, isLoading: ischannelListLoading
+  } = useChannelListQuery(groupId!);
 
 
   // #endregion
@@ -241,7 +241,7 @@ const Group: React.FC = () => {
                 </div>
               )
               : (
-                channelList!.channels.map(({uuid, name}) =>
+                channelList?.channels.map(({uuid, name}) =>
                 <NavLink
                   className={({ isActive }) => {
                     return isActive

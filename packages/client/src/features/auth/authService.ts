@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
 import { clearUserData, setUserData } from "../../utils/authUtils";
-import { clearUser, setUser } from "../authSlice";
-import { RootState } from "../store";
+import { clearUser, setUser } from "./authSlice";
+import { RootState } from "../../store/store";
 import { 
   LoginResponse, 
   LoginPostData, 

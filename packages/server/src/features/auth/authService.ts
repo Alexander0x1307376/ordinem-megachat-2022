@@ -1,7 +1,7 @@
 import { compare } from 'bcrypt';
 import ApiError from '../../exceptions/apiError';
 import userService, { IUserService } from "../user/userService";
-import { UserPostData } from '../user/userTypes';
+import { UserPostData } from '@ordinem-megachat-2022/shared';
 import * as tokenService from "./tokenService";
 import { UserToken } from '../../entity/UserToken';
 import imageService from '../image/imageService';
@@ -96,8 +96,11 @@ const createAuthService = (userService: IUserService) => {
       if (!isPassEquals) {
         throw ApiError.BadRequest(errorMessage);
       }
-
-      const avatar = await Image.findOne({ where: { id: user.avaId } });
+      
+      let avatar;
+      if(user.avaId)
+        avatar = await Image.findOne({ where: { id: user.avaId } });
+      
 
       const authData = await generateAndSaveTokens(user.id, {
         uuid: user.uuid,
@@ -131,7 +134,10 @@ const createAuthService = (userService: IUserService) => {
 
 
       const user = await userService.getItem(userData.uuid);
-      const avatar = await Image.findOne({ where: { id: user.avaId } });
+      let avatar;
+      if (user.avaId)
+        avatar = await Image.findOne({ where: { id: user.avaId } });
+
 
       const authData = await generateAndSaveTokens(user.id, {
         uuid: user.uuid,

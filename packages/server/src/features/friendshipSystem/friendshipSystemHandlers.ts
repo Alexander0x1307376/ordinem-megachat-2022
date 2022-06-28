@@ -1,9 +1,9 @@
 import { Server, Socket } from "socket.io";
-import { IFriendRequestService } from "../../features/friendshipSystem/friendRequestService";
-import { RequestsInfo, MessageSystemEvents as msEvents } from "@ordinem-megachat-2022/shared";
-import FriendshipSystemEventEmitter, {EventTypes as fsEventTypes} from "../../features/friendshipSystem/friendshipSystemEventEmitter";
-import UsersOnlineStore, { UserData, UsersStoreEvents } from "./UsersOnlineStore";
-import { SocketUserData } from "../socketTypes";
+import { IFriendRequestService } from "./friendRequestService";
+import { RequestsInfo, FriendshipSystemEvents as fsEvents } from "@ordinem-megachat-2022/shared";
+import FriendshipSystemEventEmitter, {EventTypes as fsEventTypes} from "./friendshipSystemEventEmitter";
+import UsersOnlineStore, { UserData, UsersStoreEvents } from "../usersOnlineStore/UsersOnlineStore";
+import { SocketUserData } from "../../sockets/socketTypes";
 
 
 
@@ -25,97 +25,97 @@ const InitFriendshipSystemHandlers = (
     const { userUuid } = userData;
 
     // запрос информации о реквестах и статусе друзей при подключении
-    socket.on(msEvents.REQUEST_INFO, async () => {
+    socket.on(fsEvents.REQUEST_INFO, async () => {
       try {
         const result: RequestsInfo = {
           friendRequests: await friendRequestService.getRequests(userUuid),
           friendsStatuses: usersOnlineStore.getFriendsData(userUuid) 
         };
         
-        io.to(socketId).emit(msEvents.REQUEST_INFO_SUCCESS, result);
+        io.to(socketId).emit(fsEvents.REQUEST_INFO_SUCCESS, result);
 
       } catch (e: any) {
-        io.to(socketId).emit(msEvents.REQUEST_INFO_ERROR, e.message);
+        io.to(socketId).emit(fsEvents.REQUEST_INFO_ERROR, e.message);
       }
     });
 
 
 
     // отзыв реквеста
-    socket.on(msEvents.RECALL_FRIEND_REQUEST, async (requestUuid: string) => {
+    socket.on(fsEvents.RECALL_FRIEND_REQUEST, async (requestUuid: string) => {
 
       try {
         const result = await friendRequestService.recallRequest(userUuid, requestUuid);
-        io.to(socketId).emit(msEvents.RECALL_FRIEND_REQUEST_SUCCESS, result);
+        io.to(socketId).emit(fsEvents.RECALL_FRIEND_REQUEST_SUCCESS, result);
 
         const requestedSocketId = usersOnlineStore.getSocketId(result.requestedUuid);
         if (requestedSocketId)
-          io.to(requestedSocketId).emit(msEvents.FRIEND_REQUEST_IS_RECALLED, result);
+          io.to(requestedSocketId).emit(fsEvents.FRIEND_REQUEST_IS_RECALLED, result);
 
       } catch (e: any) {
-        io.to(socketId).emit(msEvents.RECALL_FRIEND_REQUEST_ERROR, e.message);
+        io.to(socketId).emit(fsEvents.RECALL_FRIEND_REQUEST_ERROR, e.message);
       }
     });
 
 
 
     // принять реквест
-    socket.on(msEvents.ACCEPT_FRIEND_REQUEST, async (requestUuid: string) => {
+    socket.on(fsEvents.ACCEPT_FRIEND_REQUEST, async (requestUuid: string) => {
       try {
         const result = await friendRequestService.acceptRequest(userUuid, requestUuid);
-        io.to(socketId).emit(msEvents.ACCEPT_FRIEND_REQUEST_SUCCESS, result);
+        io.to(socketId).emit(fsEvents.ACCEPT_FRIEND_REQUEST_SUCCESS, result);
 
         const requesterSocketId = usersOnlineStore.getSocketId(result.requesterUuid);
         if (requesterSocketId) 
-          io.to(requesterSocketId).emit(msEvents.FRIEND_REQUEST_IS_ACCEPTED, result);
+          io.to(requesterSocketId).emit(fsEvents.FRIEND_REQUEST_IS_ACCEPTED, result);
 
       } catch (e: any) {
-        io.to(socketId).emit(msEvents.ACCEPT_FRIEND_REQUEST_ERROR, e.message);
+        io.to(socketId).emit(fsEvents.ACCEPT_FRIEND_REQUEST_ERROR, e.message);
       }
     });
 
 
 
     // отклонить реквест
-    socket.on(msEvents.DECLINE_FRIEND_REQUEST, async (requestUuid: string) => {
+    socket.on(fsEvents.DECLINE_FRIEND_REQUEST, async (requestUuid: string) => {
       try {
         const result = await friendRequestService.declineRequest(userUuid, requestUuid);
-        io.to(socketId).emit(msEvents.DECLINE_FRIEND_REQUEST_SUCCESS, result);
+        io.to(socketId).emit(fsEvents.DECLINE_FRIEND_REQUEST_SUCCESS, result);
 
         const requesterSocketId = usersOnlineStore.getSocketId(result.requesterUuid);
         if (requesterSocketId)
-          io.to(requesterSocketId).emit(msEvents.FRIEND_REQUEST_IS_DECLINED, result);
+          io.to(requesterSocketId).emit(fsEvents.FRIEND_REQUEST_IS_DECLINED, result);
 
       } catch (e: any) {
-        io.to(socketId).emit(msEvents.DECLINE_FRIEND_REQUEST_ERROR, e.message);
+        io.to(socketId).emit(fsEvents.DECLINE_FRIEND_REQUEST_ERROR, e.message);
       }
     });
 
 
 
     // отправляем свой реквест потенциальному другу
-    socket.on(msEvents.SEND_FRIEND_REQUEST, async (requestedUserUuid: string) => {
+    socket.on(fsEvents.SEND_FRIEND_REQUEST, async (requestedUserUuid: string) => {
       try {
         const result: any = await friendRequestService.createRequest(userUuid, requestedUserUuid);
 
         if (result?.type === 'counterRequest') {
-          io.to(socketId).emit(msEvents.SEND_FRIEND_REQUEST_SUCCESS_ACCEPT);
+          io.to(socketId).emit(fsEvents.SEND_FRIEND_REQUEST_SUCCESS_ACCEPT);
 
           const requestedSocketId = usersOnlineStore.getSocketId(requestedUserUuid);
           if (requestedSocketId)
-            io.to(requestedSocketId).emit(msEvents.FRIEND_REQUEST_IS_ACCEPTED, result?.data);
+            io.to(requestedSocketId).emit(fsEvents.FRIEND_REQUEST_IS_ACCEPTED, result?.data);
 
         }
         else {
-          io.to(socketId).emit(msEvents.SEND_FRIEND_REQUEST_SUCCESS, result);
+          io.to(socketId).emit(fsEvents.SEND_FRIEND_REQUEST_SUCCESS, result);
 
           const requestedSocketId = usersOnlineStore.getSocketId(requestedUserUuid);
           if (requestedSocketId)
-            io.to(requestedSocketId).emit(msEvents.INCOMING_FRIEND_REQUEST, result);
+            io.to(requestedSocketId).emit(fsEvents.INCOMING_FRIEND_REQUEST, result);
 
         }
       } catch (e: any) {
-        io.to(socketId).emit(msEvents.SEND_FRIEND_REQUEST_ERROR, e.message);
+        io.to(socketId).emit(fsEvents.SEND_FRIEND_REQUEST_ERROR, e.message);
       }
 
     });
@@ -132,11 +132,11 @@ const InitFriendshipSystemHandlers = (
 
     if(user_1) {
       const friendStatuses_1 = usersOnlineStore.getFriendsData(userUuid_1);
-      io.to(user_1.socketId).emit(msEvents.FRIEND_STATUSES, friendStatuses_1);
+      io.to(user_1.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_1);
     }
     if(user_2) {
       const friendStatuses_2 = usersOnlineStore.getFriendsData(userUuid_2);
-      io.to(user_2.socketId).emit(msEvents.FRIEND_STATUSES, friendStatuses_2);
+      io.to(user_2.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_2);
     }
     
   });
@@ -150,9 +150,9 @@ const InitFriendshipSystemHandlers = (
     usersOnlineStore.removeFriendship(userUuid_1, userUuid_2);
 
     if(user_1)
-      io.to(user_1.socketId).emit(msEvents.UNFRIENDED);
+      io.to(user_1.socketId).emit(fsEvents.UNFRIENDED);
     if(user_2)
-      io.to(user_2.socketId).emit(msEvents.UNFRIENDED);
+      io.to(user_2.socketId).emit(fsEvents.UNFRIENDED);
   });
 
 
@@ -160,7 +160,7 @@ const InitFriendshipSystemHandlers = (
   usersOnlineStore.on(UsersStoreEvents.USER_ONLINE, (userData: Required<UserData>) => {
     const sockets = usersOnlineStore.getUserSocketIdsOfUserFriends(userData.uuid);
     if (sockets.length) {
-      io.to(sockets).emit(msEvents.FRIEND_IS_ONLINE, { 
+      io.to(sockets).emit(fsEvents.FRIEND_IS_ONLINE, { 
         uuid: userData.uuid,
         status: 'в сети' 
       });
@@ -169,7 +169,7 @@ const InitFriendshipSystemHandlers = (
   
   usersOnlineStore.on(UsersStoreEvents.USER_OFFLINE, (userData: Required<UserData>) => {
     const sockets = usersOnlineStore.getUserSocketIdsOfUserFriends(userData.uuid);
-    io.to(sockets).emit(msEvents.FRIEND_IS_OFFLINE, { uuid: userData.uuid });
+    io.to(sockets).emit(fsEvents.FRIEND_IS_OFFLINE, { uuid: userData.uuid });
   });
 
   return friendshipSystemHandlers;

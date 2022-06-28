@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../../store/services/authService";
+import { useLoginMutation } from "../../features/auth/authService";
 import LoginForm from "../forms/LoginForm";
 import BlockInCentre from "../layouts/BlockInCentre";
 import Button from "../shared/Button";

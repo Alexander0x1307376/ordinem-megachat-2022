@@ -1,4 +1,4 @@
-export enum MessageSystemEvents {
+export enum fsEvents {
   // запросить информацию обо всех реквестах, имеющие отношение к нам
   REQUEST_INFO = 'REQUEST_INFO',
   REQUEST_INFO_SUCCESS = 'REQUEST_INFO_SUCCESS',

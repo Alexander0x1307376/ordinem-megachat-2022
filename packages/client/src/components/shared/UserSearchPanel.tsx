@@ -1,8 +1,7 @@
 import React from "react";
 import { IoPersonCircle } from "react-icons/io5";
 import { BASE_API_URL } from "../../config";
-import useWebsocketFriendshipSystemEmitter from "../../features/friendshipSystem/useWebsocketFriendshipSystemEmitter";
-import { useLazyUserSearchQuery } from "../../store/services/usersService";
+import useWebsocketFriendshipEmitter from "../../features/friendshipSystem/useWebsocketFriendshipEmitter";
 import Ava from "../features/icons/Ava";
 import InputSearch from "../inputControls/InputSearch";
 import LoadingSpinner from "./LoadingSpinner";
@@ -15,13 +14,14 @@ const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
   onRequestSent
 }) => {
 
-  const friendshipEmiiters = useWebsocketFriendshipSystemEmitter()
+  const friendshipEmiiters = useWebsocketFriendshipEmitter()
 
-  const [searchUsers, { data: userSearch, isLoading }] = useLazyUserSearchQuery();
+  // const [searchUsers, { data: userSearch, isLoading }] = useLazyUserSearchQuery();
 
   const handleSearch = (value: string) => {
-    if(value)
-      searchUsers(value);
+    if(value) {
+      
+    }
   }
 
   const handleSendFriendRequest = async (uuid: string) => {
@@ -40,7 +40,7 @@ const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
         <div className="h-full relative">
           <div className="absolute w-full top-0 bottom-0 overflow-y-auto">
 
-            {
+            {/* {
               isLoading
               ? (
                 <div className="flex justify-center items-center h-2/3">
@@ -83,7 +83,7 @@ const UserSearchPanel: React.FC<UserSearchPanelProps> = ({
                   </div>
                 )
               }</>)
-            }
+            } */}
             
             
           </div>

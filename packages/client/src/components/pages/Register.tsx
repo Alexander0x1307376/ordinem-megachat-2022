@@ -1,6 +1,6 @@
 import React, { FormEvent } from "react";
 import BlockInCentre from "../layouts/BlockInCentre";
-import { useRegistrationMutation } from "../../store/services/authService";
+import { useRegistrationMutation } from "../../features/auth/authService";
 import { useNavigate } from "react-router-dom";
 import LoadingBluredPanel from "../shared/LoadingBluredPanel";
 import RegistrationForm from "../forms/RegistrationForm";

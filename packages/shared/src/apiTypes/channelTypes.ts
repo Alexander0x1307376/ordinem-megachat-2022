@@ -1,13 +1,13 @@
-export type ChannelItem = {
+export type Channel = {
   uuid: string;
   name: string;
   description?: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type ChannelList = {
-  channels: ChannelItem[];
+  channels: Channel[];
 }
 
 export type ChannelPostData = {

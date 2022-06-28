@@ -1,11 +1,13 @@
-import React, { Children, createContext, ReactNode, useRef } from "react";
+import { createContext, ReactNode, useEffect } from "react";
 import { useStore } from "react-redux";
 import io, {Socket} from "socket.io-client";
 import { SERVER_URI } from "../../config";
+import { RootState } from "../../store/store";
 import { getUserFromLocalStorage } from "../../utils/authUtils";
+import websocketChatMessageReceiver from "../chatMessageSystem/websocketChatMessageReceiver";
 import websocketFriendshipReceiver from "../friendshipSystem/websocketFriendshipReceiver";
 
-export interface WebsocketContext {
+export interface IWebsocketContext {
   socket?: Socket;
 }
 
@@ -27,18 +29,27 @@ const InitSocket = () => {
 
   return socket;
 }
-
-
-
 const socket = InitSocket();
 
-export const WebsocketContext = createContext<WebsocketContext | undefined>(undefined);
+
+export const WebsocketContext = createContext<IWebsocketContext | undefined>(undefined);
 
 const WebsocketProvider = ({children}: { children: ReactNode; }) => {
+  
+  const store = useStore<RootState>();
 
-  const store = useStore();
+  useEffect(() => {
+    
+    if (socket) {
+      websocketFriendshipReceiver(socket, store);
+      websocketChatMessageReceiver(socket, store);
+    }
+    else {
+      console.warn('there is no user data. socket is not initialized!');
+    }
+  }, [store]);
 
-  websocketFriendshipReceiver(socket!, store);
+
 
   return (
     <WebsocketContext.Provider value={{ socket }}>

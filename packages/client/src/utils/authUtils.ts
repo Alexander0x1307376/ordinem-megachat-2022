@@ -1,5 +1,5 @@
 import jwtDecode from "jwt-decode";
-// import { UserState } from "../store/authSlice";
+import { AuthResponse } from "@ordinem-megachat-2022/shared";
 
 // возвращает true если токен стух
 export const checkTokenExpiration = (token: string) => {
@@ -10,7 +10,7 @@ export const checkTokenExpiration = (token: string) => {
 
 
 // возвращает юзера из хранилища
-export const getUserFromLocalStorage = () => {
+export const getUserFromLocalStorage = (): AuthResponse | undefined => {
   const userData = localStorage.getItem('user');
   return userData ? JSON.parse(userData) : undefined;
 }
@@ -23,6 +23,6 @@ export const clearUserData = () => {
 
 
 // запись данных пользователя в хранилище
-export const setUserData = (user: any) => {
+export const setUserData = (user: AuthResponse) => {
   localStorage.setItem('user', JSON.stringify(user));
 }
