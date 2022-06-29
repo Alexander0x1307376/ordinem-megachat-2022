@@ -87,8 +87,9 @@ const ChannelChat: React.FC = () => {
             channelMessages?.map((message, index) => 
               <ChatMessage key={message.uuid}
                 avaUrl={message.authorAvaPath ? BASE_API_URL + message.authorAvaPath : undefined}
-                authorName={`${message.authorName} (id: ${message.id}, index: ${index})`}
+                authorName={message.authorName}
                 message={message.text}
+                date={message.createdAt}
               />
             )
           }

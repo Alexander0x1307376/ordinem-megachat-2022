@@ -7,7 +7,7 @@ export interface ChatMessageProps {
   avaUrl?: string;
   authorName: string;
   message: string;
-  date?: string;
+  date: string;
 
 }
 
@@ -23,7 +23,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({avaUrl, authorName, message, d
       <div className="grow ml-2 px-4 rounded-lg flex flex-col">
         <div className="flex space-x-2 items-center">
           <h3 className="font-semibold cursor-pointer">{authorName}</h3>
-          <span className="text-textSecondary text-sm cursor-default">{date}</span>
+          <span className="text-textSecondary text-sm cursor-default">{
+            new Date(date).toLocaleString('ru')
+          }</span>
         </div>
         <div>
           {message}
