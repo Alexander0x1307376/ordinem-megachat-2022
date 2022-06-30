@@ -1,6 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_API_URL } from "../../config";
-import { RootState } from "../../store/store";
+import { User } from "@ordinem-megachat-2022/shared";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery";
 
 export const userApi = createApi({
@@ -16,9 +15,18 @@ export const userApi = createApi({
   //     return headers;
   //   },
   // }),
-  tagTypes: ['userSearch', 'friends'],
+  tagTypes: ['userSearch', 'friends', 'groupMembers'],
 
   endpoints: build => ({
+
+    groupMembers: build.query<User[], string>({
+      query: (groupUuid) => ({
+        url: `/users/${groupUuid}/members`,
+        method: 'GET'
+      }),
+      providesTags: ['groupMembers']
+    }),
+
 
     userSearch: build.query<any, any>({
       query: (search) => ({
@@ -56,7 +64,8 @@ export const {
   useUserSearchQuery, 
   useLazyUserSearchQuery, 
   useFriendsQuery,
-  useRemoveFriendMutation
+  useRemoveFriendMutation,
+  useGroupMembersQuery
 } = userApi;
 
 export default userApi;

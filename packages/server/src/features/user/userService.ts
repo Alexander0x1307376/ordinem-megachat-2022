@@ -4,6 +4,7 @@ import { UserPostData } from "@ordinem-megachat-2022/shared";
 import { DeleteResult, ILike, In, Not } from "typeorm";
 import FriendshipSystemEventEmitter from "../friendshipSystem/friendshipSystemEventEmitter";
 import { DataSource } from "typeorm";
+import { Group } from "../../entity/Group";
 
 export type UserItem = {
   uuid: string;
@@ -20,6 +21,7 @@ export interface IUserService {
   searchByName: (currentUserUuid: string, search: string) => Promise<UserItem[]>;
   friends: (userUuid: string) => Promise<UserItem[]>;
   removeFriend: (currentUserUuid: string, friendUuid: string) => Promise<DeleteResult>;
+  groupMembers: (groupUuid: string) => Promise<UserItem[]>;
 }
 
 const createUserService = ({
@@ -30,7 +32,29 @@ const createUserService = ({
   dataSource: DataSource
 }) => {
 
+  const groupMembers = async (groupUuid: string) => {
 
+    const groupData = await dataSource.createQueryBuilder(Group, 'g')
+      .select('id')
+      .where({ uuid: groupUuid })
+      .getRawOne(); 
+
+    const result = await dataSource.createQueryBuilder(User, 'm')
+      .select(`m.uuid, m.name, i.path as "avaPath"`)
+      .leftJoin('m.ava', 'i')
+      .where((qb) => {
+        const subQuery = qb.subQuery()
+          .from('groups_members_users', 'gmu')
+          .select('gmu."usersId"')
+          .where('gmu."groupsId" = :groupId')
+          .getQuery();
+        return 'm.id IN ' + subQuery
+      })
+      .setParameter('groupId', groupData.id)
+      .getRawMany();
+
+    return result as UserItem[];
+  }
 
   const friends = async (userUuid: string) => {
     // это мы
@@ -149,7 +173,8 @@ const createUserService = ({
     create,
     searchByName,
     friends,
-    removeFriend
+    removeFriend,
+    groupMembers
   } as IUserService
 
 }

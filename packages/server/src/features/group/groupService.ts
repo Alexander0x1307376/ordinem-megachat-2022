@@ -85,26 +85,12 @@ const createGroupService = (dataSource: DataSource) => {
       .leftJoin('o.ava', 'oi')
       .getRawOne();
 
-      const channels = await dataSource.createQueryBuilder(Channel, 'c')
-        .select(`
-          c.uuid, c.name, c.description, c."createdAt", c."updatedAt"
-        `)
-        .where('c.groupId = :groupId', {groupId: groupData.id})
-        .getRawMany();
-
-    // const members = await dataSource.createQueryBuilder(User, 'm')
-    //   .select(`m.uuid, m.name, i.path as "avaPath"`)
-    //   .leftJoin('m.ava', 'i')
-    //   .where((qb) => {
-    //     const subQuery = qb.subQuery()
-    //       .select('gmu."usersId"')
-    //       .from('groups_members_users', 'gmu')
-    //       .where('gmu."groupsId" = :groupId')
-    //       .getQuery();
-    //       return 'm.id IN ' + subQuery
-    //     })
-    //   .setParameter('groupId', groupData.id)
-    //   .getRawMany();
+    const channels = await dataSource.createQueryBuilder(Channel, 'c')
+      .select(`
+        c.uuid, c.name, c.description, c."createdAt", c."updatedAt"
+      `)
+      .where('c.groupId = :groupId', {groupId: groupData.id})
+      .getRawMany();
 
 
     const result: GroupDetailsResponse = {

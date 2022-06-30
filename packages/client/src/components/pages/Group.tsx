@@ -12,27 +12,10 @@ import ModalWindow from "../layouts/ModalWindow";
 import CreateChannelForm from "../forms/CreateChannelForm";
 import { ChannelPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { useChannelListQuery, useCreateChannelMutation } from "../../features/channels/channelsService";
+import { useCreateChannelMutation } from "../../features/channels/channelsService";
 import { useGroupDetailsQuery } from "../../features/groups/groupsService";
+import { useGroupMembersQuery } from "../../features/users/usersService";
 
-
-
-const users = [
-  {
-    uuid: '111',
-    name: 'Vasya',
-  },
-  {
-    uuid: '222',
-    name: 'Петя Иваович',
-    avaPath: 'https://i.pravatar.cc/150?img=7'
-  },
-  {
-    uuid: '333',
-    name: 'Человек с очень-очень длинным ником, настолько же длинным, насколько же и бессмысленным',
-    avaPath: 'https://i.pravatar.cc/150?img=8'
-  },
-]
 
 
 const Group: React.FC = () => {
@@ -109,9 +92,16 @@ const Group: React.FC = () => {
   // #region группы
   const { groupId } = useParams();
   const { 
-    isLoading,
+    isLoading: isGroupDataLoading,
     data: groupData
   } = useGroupDetailsQuery(groupId || '');
+  // #endregion
+
+  // #region каналы
+  const {
+    isLoading: isGroupMembersLoading,
+    data: groupMembers
+  } = useGroupMembersQuery(groupId || '');
   // #endregion
 
 
@@ -209,7 +199,7 @@ const Group: React.FC = () => {
               </IntegratedMenu>
             </div>
             <div className="flex flex-col space-y-1">
-              {isLoading
+              {isGroupDataLoading
               ? (
                 <div className="flex space-x-2 p-4 text-textSecondary">
                   <LoadingSpinner size='1.5rem' />
@@ -263,18 +253,29 @@ const Group: React.FC = () => {
               </IntegratedMenu>
             </div>
             <div className="flex flex-col space-y-1 pl-2">
-              {/* <UserItemMember 
-                key={groupData.}
-              /> */}
-              {users.map(({uuid, name, avaPath}) => 
-                <UserItemMember 
-                  key={uuid}
-                  uuid={uuid}
-                  avaPath={avaPath}
-                  name={name}
-                  status={'в сети'} 
-                />
-              )}
+              {
+                (!isGroupDataLoading && groupData)
+                  ? <UserItemMember
+                    key={groupData?.owner.uuid}
+                    {...groupData?.owner}
+                    status={'в сети'} 
+                  />
+                  : <div>загрузка...</div>
+              }
+                
+              {
+                (!isGroupMembersLoading)
+                  ? groupMembers?.map(({uuid, name, avaPath}) => 
+                    <UserItemMember 
+                      key={uuid}
+                      uuid={uuid}
+                      avaPath={avaPath}
+                      name={name}
+                      status={'в сети'} 
+                    />
+                  )
+                  : <div>загрузка...</div>
+              }
             </div>
           </div>
         }

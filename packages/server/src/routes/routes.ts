@@ -41,7 +41,6 @@ const createRouter = ({
   // список групп пользователя и групп где он состоит
   router.get('/user-groups', authMiddleware, groupController.userGroups);
 
-
   // каналы
   router.get('/channel/:groupId/list', authMiddleware, channelController.list);
   router.post('/channel/create', authMiddleware, channelController.create);
@@ -59,6 +58,7 @@ const createRouter = ({
 
   // друзья
   router.get('/users/friends', authMiddleware, friendRequestController.friends);
+  router.get('/users/:groupId/members', authMiddleware, userController.groupMembers);
   router.post('/users/friend/:id/remove', authMiddleware, friendRequestController.removeFriend);
 
   router.get('/users/search', authMiddleware, userController.search);

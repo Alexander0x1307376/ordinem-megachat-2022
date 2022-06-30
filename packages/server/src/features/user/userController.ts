@@ -5,6 +5,7 @@ import { IUserService } from './userService';
 
 export interface IUserController {
   search: ControllerMethod;
+  groupMembers: ControllerMethod;
   list: ControllerMethod;
   show: ControllerMethod;
   edit: ControllerMethod;
@@ -15,6 +16,12 @@ export interface IUserController {
 const createUserController = (userService: IUserService) => {
 
   return {
+
+    groupMembers: cf(async (req: any, res) => {
+      const { groupId } = req.params;
+      const result = await userService.groupMembers(groupId);
+      res.json(result);
+    }),
 
     search: cf(async (req: any, res) => {
       const userUuid = req.user.uuid;
