@@ -1,3 +1,4 @@
+import { GroupDetailsResponse } from "@ordinem-megachat-2022/shared";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
 import { RootState } from "../../store/store";
@@ -38,7 +39,7 @@ export const groupApi = createApi({
 
     }),
 
-    groupDetails: build.query<any, any>({
+    groupDetails: build.query<GroupDetailsResponse, string>({
       query: (uuid: string) => ({
         url: `group/${uuid}`,
         method: 'GET'

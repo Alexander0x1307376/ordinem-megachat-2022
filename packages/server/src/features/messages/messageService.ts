@@ -142,6 +142,9 @@ const createMessageService = ({
       .limit(count)
       .getRawMany();
 
+    if (!messages.length)
+      return { channelUuid, messages: {}, cursors: {} } as MessageSet;
+
     // при входящем курсоре prev - сортировка по id от большего к меньшему (DESC)
     // поэтому граничную запись - искать с конца
     

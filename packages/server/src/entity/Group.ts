@@ -1,7 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import Model from "./Model";
 import { User } from "./User";
 import { Image } from "./Image";
+import { Channel } from "./Channel";
 
 @Entity('groups')
 export class Group extends Model {
@@ -24,7 +25,10 @@ export class Group extends Model {
   @ManyToOne(() => Image, { nullable: true, onDelete: 'SET NULL' })
   ava: Image;
 
-  @ManyToMany((type) => User)
+  @ManyToMany(() => User)
   @JoinTable()
   members: User[]
+
+  @OneToMany(() => Channel, channel => channel.group)
+  channels: Channel[];
 }

@@ -81,20 +81,32 @@ const ChannelChat: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       <div ref={messageSection} className="overflow-y-auto flex flex-col-reverse grow">  
-        <div ref={bottomObservable}></div>
-        <div className="pt-4 space-y-2">
-          {
-            channelMessages?.map((message, index) => 
-              <ChatMessage key={message.uuid}
-                avaUrl={message.authorAvaPath ? BASE_API_URL + message.authorAvaPath : undefined}
-                authorName={message.authorName}
-                message={message.text}
-                date={message.createdAt}
-              />
-            )
-          }
-        </div>
-        <div ref={topObservable}></div>
+        {channelMessages?.length
+          ? (
+            <>
+              <div ref={bottomObservable}></div>
+              <div className="pt-4 space-y-2">
+                {
+                  channelMessages?.map((message, index) =>
+                    <ChatMessage key={message.uuid}
+                      avaUrl={message.authorAvaPath ? BASE_API_URL + message.authorAvaPath : undefined}
+                      authorName={message.authorName}
+                      message={message.text}
+                      date={message.createdAt}
+                    />
+                  )
+                }
+              </div>
+              <div ref={topObservable}></div>
+            </>
+          )
+          : (
+            <div className="text-center p-4">
+              в этом канале пока что нет сообщений
+            </div>
+          )
+        }
+        
 
       </div>
       <div className="grow-0 px-4 pb-4">

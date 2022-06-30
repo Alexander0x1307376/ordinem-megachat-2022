@@ -1,3 +1,5 @@
+import { Channel } from "./channelTypes";
+import { User } from "./userTypes";
 
 export type Group = {
   uuid: string; 
@@ -20,10 +22,9 @@ export type GroupDetailsResponse = {
   description: string;
   createdAt: number;
   updatedAt: number;
-  owner: {
-    uuid: string;
-    name: string;
-  };
+  avaPath?: string;
+  owner: User;
+  channels: Channel[];
 }
 
 export type JoinGroupResponse = {

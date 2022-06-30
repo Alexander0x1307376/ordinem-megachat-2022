@@ -1,6 +1,10 @@
+import AppDataSource from '../../dataSource';
 import { controllerFunction as cf } from '../controller';
 import { getImageDataFromFile } from '../image/imageUtils';
-import groupService from './groupService';
+import createGroupService from './groupService';
+
+
+const groupService = createGroupService(AppDataSource);
 
 export default {
 
@@ -76,7 +80,7 @@ export default {
   show: cf(async (req, res) => {
     const { id } = req.params;
 
-    const result = await groupService.show(id);
+    const result = await groupService.groupDetails(id);
     res.json(result);
   }),
 

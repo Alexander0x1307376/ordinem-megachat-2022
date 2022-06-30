@@ -15,24 +15,7 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { useChannelListQuery, useCreateChannelMutation } from "../../features/channels/channelsService";
 import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 
-const channels = [
-  {
-    uuid: '111',
-    name: 'главный'
-  },
-  {
-    uuid: '222',
-    name: 'мемчат'
-  },
-  {
-    uuid: '333',
-    name: 'второстепенный'
-  },
-  {
-    uuid: '444',
-    name: 'канал с очень-очень длинным названием'
-  },
-];
+
 
 const users = [
   {
@@ -128,7 +111,7 @@ const Group: React.FC = () => {
   const { 
     isLoading,
     data: groupData
-  } = useGroupDetailsQuery(groupId);
+  } = useGroupDetailsQuery(groupId || '');
   // #endregion
 
 
@@ -151,13 +134,6 @@ const Group: React.FC = () => {
 
     }
   }
-
-  // список каналов
-  const { 
-    data: channelList, isLoading: ischannelListLoading
-  } = useChannelListQuery(groupId!);
-
-
   // #endregion
 
   return (<>
@@ -233,7 +209,7 @@ const Group: React.FC = () => {
               </IntegratedMenu>
             </div>
             <div className="flex flex-col space-y-1">
-              {ischannelListLoading
+              {isLoading
               ? (
                 <div className="flex space-x-2 p-4 text-textSecondary">
                   <LoadingSpinner size='1.5rem' />
@@ -241,7 +217,7 @@ const Group: React.FC = () => {
                 </div>
               )
               : (
-                channelList?.channels.map(({uuid, name}) =>
+                  groupData?.channels.map(({uuid, name}: any) =>
                 <NavLink
                   className={({ isActive }) => {
                     return isActive
@@ -287,6 +263,9 @@ const Group: React.FC = () => {
               </IntegratedMenu>
             </div>
             <div className="flex flex-col space-y-1 pl-2">
+              {/* <UserItemMember 
+                key={groupData.}
+              /> */}
               {users.map(({uuid, name, avaPath}) => 
                 <UserItemMember 
                   key={uuid}
