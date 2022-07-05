@@ -5,6 +5,7 @@ import { DeleteResult, ILike, In, Not } from "typeorm";
 import FriendshipSystemEventEmitter from "../friendshipSystem/friendshipSystemEventEmitter";
 import { DataSource } from "typeorm";
 import { Group } from "../../entity/Group";
+import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
 
 export type UserItem = {
   uuid: string;
@@ -12,7 +13,7 @@ export type UserItem = {
   avaPath?: string;
 }
 
-export interface IUserService {
+export interface IUserService extends ChangeDataEventEmitter<any> {
   getItem: (userUuid: string) => Promise<User>;
   getList: (page: number, rowsPerPage?: number) => Promise<PaginationData<User>>;
   checkExistingByEmail: (email: string) => Promise<boolean>;
@@ -164,18 +165,27 @@ const createUserService = ({
     return user;
   }
 
+
+  const eventEmitter = createChangeDataEventEmitter<any>({
+    methods: {
+      create,
+      update: () => { },
+      remove: () => { }
+    }
+  })
+
   
   return {
     getItem,
     getList,
     checkExistingByEmail,
     getAccountData,
-    create,
+    create: eventEmitter.create,
     searchByName,
     friends,
     removeFriend,
     groupMembers
-  } as IUserService
+  } as IUserService & ChangeDataEventEmitter<any>
 
 }
 

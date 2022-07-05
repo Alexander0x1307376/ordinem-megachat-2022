@@ -11,12 +11,6 @@ type ChannelEntity = Pick<Channel, "uuid">;
 type MessageEntity = MessageItemResponse;
 
 
-// каналы и их сообщения
-export type ChatSystemState = {
-  channels: EntityState<ChannelEntity>;
-  messages: EntityState<MessageEntity>;
-}
-
 const messagesAdapter = createEntityAdapter<MessageEntity>({
   selectId: (item) => item.uuid,
   sortComparer: (a, b) => {

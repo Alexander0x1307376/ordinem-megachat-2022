@@ -1,6 +1,6 @@
 import { Request, Router } from 'express';
 import authMiddleware from '../features/auth/authMiddleware';
-import groupController from '../features/group/groupController';
+import groupController, { IGroupController } from '../features/group/groupController';
 import upload from '../features/fileUploader/uploadMiddleware';
 import { IAuthController } from '../features/auth/authController';
 import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
@@ -12,10 +12,11 @@ export interface IControllers {
   userController: IUserController;
   authController: IAuthController;
   channelController: IChannelController;
+  groupController: IGroupController;
 }
 
 const createRouter = ({
-  friendRequestController, userController, authController, channelController
+  friendRequestController, userController, authController, channelController, groupController
 }: IControllers) => {
   
   const router = Router();

@@ -6,6 +6,8 @@ import { RootState } from "../../store/store";
 import { getUserFromLocalStorage } from "../../utils/authUtils";
 import websocketChatMessageReceiver from "../chatMessageSystem/websocketChatMessageReceiver";
 import websocketFriendshipReceiver from "../friendshipSystem/websocketFriendshipReceiver";
+import realtimeSystemReceiver from "../realtimeSystem/realtimeSystemReceiver";
+import websocketUsersDataReceiver from "../users/websocketUsersDataReceiver";
 
 export interface IWebsocketContext {
   socket?: Socket;
@@ -41,8 +43,10 @@ const WebsocketProvider = ({children}: { children: ReactNode; }) => {
   useEffect(() => {
     
     if (socket) {
+      realtimeSystemReceiver(socket, store);
       websocketFriendshipReceiver(socket, store);
       websocketChatMessageReceiver(socket, store);
+      websocketUsersDataReceiver(socket, store);
     }
     else {
       console.warn('there is no user data. socket is not initialized!');

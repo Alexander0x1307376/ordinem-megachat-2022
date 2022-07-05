@@ -15,10 +15,17 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { useCreateChannelMutation } from "../../features/channels/channelsService";
 import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
-
-
+import useWebsocketUsersDataEmitter from "../../features/users/useWebsocketUsersDataEmitter";
+import { useAppDispatch, useAppSelector } from "../../store/utils/hooks";
+import { selectUsersData } from "../../features/users/usersDataSlice";
+import { has } from "lodash";
+import { realtimeSystemActions } from "../../features/realtimeSystem/realtimeSystemSlice";
+import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
 
 const Group: React.FC = () => {
+
+  const dispatch = useAppDispatch();
+
 
   // #region Состояние представления
   
@@ -89,7 +96,7 @@ const Group: React.FC = () => {
   // #endregion
 
 
-  // #region группы
+  // #region данные группы (Сама группа и участники)
   const { groupId } = useParams();
   const { 
     isLoading: isGroupDataLoading,
@@ -97,16 +104,14 @@ const Group: React.FC = () => {
   } = useGroupDetailsQuery(groupId || '');
   // #endregion
 
-  // #region каналы
+  // #region Участники канала
   const {
     isLoading: isGroupMembersLoading,
     data: groupMembers
   } = useGroupMembersQuery(groupId || '');
   // #endregion
-
-
+  
   // #region каналы
-
   // создание каналов
   const [createChannel, {isLoading: createChannelLoading}] = useCreateChannelMutation();
   const handleSubmitCreateChannel = async (event: FormEvent<HTMLFormElement>) => {
@@ -124,6 +129,38 @@ const Group: React.FC = () => {
 
     }
   }
+  // #endregion
+
+  const {
+    subscribeToChanges, unsubscibeToChanges
+  } = useRealtimeSystemEmitter();
+
+
+
+  // #region статусы участников 
+  useEffect(() => {
+
+    if (!(groupData && groupMembers && groupId)) return;
+    // запрашиваем статусы участников и владельца
+
+    subscribeToChanges({
+      groups: [groupId],
+      users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
+      channels: groupData.channels.map(item => item.uuid) 
+    })
+
+    return () => {
+      unsubscibeToChanges({
+        groups: [groupId],
+        users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
+        channels: groupData.channels.map(item => item.uuid) 
+      })
+    }
+    
+  }, [groupMembers, groupData, groupId]);
+
+  const usersData = useAppSelector(selectUsersData);
+
   // #endregion
 
   return (<>
@@ -256,9 +293,13 @@ const Group: React.FC = () => {
               {
                 (!isGroupDataLoading && groupData)
                   ? <UserItemMember
-                    key={groupData?.owner.uuid}
-                    {...groupData?.owner}
-                    status={'в сети'} 
+                    key={groupData.owner.uuid}
+                    {...groupData.owner}
+                    status={
+                      has(usersData, groupData.owner.uuid)
+                      ? usersData[groupData.owner.uuid].status
+                      : 'не в сети'
+                    } 
                   />
                   : <div>загрузка...</div>
               }
@@ -271,7 +312,11 @@ const Group: React.FC = () => {
                       uuid={uuid}
                       avaPath={avaPath}
                       name={name}
-                      status={'в сети'} 
+                      status={
+                        has(usersData, uuid)
+                          ? usersData[uuid].status
+                          : 'не в сети'
+                      } 
                     />
                   )
                   : <div>загрузка...</div>

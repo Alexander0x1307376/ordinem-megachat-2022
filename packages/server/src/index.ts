@@ -21,6 +21,8 @@ import createAuthController from './features/auth/authController';
 import createChannelService from './features/channels/channelService';
 import createChannelController from './features/channels/channelController';
 import createMessageService from './features/messages/messageService';
+import createGroupService from './features/group/groupService';
+import createGroupController from './features/group/groupController';
 
 export const app = express();
 
@@ -31,6 +33,8 @@ const webSocketsPort = process.env.WS_PORT || 4000;
 const channelService = createChannelService({ dataSource: AppDataSource });
 const channelController = createChannelController({channelService});
 
+const groupService = createGroupService(AppDataSource);
+const groupController = createGroupController(groupService);
 const friendshipEventEmitter = new FriendshipSystemEventEmitter();
 
 const userService = createUserService({
@@ -57,7 +61,8 @@ const router = createRouter({
   friendRequestController,
   userController,
   authController,
-  channelController
+  channelController,
+  groupController
 });
 
 // #region Настройка приложения
@@ -98,7 +103,8 @@ CreateMainHandler(io, {
   usersOnlineStore,
   userService,
   messageService,
-  channelService
+  channelService,
+  groupService
 });
 
 

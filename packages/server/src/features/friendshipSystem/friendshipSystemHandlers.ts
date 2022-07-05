@@ -26,17 +26,7 @@ const InitFriendshipSystemHandlers = (
 
     // запрос информации о реквестах и статусе друзей при подключении
     socket.on(fsEvents.REQUEST_INFO, async () => {
-      try {
-        const result: RequestsInfo = {
-          friendRequests: await friendRequestService.getRequests(userUuid),
-          friendsStatuses: usersOnlineStore.getFriendsData(userUuid) 
-        };
-        
-        io.to(socketId).emit(fsEvents.REQUEST_INFO_SUCCESS, result);
-
-      } catch (e: any) {
-        io.to(socketId).emit(fsEvents.REQUEST_INFO_ERROR, e.message);
-      }
+      
     });
 
 
@@ -128,16 +118,16 @@ const InitFriendshipSystemHandlers = (
     const user_1 = usersOnlineStore.getItem(userUuid_1);
     const user_2 = usersOnlineStore.getItem(userUuid_2);
 
-    usersOnlineStore.addFriendship(userUuid_1, userUuid_2);
+    // usersOnlineStore.addFriendship(userUuid_1, userUuid_2);
 
-    if(user_1) {
-      const friendStatuses_1 = usersOnlineStore.getFriendsData(userUuid_1);
-      io.to(user_1.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_1);
-    }
-    if(user_2) {
-      const friendStatuses_2 = usersOnlineStore.getFriendsData(userUuid_2);
-      io.to(user_2.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_2);
-    }
+    // if(user_1) {
+    //   const friendStatuses_1 = usersOnlineStore.getFriendsData(userUuid_1);
+    //   io.to(user_1.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_1);
+    // }
+    // if(user_2) {
+    //   const friendStatuses_2 = usersOnlineStore.getFriendsData(userUuid_2);
+    //   io.to(user_2.socketId).emit(fsEvents.FRIEND_STATUSES, friendStatuses_2);
+    // }
     
   });
 
@@ -147,29 +137,12 @@ const InitFriendshipSystemHandlers = (
     const user_2 = usersOnlineStore.getItem(userUuid_2);
     
     // правим онлайн хранилище
-    usersOnlineStore.removeFriendship(userUuid_1, userUuid_2);
+    // usersOnlineStore.removeFriendship(userUuid_1, userUuid_2);
 
     if(user_1)
       io.to(user_1.socketId).emit(fsEvents.UNFRIENDED);
     if(user_2)
       io.to(user_2.socketId).emit(fsEvents.UNFRIENDED);
-  });
-
-
-
-  usersOnlineStore.on(UsersStoreEvents.USER_ONLINE, (userData: Required<UserData>) => {
-    const sockets = usersOnlineStore.getUserSocketIdsOfUserFriends(userData.uuid);
-    if (sockets.length) {
-      io.to(sockets).emit(fsEvents.FRIEND_IS_ONLINE, { 
-        uuid: userData.uuid,
-        status: 'в сети' 
-      });
-    }
-  });
-  
-  usersOnlineStore.on(UsersStoreEvents.USER_OFFLINE, (userData: Required<UserData>) => {
-    const sockets = usersOnlineStore.getUserSocketIdsOfUserFriends(userData.uuid);
-    io.to(sockets).emit(fsEvents.FRIEND_IS_OFFLINE, { uuid: userData.uuid });
   });
 
   return friendshipSystemHandlers;

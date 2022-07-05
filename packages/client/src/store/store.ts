@@ -6,6 +6,8 @@ import { userApi } from "../features/users/usersService";
 import { channelsApi } from "../features/channels/channelsService";
 import { friendfhipSystemReducer } from "../features/friendshipSystem/friendshipSystemSlice";
 import { chatSystemReducer } from "../features/chatMessageSystem/chatSystemSlice";
+import { usersDataReducer } from "../features/users/usersDataSlice";
+import { realtimeSystemReducer } from "../features/realtimeSystem/realtimeSystemSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +17,9 @@ export const store = configureStore({
     [channelsApi.reducerPath]: channelsApi.reducer,
     chatSystem: chatSystemReducer,
     friendshipSystem: friendfhipSystemReducer,
-    auth: authReducer
+    auth: authReducer,
+    usersData: usersDataReducer,
+    realtimeSystem: realtimeSystemReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat([
     authApi.middleware,

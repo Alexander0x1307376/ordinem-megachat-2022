@@ -8,9 +8,10 @@ import { nanoid } from 'nanoid';
 import { GroupDetailsResponse } from "@ordinem-megachat-2022/shared";
 import { DataSource } from "typeorm";
 import { Channel } from "../../entity/Channel";
+import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
 
 
-export interface IGroupService {
+export interface IGroupService extends ChangeDataEventEmitter<any> {
   userGroups: (userUuid: string) => Promise<any>;
   groupDetails: (groupUuid: string) => Promise<GroupDetailsResponse>;
   createInvite: (inviterUuid: string, groupUuid: string) => Promise<any>;
@@ -225,11 +226,21 @@ const createGroupService = (dataSource: DataSource) => {
     return group;
   }
 
+  const eventEmitter = createChangeDataEventEmitter<any>({
+    methods: {
+      create,
+      update,
+      remove: () => {}
+    }
+  })
+
   return {
     userGroups,
     groupDetails,
-    create,
-    update,
+    create: eventEmitter.create,
+    update: eventEmitter.update,
+    on: eventEmitter.on,
+    off: eventEmitter.off,
     createInvite,
     joinGroup,
     leaveGroup

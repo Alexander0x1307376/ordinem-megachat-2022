@@ -7,6 +7,7 @@ import FriendshipSystemEventEmitter from "../features/friendshipSystem/friendshi
 import InitFriendshipSystemHandlers from "../features/friendshipSystem/friendshipSystemHandlers";
 import UsersOnlineStore from "../features/usersOnlineStore/UsersOnlineStore";
 import InitChatSystemHandlers from "../features/chatSystem/chatSystemHandlers";
+import { IGroupService } from "../features/group/groupService";
 
 
 interface ICreateMainHandler {
@@ -16,6 +17,7 @@ interface ICreateMainHandler {
   userService: IUserService;
   messageService: IMessageService;
   channelService: IChannelService;
+  groupService: IGroupService;
 }
 
 export const CreateMainHandler = (socketServer: Server, {
@@ -24,7 +26,8 @@ export const CreateMainHandler = (socketServer: Server, {
   friendRequestService, 
   userService, 
   messageService,
-  channelService
+  channelService,
+  groupService
 }: ICreateMainHandler) => {
 
   const friendshipSystemHandlers = InitFriendshipSystemHandlers(socketServer, {
@@ -36,7 +39,9 @@ export const CreateMainHandler = (socketServer: Server, {
   const chatSystemHandlers = InitChatSystemHandlers(socketServer, {
     usersOnlineStore,
     channelService,
-    messageService
+    messageService,
+    userService,
+    groupService
   });
 
 
@@ -46,13 +51,10 @@ export const CreateMainHandler = (socketServer: Server, {
 
     console.log(`user ${name} connected!`);
 
-    const userFriends = await userService.friends(uuid);
-
-    usersOnlineStore.addUser(uuid, {
+    usersOnlineStore.addUser({
       socketId: socket.id,
-      name,
-      avaUrl,
-      friends: userFriends.map((item: any) => item.uuid)
+      uuid,
+      userData: { name, avaPath: avaUrl }
     });
 
     const userData = {

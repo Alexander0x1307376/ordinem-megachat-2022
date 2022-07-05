@@ -12,7 +12,6 @@ const websocketFriendshipReceiver = (
   // ставим состояние "соединение установлено" и запрашиваем по сокету данные с сервера
   socket.on('connect', () => {
     store.dispatch(msActions.connectionEstablished());
-    console.log('FriendshipSystem: connection established!');
 
     // по неясной причине запрос не отправляется моментально, поэтому так
     setTimeout(() => socket.emit(fsEvents.REQUEST_INFO), 200);

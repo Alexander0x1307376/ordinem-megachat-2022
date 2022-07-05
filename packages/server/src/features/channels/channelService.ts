@@ -1,13 +1,13 @@
 import { Channel as ChannelItem, ChannelList, ChannelPostData } from "@ordinem-megachat-2022/shared";
 import { omit } from "lodash";
-// import dataSource from "../../dataSource";
 import { Channel } from "../../entity/Channel";
 import { Group } from "../../entity/Group";
 import ApiError from "../../exceptions/apiError";
 import { DataSource } from "typeorm";
+import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
 
 
-export interface IChannelService {
+export interface IChannelService extends ChangeDataEventEmitter<ChannelItem> {
   getList: (groupUuid: string) => Promise<ChannelList>;
   getChannelDetails: (channelUuid: string) => Promise<ChannelItem>;
   createChannel: (channelPostData: ChannelPostData) => Promise<ChannelItem>;
@@ -55,7 +55,7 @@ const createChannelService = ({
     return result as ChannelItem;
   }
   
-  const createChannel = async ({name, description, groupUuid}: Omit<ChannelPostData, 'uuid'>): Promise<ChannelItem> => {
+  const createChannel = async ({name, description, groupUuid}: ChannelPostData): Promise<ChannelItem> => {
 
     const group = await Group.findOne({
       select: ['id'],
@@ -73,7 +73,7 @@ const createChannelService = ({
   }
 
   const updateChannel = async (
-    uuid: string, channelData: Omit<ChannelPostData, 'uuid'>
+    uuid: string, channelData: ChannelPostData
   ): Promise<ChannelItem> => {
     const channel = await Channel.findOne({where: {uuid}});
     if (!channel)
@@ -99,13 +99,23 @@ const createChannelService = ({
     return !!channel;
   }
 
+  const eventEmitter = createChangeDataEventEmitter<ChannelItem>({
+    methods: {
+      create: createChannel,
+      update: updateChannel,
+      remove: removeChannel
+    }
+  })
+
   const result: IChannelService = {
+    createChannel: eventEmitter.create,
+    updateChannel: eventEmitter.update,
+    removeChannel: eventEmitter.remove,
     getList,
     getChannelDetails,
-    createChannel,
-    updateChannel,
-    removeChannel,
-    checkIfChannelExists
+    checkIfChannelExists,
+    on: eventEmitter.on,
+    off: eventEmitter.off
   };
   return result;
 }
