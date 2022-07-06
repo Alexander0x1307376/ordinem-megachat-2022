@@ -1,10 +1,6 @@
 import EventEmitter from "events";
 
 
-// Обобщённый CRUD сервис
-// На выходе получаем методы и события
-
-
 export enum ServiceEvents {
   ENTITY_CREATED = 'ENTITY_CREATED',
   ENTITY_UPDATED = 'ENTITY_UPDATED',

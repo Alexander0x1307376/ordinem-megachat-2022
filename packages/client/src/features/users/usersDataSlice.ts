@@ -1,12 +1,9 @@
-import {
-  createEntityAdapter, createSlice, EntityState, PayloadAction, createSelector
-} from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
 import { getUserFromLocalStorage } from "../../utils/authUtils";
 
-
 export type UserDataState = {
-  userStatuses: Record<string, {status: string}>;
+  users: Record<string, {status: string}>;
 }
 
 
@@ -14,7 +11,7 @@ const currentUser = getUserFromLocalStorage();
 const userUuid = currentUser?.userData.uuid;
 
 const initialState: UserDataState = {
-  userStatuses: userUuid 
+  users: userUuid 
   ? { [userUuid]: {status: 'в сети'} } 
   : {}
 }
@@ -23,23 +20,23 @@ const usersDataSlice = createSlice({
   name: 'userData',
   initialState,
   reducers: {
-    setUsersStatuses: (state, action: PayloadAction<Record<string, { status: string }>>) => {
-      state.userStatuses = Object.assign(state.userStatuses, action.payload);
+    setUsersData: (state, action: PayloadAction<Record<string, { status: string }>>) => {
+      state.users = Object.assign(state.users, action.payload);
     },
     setUserStatus: (state, action: PayloadAction<{ userUuid: string, status: string }>) => {
       console.log('setUserStatus');
       const { userUuid, status } = action.payload;
-      state.userStatuses[userUuid] = { status };
+      state.users[userUuid] = { status };
     },
     removeUser: (state, action: PayloadAction<string>) => {
-      delete state.userStatuses[action.payload];
+      delete state.users[action.payload];
     }
   }
 });
 
 
 export const selectUsersData = (state: RootState) => {
-  return state.usersData.userStatuses;
+  return state.usersData.users;
 }
 
 export const usersDataActions = usersDataSlice.actions;

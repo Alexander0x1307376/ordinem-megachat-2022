@@ -176,7 +176,7 @@ const Group: React.FC = () => {
       </ModalWindow>
     </FramerModal>
     <div className="h-screen w-screen flex flex-col">
-      <Header title={groupData?.name || 'загрузка...'} 
+      <Header title={!isGroupDataLoading ? groupData?.name || 'ошибка' : 'загрузка...'} 
         leftContent={
           <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>  
         }
@@ -291,16 +291,18 @@ const Group: React.FC = () => {
             </div>
             <div className="flex flex-col space-y-1 pl-2">
               {
-                (!isGroupDataLoading && groupData)
-                  ? <UserItemMember
-                    key={groupData.owner.uuid}
-                    {...groupData.owner}
-                    status={
-                      has(usersData, groupData.owner.uuid)
-                      ? usersData[groupData.owner.uuid].status
-                      : 'не в сети'
-                    } 
-                  />
+                (!isGroupDataLoading)
+                  ? groupData && (
+                    <UserItemMember
+                      key={groupData.owner.uuid}
+                      {...groupData.owner}
+                      status={
+                        has(usersData, groupData.owner.uuid)
+                        ? usersData[groupData.owner.uuid].status
+                        : 'не в сети'
+                      } 
+                    />
+                  )
                   : <div>загрузка...</div>
               }
                 

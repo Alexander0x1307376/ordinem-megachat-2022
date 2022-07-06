@@ -1,8 +1,9 @@
 import { Socket } from "socket.io-client";
 import { store as mainStore } from "../../store/store";
-import { ChatSystemEvents as csEvents, ChangeData } from "@ordinem-megachat-2022/shared";
+import { ChangeData, ChatSystemEvents as csEvents, SubscribeToChangeData } from "@ordinem-megachat-2022/shared";
 import { realtimeSystemActions } from "./realtimeSystemSlice";
 import { usersDataActions } from "../users/usersDataSlice";
+import { omit } from "lodash";
 
 const realtimeSystemReceiver = (socket: Socket, store: typeof mainStore) => {
   socket.on('connect', () => {
@@ -26,8 +27,16 @@ const realtimeSystemReceiver = (socket: Socket, store: typeof mainStore) => {
     store.dispatch(usersDataActions.removeUser(userUuid));
   });
   
-  socket.on(csEvents.CHANGES, (response: Partial<ChangeData>) => {
-    store.dispatch(realtimeSystemActions.setRealtimeState(response));
+  socket.on(csEvents.CHANGES, (response: ChangeData) => {
+
+    // устанавливаем статусы юзеров
+    const userData = response.users?.data
+      .reduce((acc: any, item: any) => ({
+        ...acc, [item.uuid]: omit(item, 'uuid')
+      }), {} as Record<string, any>);
+
+    store.dispatch(usersDataActions.setUsersData(userData));
+
   });
 }
 

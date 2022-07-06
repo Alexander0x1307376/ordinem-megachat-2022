@@ -115,8 +115,8 @@ const InitFriendshipSystemHandlers = (
 
   friendshipEventEmitter.on(fsEventTypes.BECAME_FRIENDS, ({userUuid_1, userUuid_2}) => {
 
-    const user_1 = usersOnlineStore.getItem(userUuid_1);
-    const user_2 = usersOnlineStore.getItem(userUuid_2);
+    const user_1 = usersOnlineStore.getUser(userUuid_1);
+    const user_2 = usersOnlineStore.getUser(userUuid_2);
 
     // usersOnlineStore.addFriendship(userUuid_1, userUuid_2);
 
@@ -133,8 +133,8 @@ const InitFriendshipSystemHandlers = (
 
   friendshipEventEmitter.on(fsEventTypes.UNFRIENDED, ({ userUuid_1, userUuid_2}) => {
     // получаем пользователей
-    const user_1 = usersOnlineStore.getItem(userUuid_1);
-    const user_2 = usersOnlineStore.getItem(userUuid_2);
+    const user_1 = usersOnlineStore.getUser(userUuid_1);
+    const user_2 = usersOnlineStore.getUser(userUuid_2);
     
     // правим онлайн хранилище
     // usersOnlineStore.removeFriendship(userUuid_1, userUuid_2);

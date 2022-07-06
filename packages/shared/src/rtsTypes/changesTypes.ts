@@ -1,5 +1,10 @@
-export type ChangeData = {
+export type SubscribeToChangeData = {
   users: string[];
   groups: string[];
   channels: string[];
 }
+
+export type ChangeData = Record<string, {
+  data: any,
+  changeType: 'replace' | 'merge' | 'remove'
+}>

@@ -11,7 +11,7 @@ import { Channel } from "../../entity/Channel";
 import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
 
 
-export interface IGroupService extends ChangeDataEventEmitter<any> {
+export interface IGroupService extends ChangeDataEventEmitter<GroupDetailsResponse> {
   userGroups: (userUuid: string) => Promise<any>;
   groupDetails: (groupUuid: string) => Promise<GroupDetailsResponse>;
   createInvite: (inviterUuid: string, groupUuid: string) => Promise<any>;
@@ -226,11 +226,11 @@ const createGroupService = (dataSource: DataSource) => {
     return group;
   }
 
-  const eventEmitter = createChangeDataEventEmitter<any>({
+  const eventEmitter = createChangeDataEventEmitter<Pick<GroupDetailsResponse, 'uuid' | 'avaPath' | 'description'>>({
     methods: {
       create,
       update,
-      remove: () => {}
+      remove: (data) => ({}) as any
     }
   })
 

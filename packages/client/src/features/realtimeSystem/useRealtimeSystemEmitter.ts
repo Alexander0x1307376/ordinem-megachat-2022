@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { WebsocketContext } from "../websocketsSystem/websocketContext";
 import { ChatSystemEvents as chatEvents } from "@ordinem-megachat-2022/shared";
-import { ChangeData } from "@ordinem-megachat-2022/shared";
+import { SubscribeToChangeData } from "@ordinem-megachat-2022/shared";
 import { useAppDispatch } from "../../store/utils/hooks";
 import { realtimeSystemActions } from "./realtimeSystemSlice";
 
@@ -19,12 +19,12 @@ const useRealtimeSystemEmitter = () => {
     // socket?.emit(chatEvents.REQUEST_USER_STATUSES, userUuidList);
   };
 
-  const subscribeToChanges = (data: Partial<ChangeData>) => {
+  const subscribeToChanges = (data: Partial<SubscribeToChangeData>) => {
     dispatch(realtimeSystemActions.setRealtimeState(data));
     socket?.emit(chatEvents.SUBSCRIBE_TO_CHANGES, data);
   }
 
-  const unsubscibeToChanges = (data: Partial<ChangeData>) => {
+  const unsubscibeToChanges = (data: Partial<SubscribeToChangeData>) => {
     dispatch(realtimeSystemActions.removeRealtimeState(data));
     socket?.emit(chatEvents.UNSUBSCRIBE_TO_CHANGES, data);
   }

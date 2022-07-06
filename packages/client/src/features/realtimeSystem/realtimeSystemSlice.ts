@@ -3,9 +3,9 @@ import {
 } from "@reduxjs/toolkit";
 import { difference, isArray, merge, mergeWith, uniq } from "lodash";
 import { RootState } from "../../store/store";
-import { ChangeData } from "@ordinem-megachat-2022/shared";
+import { SubscribeToChangeData } from "@ordinem-megachat-2022/shared";
 
-export type RealtimeState = ChangeData;
+export type RealtimeState = SubscribeToChangeData;
 
 export type SetActionPayload = Partial<RealtimeState>;
 

@@ -20,8 +20,8 @@ export type GroupDetailsResponse = {
   uuid: string;
   name: string;
   description: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: string;
+  updatedAt: string;
   avaPath?: string;
   owner: User;
   channels: Channel[];

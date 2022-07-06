@@ -8,7 +8,7 @@ export enum ChatSystemEvents {
   UNSUBSCRIBE_TO_CHANGES_SUCCESS = 'UNSUBSCRIBE_TO_CHANGES_SUCCESS',
   UNSUBSCRIBE_TO_CHANGES_ERROR = 'UNSUBSCRIBE_TO_CHANGES_ERROR',
 
-  
+  // CHANGES - для измненения информации реального времени
   CHANGES = 'CHANGES',
 
   USER_ONLINE = 'USER_ONLINE',
