@@ -15,6 +15,7 @@ import CreateGroup from './components/pages/CreateGroup';
 import { useDispatch } from 'react-redux';
 import { friendshipSystemActions } from './features/friendshipSystem/friendshipSystemSlice';
 import ChannelChat from './components/pages/ChannelChat';
+import { useRefreshQuery } from './features/auth/authService';
 
 const animatePages = {
   initial: { 
@@ -39,6 +40,7 @@ const App: React.FC = () => {
   
   const pageClasses = 'h-full';
   const dispatch = useDispatch();
+  useRefreshQuery();
 
   useEffect(() => {
     dispatch(friendshipSystemActions.startConnecting());

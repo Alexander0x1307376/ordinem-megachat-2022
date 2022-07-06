@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
-import { clearUserData, setUserData } from "../../utils/authUtils";
-import { clearUser, setUser } from "./authSlice";
+import { clearUserData, getUserFromLocalStorage, setUserData } from "../../utils/authUtils";
+import { clearUser, setUser, UserState } from "./authSlice";
 import { RootState } from "../../store/store";
 import { 
   LoginResponse, 
@@ -63,8 +63,35 @@ export const authApi = createApi({
         dispatch(clearUser());
       }
     }),
+
+    refresh: build.query<any, void>({
+      query: () => ({
+        url: 'refresh',
+        method: 'GET',
+        headers: {
+          refreshToken: getUserFromLocalStorage()?.refreshToken
+        },
+      }),
+      onQueryStarted: async (id, { queryFulfilled, dispatch }) => {
+        try {
+          const refreshResult = await queryFulfilled;
+          setUserData(refreshResult.data as UserState);
+          dispatch(setUser(refreshResult.data as UserState));
+        }
+        catch (e) {
+          console.error('refresh не удался', e);
+          dispatch(clearUser());
+          clearUserData()
+        }
+      }
+    })
     
   })
 });
 
-export const { useLoginMutation, useLogoutMutation, useRegistrationMutation } = authApi;
+export const { 
+  useLoginMutation, 
+  useLogoutMutation, 
+  useRegistrationMutation,
+  useRefreshQuery
+} = authApi;
