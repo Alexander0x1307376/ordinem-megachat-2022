@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 
-export enum ServiceEvents {
+enum ServiceEvents {
   ENTITY_CREATED = 'ENTITY_CREATED',
   ENTITY_UPDATED = 'ENTITY_UPDATED',
   ENTITY_REMOVED = 'ENTITY_REMOVED'
@@ -16,8 +16,12 @@ interface CreateServiceInitialData<ItemData> {
 }
 
 export interface ChangeDataEventEmitter<EventParam> {
-  on: (event: ServiceEvents, callback: (data: EventParam) => void) => void;
-  off: (event: ServiceEvents, callback: (data: EventParam) => void) => void;
+    onCreated: (callback: (data: EventParam) => void) => void;
+    onUpdated: (callback: (data: EventParam) => void) => void;
+    onRemoved: (callback: (data: EventParam) => void) => void;
+    offCreated: (callback: (data: EventParam) => void) => void;
+    offUpdated: (callback: (data: EventParam) => void) => void;
+    offRemoved: (callback: (data: EventParam) => void) => void;
 }
 
 const createChangeDataEventEmitter = <ItemData>
@@ -45,20 +49,31 @@ const createChangeDataEventEmitter = <ItemData>
     emitter.emit(ServiceEvents.ENTITY_REMOVED, result);
     return result;
   }
-
-  const on = (eventName: ServiceEvents, callback: (...params: any) => void) => {
-    emitter.on(eventName, callback);
-  }  
-
-  const off = (eventName: ServiceEvents, callback: (...params: any) => void) => {
-    emitter.off(eventName, callback);
-  }
-
+  
   const service = {
     create: handleCreate,
     update: handleUpdate,
     remove: handleRemove,
-    on, off
+    emitter: {
+      onCreated: (callback: (data: ItemData) => void) => {
+        emitter.on(ServiceEvents.ENTITY_CREATED, callback);
+      },
+      onUpdated: (callback: (data: ItemData) => void) => {
+        emitter.on(ServiceEvents.ENTITY_UPDATED, callback);
+      },
+      onRemoved: (callback: (data: ItemData) => void) => {
+        emitter.on(ServiceEvents.ENTITY_REMOVED, callback);
+      },
+      offCreated: (callback: (data: ItemData) => void) => {
+        emitter.off(ServiceEvents.ENTITY_CREATED, callback);
+      },
+      offUpdated: (callback: (data: ItemData) => void) => {
+        emitter.off(ServiceEvents.ENTITY_UPDATED, callback);
+      },
+      offRemoved: (callback: (data: ItemData) => void) => {
+        emitter.off(ServiceEvents.ENTITY_REMOVED, callback);
+      }
+    } as ChangeDataEventEmitter<ItemData>
   }
   return service;
 }

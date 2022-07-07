@@ -184,7 +184,8 @@ const createUserService = ({
     searchByName,
     friends,
     removeFriend,
-    groupMembers
+    groupMembers,
+    ...eventEmitter.emitter
   } as IUserService & ChangeDataEventEmitter<any>
 
 }

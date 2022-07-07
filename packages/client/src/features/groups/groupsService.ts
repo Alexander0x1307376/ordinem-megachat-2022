@@ -17,7 +17,7 @@ export const groupApi = createApi({
   //     return headers;
   //   },
   // }),
-  tagTypes: ['userGroups'],
+  tagTypes: ['userGroups', 'groupDetails'],
   
   endpoints: build => ({
 
@@ -43,7 +43,8 @@ export const groupApi = createApi({
       query: (uuid: string) => ({
         url: `group/${uuid}`,
         method: 'GET'
-      })
+      }),
+      providesTags: ['groupDetails']
     })
   
   })

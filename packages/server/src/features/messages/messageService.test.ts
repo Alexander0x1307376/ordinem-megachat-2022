@@ -189,7 +189,6 @@ describe('набор сообщений извлекается согласно 
       prev: omittedData.cursors?.prev ? JSON.parse(decode(omittedData.cursors.prev)) : undefined,
       next: omittedData.cursors?.next ? JSON.parse(decode(omittedData.cursors.next)) : undefined
     }
-    console.log('decodedCursors', decodedCursors);
 
     expect(omittedData).toEqual(assertingData);
   });

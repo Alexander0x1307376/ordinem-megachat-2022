@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io"
 import { IChannelService } from "../channels/channelService"
 import { SocketUserData } from "../../sockets/socketTypes"
 import UsersOnlineStore, { UserData, UsersStoreEvents as usEvents } from "../usersOnlineStore/UsersOnlineStore"
-import { SubscribeToChangeData, ChatSystemEvents as csEvents, MessagePostData, ChangeData } from "@ordinem-megachat-2022/shared";
+import { SubscribeToChangeData, ChatSystemEvents as csEvents, MessagePostData, ChangeData, Channel } from "@ordinem-megachat-2022/shared";
 import { IMessageService } from "../messages/messageService";
 import { 
   getChannelRoomName,
@@ -17,7 +17,6 @@ import {
 } from "./utils";
 import { IGroupService } from "../group/groupService";
 import { IUserService } from "../user/userService";
-import { ServiceEvents } from "../crudService/changeDataEventEmitter";
 
 export type ChangedDataSet = {
   // users: 
@@ -46,15 +45,10 @@ const InitChatSystemHandlers = (
     const { id: socketId } = socket;
     const { userUuid } = userData;
 
-
-    socket.on('connection', async () => {
-      console.log('chatSystemHandlers connect');
-    });
-
+    // #region подписка на изменения и отписка
 
     socket.on(csEvents.SUBSCRIBE_TO_CHANGES, async (data: Partial<SubscribeToChangeData>) => {
       try {
-        console.log(`${userData.userName}: SUBSCRIBE_TO_CHANGES`, data);
         
         // подписываемся на изменения сущностий
         data.groups?.forEach(item => joinGroupRoom(socket, item));
@@ -84,7 +78,6 @@ const InitChatSystemHandlers = (
       
     });
     socket.on(csEvents.UNSUBSCRIBE_TO_CHANGES, async (data: Partial<SubscribeToChangeData>) => {
-      console.log('UNSUBSCRIBE_TO_CHANGES', data);
 
       data.groups?.forEach(item => {
         leaveGroupRoom(socket, item);
@@ -96,6 +89,9 @@ const InitChatSystemHandlers = (
         unobserveUser(socket, item);
       });
     });
+
+    // #endregion
+
 
     // #region каналы
 
@@ -183,6 +179,8 @@ const InitChatSystemHandlers = (
     // #endregion
   }
 
+
+  // #region Пользователи онлайн и оффлайн
   
   usersOnlineStore.on(usEvents.USER_ONLINE, async (userData: UserData) => {
     const observeUserRoom = getObserveUserRoomName(userData.uuid);
@@ -195,16 +193,29 @@ const InitChatSystemHandlers = (
     io.in(observeUserRoom).emit(csEvents.USER_OFFLINE, userData.uuid);
   });
 
+  // #endregion
 
-  groupService.on(ServiceEvents.ENTITY_CREATED, (data) => {
 
-  });
-  groupService.on(ServiceEvents.ENTITY_UPDATED, (data) => {
+  // #region События каналов
+  const reRequestChannels = (groupUuid: string) => {
+    const groupRoomName = getGroupRoomName(groupUuid);
+    io.in(groupRoomName).emit(csEvents.CHANGES_SIGNAL, 'group.channels');
+  }
+  channelService.onCreated(({ groupUuid }) => reRequestChannels(groupUuid));
+  channelService.onUpdated(({ groupUuid }) => reRequestChannels(groupUuid));
+  channelService.onRemoved(({ groupUuid }) => reRequestChannels(groupUuid));
+  // #endregion
 
-  });
-  groupService.on(ServiceEvents.ENTITY_REMOVED, (data) => {
-    
-  });
+
+  // #region События групп
+  const reRequestGroupData = (groupUuid: string) => {
+    const groupRoomName = getGroupRoomName(groupUuid);
+    io.in(groupRoomName).emit(csEvents.CHANGES_SIGNAL, 'group.list');
+  }
+  groupService.onCreated(({ uuid }) => reRequestGroupData(uuid));
+  groupService.onUpdated(({ uuid }) => reRequestGroupData(uuid));
+  groupService.onRemoved(({ uuid }) => reRequestGroupData(uuid));
+  // #endregion
 
   return chatSystemHandlers;
 }

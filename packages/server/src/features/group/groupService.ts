@@ -239,11 +239,10 @@ const createGroupService = (dataSource: DataSource) => {
     groupDetails,
     create: eventEmitter.create,
     update: eventEmitter.update,
-    on: eventEmitter.on,
-    off: eventEmitter.off,
     createInvite,
     joinGroup,
-    leaveGroup
+    leaveGroup,
+    ...eventEmitter.emitter
   } as IGroupService
 }
 

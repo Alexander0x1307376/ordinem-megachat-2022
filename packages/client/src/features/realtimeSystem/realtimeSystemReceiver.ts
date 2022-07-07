@@ -4,6 +4,9 @@ import { ChangeData, ChatSystemEvents as csEvents, SubscribeToChangeData } from 
 import { realtimeSystemActions } from "./realtimeSystemSlice";
 import { usersDataActions } from "../users/usersDataSlice";
 import { omit } from "lodash";
+import { channelsApi } from "../channels/channelsService";
+import { groupApi } from "../groups/groupsService";
+
 
 const realtimeSystemReceiver = (socket: Socket, store: typeof mainStore) => {
   socket.on('connect', () => {
@@ -38,6 +41,18 @@ const realtimeSystemReceiver = (socket: Socket, store: typeof mainStore) => {
     store.dispatch(usersDataActions.setUsersData(userData));
 
   });
+
+  socket.on(csEvents.CHANGES_SIGNAL, (response: string) => {
+    switch(response) {
+      case 'group.channels':
+        store.dispatch(channelsApi.util.invalidateTags(['channels']));
+        store.dispatch(groupApi.util.invalidateTags(['groupDetails']));
+      break;
+      case 'group.list':
+        store.dispatch(groupApi.util.invalidateTags(['userGroups']));
+      break;
+    }
+  })
 }
 
 export default realtimeSystemReceiver;

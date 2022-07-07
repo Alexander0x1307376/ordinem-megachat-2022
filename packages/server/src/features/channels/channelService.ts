@@ -37,17 +37,20 @@ const createChannelService = ({
       })
       .setParameter('groupUuid', groupUuid)
       .getRawMany();
-    return {channels: result} as ChannelList;
+
+    const channels = result.map(item => ({...item, groupUuid}));
+    
+    return { channels } as ChannelList;
   }
   
   const getChannelDetails = async (channelUuid: string): Promise<ChannelItem> => {
 
     const result = await dataSource
-      .getRepository(Channel)
-      .createQueryBuilder()
-      .select(['uuid', 'name', 'description', 'createdAt', 'updatedAt'])
-      .where({ uuid: channelUuid })
-      .getOne();
+      .createQueryBuilder(Channel, 'c')
+      .select('c.uuid, c.name, c.description, c."createdAt", c."updatedAt", g.uuid as "groupUuid"')
+      .where('c.uuid = :channelUuid', { channelUuid })
+      .leftJoin('c.group', 'g')
+      .getRawOne();
 
     if(!result)
       throw ApiError.NotFound();
@@ -68,8 +71,16 @@ const createChannelService = ({
       name, description, groupId: group.id
     });
     await channel.save();
-
-    return omit(channel, ['id']) as ChannelItem;
+    
+    const result: ChannelItem = {
+      uuid: channel.uuid,
+      name: channel.name,
+      description: channel.description,
+      createdAt: channel.createdAt,
+      updatedAt: channel.updatedAt,
+      groupUuid
+    }
+    return result;
   }
 
   const updateChannel = async (
@@ -81,16 +92,36 @@ const createChannelService = ({
 
     Object.assign(channel, channelData);
     await channel.save();
-    return omit(channel, ['id', 'groupId']) as ChannelItem;
+
+    const result: ChannelItem = {
+      name: channel.name,
+      description: channel.description,
+      createdAt: channel.createdAt,
+      updatedAt: channel.updatedAt,
+      uuid: channel.name,
+      groupUuid: channelData.groupUuid
+    }
+    return result;
   }
 
-  const removeChannel = async (uuid: string) => {
-    const channel = await Channel.findOne({ where: { uuid } });
-    if (!channel)
-      throw ApiError.NotFound(`channel with uuid ${uuid} not found`);
+  const removeChannel = async (channelUuid: string) => {
     
-    await channel.remove();
-    return omit(channel, ['id', 'groupId']) as ChannelItem;
+    const channelData = await dataSource.createQueryBuilder(Channel, 'c')
+      .select('c.id, c.uuid, c.name, c.description, c."createdAt", c."updatedAt", g.uuid as "groupUuid"')
+      .where('c.uuid = :channelUuid', { channelUuid })
+      .leftJoin('c.group', 'g')
+      .getRawOne();
+
+    if (!channelData)
+      throw ApiError.NotFound(`channel with uuid ${channelUuid} not found`);
+
+    await dataSource.createQueryBuilder()
+      .delete()
+      .from(Channel)
+      .where('id = :channelId', {channelId: channelData.id})
+      .execute();    
+    
+    return omit(channelData, ['id']) as ChannelItem;
   }
 
 
@@ -114,8 +145,7 @@ const createChannelService = ({
     getList,
     getChannelDetails,
     checkIfChannelExists,
-    on: eventEmitter.on,
-    off: eventEmitter.off
+    ...eventEmitter.emitter
   };
   return result;
 }

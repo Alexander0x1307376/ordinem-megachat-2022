@@ -2,6 +2,7 @@ export type Channel = {
   uuid: string;
   name: string;
   description?: string;
+  groupUuid: string;
   createdAt: Date;
   updatedAt: Date;
 }

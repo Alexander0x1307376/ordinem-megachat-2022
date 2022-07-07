@@ -15,17 +15,12 @@ import LoadingSpinner from "../shared/LoadingSpinner";
 import { useCreateChannelMutation } from "../../features/channels/channelsService";
 import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
-import useWebsocketUsersDataEmitter from "../../features/users/useWebsocketUsersDataEmitter";
-import { useAppDispatch, useAppSelector } from "../../store/utils/hooks";
+import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
 import { has } from "lodash";
-import { realtimeSystemActions } from "../../features/realtimeSystem/realtimeSystemSlice";
 import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
 
 const Group: React.FC = () => {
-
-  const dispatch = useAppDispatch();
-
 
   // #region Состояние представления
   
@@ -113,7 +108,7 @@ const Group: React.FC = () => {
   
   // #region каналы
   // создание каналов
-  const [createChannel, {isLoading: createChannelLoading}] = useCreateChannelMutation();
+  const [createChannel, { isLoading: createChannelLoading }] = useCreateChannelMutation();
   const handleSubmitCreateChannel = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.target as HTMLFormElement);
@@ -122,11 +117,11 @@ const Group: React.FC = () => {
         ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
         groupUuid: groupId!
       };
-      // const result = await createChannel(postData).unwrap();
+      await createChannel(postData);
       (event.target as any).reset();
       handleCreateChannelModalClose();
     } catch (e) {
-
+      console.error(e);
     }
   }
   // #endregion
