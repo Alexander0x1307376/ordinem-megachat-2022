@@ -33,11 +33,6 @@ const ChannelChat: React.FC = () => {
 
   useEffect(() => {
     if (entryTop?.isIntersecting && channelMessages?.length) {
-      console.log('Грузим топ!', {
-        channelId,
-        firstMessage: channelMessages?.[0],
-        channelMessages
-      });
       const cursor = encode(JSON.stringify({
         value: channelMessages?.[0].uuid,
         type: 'prev'

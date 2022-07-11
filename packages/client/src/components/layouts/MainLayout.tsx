@@ -4,10 +4,16 @@ import IconedRouteLink from "../shared/IconedRouteLink";
 import { 
   IoPeopleOutline, IoPersonOutline, IoSettingsOutline, IoPersonCircleOutline
 } from "react-icons/io5";
+import { useRefreshQuery } from "../../features/auth/authService";
 
 
 
 const MainLayout: React.FC = () => {
+
+  // useRefreshQuery(undefined, {
+  //   pollingInterval: 1180,
+  //   refetchOnFocus: true
+  // });
   
   return (
     <div className='

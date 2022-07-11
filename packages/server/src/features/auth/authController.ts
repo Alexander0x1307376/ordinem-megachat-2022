@@ -1,12 +1,15 @@
+import { CookieOptions } from 'express';
 import { ControllerMethod } from '../../types';
 import { controllerFunction as cf } from '../controller';
 import { IAuthService } from './authService';
 
 // TODO: убрать в более подходящее место
-const defaultCookieSettings = {
+const defaultCookieSettings: CookieOptions = {
   // maxAge: 30 * 24 * 60 * 60 * 1000, //30 дней
-  maxAge: 2 * 60 * 1000, // 2 минуты
-  httpOnly: true
+  maxAge: 2 * 60 * 1000, // 2 минуты,
+  // maxAge: 10 * 1000, // 10 секунд,
+  httpOnly: true,
+  sameSite: 'lax'
 }
 
 export interface IAuthController {

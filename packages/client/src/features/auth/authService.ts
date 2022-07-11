@@ -31,6 +31,7 @@ export const authApi = createApi({
       query: body => ({
         url: 'registration',
         method: 'POST',
+        credentials: 'same-origin',
         body
       }),
       onQueryStarted: async (id, { dispatch, queryFulfilled }) => {
@@ -44,6 +45,7 @@ export const authApi = createApi({
       query: body => ({
         url: 'login',
         method: 'POST',
+        credentials: 'same-origin',
         body
       }),
       onQueryStarted: async (id, { dispatch, queryFulfilled }) => {
@@ -56,7 +58,8 @@ export const authApi = createApi({
     logout: build.mutation<void, void>({
       query: () => ({
         url: 'logout',
-        method: 'POST'
+        method: 'POST',
+        credentials: 'same-origin'
       }),
       onQueryStarted: async (id, { dispatch, queryFulfilled }) => {
         clearUserData();
@@ -68,9 +71,7 @@ export const authApi = createApi({
       query: () => ({
         url: 'refresh',
         method: 'GET',
-        headers: {
-          refreshToken: getUserFromLocalStorage()?.refreshToken
-        },
+        credentials: 'same-origin'
       }),
       onQueryStarted: async (id, { queryFulfilled, dispatch }) => {
         try {

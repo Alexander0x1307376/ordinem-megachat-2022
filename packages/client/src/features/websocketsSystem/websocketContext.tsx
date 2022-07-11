@@ -25,7 +25,7 @@ const InitSocket = () => {
   };
 
   const socket = io(SERVER_URI, {
-    // withCredentials: true,
+    withCredentials: true,
     query: handshake
   });
 

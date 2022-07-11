@@ -1,6 +1,6 @@
-import React, { FormEvent, useEffect, useState } from "react";
-import { IoChevronBackOutline, IoEllipsisVertical, IoPeopleCircleOutline } from "react-icons/io5";
-import { Link, NavLink, Outlet, useParams } from "react-router-dom";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
+import { IoChevronBackOutline, IoEllipsisVertical, IoPeopleCircleOutline, IoSettingsSharp } from "react-icons/io5";
+import { Link, Outlet, useParams } from "react-router-dom";
 import IconedButton from "../shared/IconedButton";
 import DoubleSidebared, {DoubleSidebaredProps} from "../layouts/DoubleSidebared";
 import { useMediaQuery } from "react-responsive";
@@ -12,13 +12,18 @@ import ModalWindow from "../layouts/ModalWindow";
 import CreateChannelForm from "../forms/CreateChannelForm";
 import { ChannelPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { useCreateChannelMutation } from "../../features/channels/channelsService";
+import { useCreateChannelMutation, useRemoveChannelMutation, useUpdateChannelMutation } from "../../features/channels/channelsService";
 import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
 import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
 import { has } from "lodash";
 import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
+import { selectCurrentUser } from "../../features/auth/authSlice";
+import { useSelector } from "react-redux";
+import NavLinkWithOptions from "../shared/NavLinkWithOptions";
+import Button from "../shared/Button";
+
 
 const Group: React.FC = () => {
 
@@ -88,15 +93,29 @@ const Group: React.FC = () => {
     setIsCreateChannelModalOpen(false);
   }
 
+  const [isEditChannelModalOpen, setIsEditChannelModalOpen] = useState<boolean>(false);
+  const handleEditChannelModalClose = () => {
+    setIsEditChannelModalOpen(false);
+  }
+
   // #endregion
-
-
+  
+  
   // #region данные группы (Сама группа и участники)
   const { groupId } = useParams();
   const { 
     isLoading: isGroupDataLoading,
     data: groupData
   } = useGroupDetailsQuery(groupId || '');
+  // #endregion
+
+
+  // #region Пользователь
+  const currentUser = useSelector(selectCurrentUser);
+
+  const isOwner = useMemo(() => {
+    return groupData?.owner.uuid === currentUser.uuid;
+  }, [groupData, currentUser]);
   // #endregion
 
   // #region Участники канала
@@ -124,7 +143,60 @@ const Group: React.FC = () => {
       console.error(e);
     }
   }
+
+  
+
+  // редактирование канала
+  const [editChannel, setEditChannel] = useState<Partial<ChannelPostData & { uuid: string }>>({});
+
+  const handleOpenChannelSettings = (channelUuid: string) => {
+    const channelData = groupData?.channels.find(item => item.uuid === channelUuid);
+    setEditChannel({
+      uuid: channelData?.uuid,
+      name: channelData?.name, 
+      description: channelData?.description, 
+    });
+    setIsEditChannelModalOpen(true);
+  }
+
+  const [updateChannel, { isLoading: updateChannelLoading }] = useUpdateChannelMutation();
+  const handleSubmitEditChannel = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.target as HTMLFormElement);
+    try {
+
+      const postData: ChannelPostData = {
+        ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
+        groupUuid: groupId!
+      };
+      await updateChannel({ uuid: editChannel.uuid!, data: postData});
+    }
+    catch (e) {
+      console.error(e);
+    }
+  }
+
+  // удаление канала
+  const [isRemoveChannelModalOpen, setIsRemoveChannelModalOpen] = useState<boolean>(false);
+  const [removeChannel] = useRemoveChannelMutation();
+
+  const handleRemoveChannelModalClose = () => {
+    setIsRemoveChannelModalOpen(false);
+  };
+
+  const handleRemoveChannelModalOpen = () => {
+    setIsRemoveChannelModalOpen(true);
+  };
+
+  const handleRemoveChannel = async () => {
+    if (!editChannel.uuid) return;
+    
+    await removeChannel(editChannel.uuid);
+    handleRemoveChannelModalClose();
+    handleEditChannelModalClose();
+  }
   // #endregion
+
 
   const {
     subscribeToChanges, unsubscibeToChanges
@@ -155,10 +227,10 @@ const Group: React.FC = () => {
   }, [groupMembers, groupData, groupId]);
 
   const usersData = useAppSelector(selectUsersData);
-
   // #endregion
 
   return (<>
+    {/* модалка для добавления нового канала */}
     <FramerModal isOpen={isCreateChannelModalOpen} onOutlineClick={handleCreateChannelModalClose}>
       <ModalWindow
         isAutoSize
@@ -170,7 +242,48 @@ const Group: React.FC = () => {
         </div>
       </ModalWindow>
     </FramerModal>
+    {/* модалка для изменеия канала */}
+    <FramerModal isOpen={isEditChannelModalOpen} onOutlineClick={handleEditChannelModalClose}>
+      <ModalWindow
+        isAutoSize
+        onClose={handleEditChannelModalClose}
+        title="Редактировать канал"
+      >
+        <div className="h-full md:h-[calc(100vh-10rem)] md:w-[30rem] overflow-y-auto">
+          <CreateChannelForm 
+            onSubmit={handleSubmitEditChannel} 
+            initialData={editChannel} 
+            submitButtonText="Изменить"
+            onDelete={handleRemoveChannelModalOpen}
+          />
+        </div>
+      </ModalWindow>
+    </FramerModal>
+    {/* модалка для подтверждения удаления */}
+    <FramerModal isOpen={isRemoveChannelModalOpen} onOutlineClick={handleRemoveChannelModalClose}>
+      <ModalWindow
+        isAutoSize
+        onClose={handleRemoveChannelModalClose}
+        title="Удаление канала"
+      >
+        <div className="overflow-y-auto flex h-full justify-center items-center">
+          <div>
+            <div className="text-center">
+              Уверены в снесении канала? Сообщения канала будут также снесены. Это неотменяемая операция.
+            </div>
+            <div className="flex justify-around mt-4">
+              <Button type="danger" onClick={handleRemoveChannel}>Снести</Button>
+              <Button type="info" onClick={handleRemoveChannelModalClose}>Отмена</Button>
+            </div>
+          </div>
+        </div>
+      </ModalWindow>
+    </FramerModal>
+
+
+    {/* страница */}
     <div className="h-screen w-screen flex flex-col">
+      {/* Заголовок */}
       <Header title={!isGroupDataLoading ? groupData?.name || 'ошибка' : 'загрузка...'} 
         leftContent={
           <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>  
@@ -204,6 +317,7 @@ const Group: React.FC = () => {
         </>}
       />
 
+      {/* Основная страница */}
       <DoubleSidebared
         layoutState={layoutState}
         // левый сайдбар - каналы группы
@@ -211,11 +325,13 @@ const Group: React.FC = () => {
           <div className="bg-bglighten rounded-lg h-full w-full">
             <div className="py-4 pl-4 pr-3 flex relative">
               <h1 className="text-textSecondary grow">Каналы группы</h1>
-              <IconedButton 
-                icon={IoEllipsisVertical} 
-                onClick={handleChannelsOptions}
-                size='1.5rem'
-              />
+              {isOwner && (
+                <IconedButton 
+                  icon={IoEllipsisVertical} 
+                  onClick={handleChannelsOptions}
+                  size='1.5rem'
+                />
+              )}
               {/* опции каналов */}
               <IntegratedMenu 
                 isMenuOpen={isChannelsOptionsOpen} 
@@ -230,7 +346,7 @@ const Group: React.FC = () => {
                 </button>
               </IntegratedMenu>
             </div>
-            <div className="flex flex-col space-y-1">
+            <div className="flex flex-col space-y-1 items-stretch">
               {isGroupDataLoading
               ? (
                 <div className="flex space-x-2 p-4 text-textSecondary">
@@ -240,18 +356,31 @@ const Group: React.FC = () => {
               )
               : (
                   groupData?.channels.map(({uuid, name}: any) =>
-                <NavLink
-                  className={({ isActive }) => {
-                    return isActive
-                      ? `py-2 px-4 hover:bg-glassydarken transition
-                        duration-100 truncate text-textPrimary font-medium`
-                      : `py-2 px-4 hover:bg-glassy transition 
-                        duration-100 truncate text-textSecondary font-medium`
-                  }}
-                  key={uuid} to={uuid}
-                >
-                  {name}
-                </NavLink>
+                    <div key={uuid} 
+                      className="group flex w-full hover:bg-glassy"
+                    >
+                      <NavLinkWithOptions 
+                        onLongPress={() => (!isMdScreen && isOwner) && handleOpenChannelSettings(uuid)}
+                        className={({ isActive }) => {
+                          return isActive
+                            ? `px-4 py-2 grow block truncate text-textPrimary font-medium`
+                            : `px-4 py-2 grow block truncate text-textSecondary font-medium`
+                        }}
+                        key={uuid} link={uuid}
+                      >
+                        {name}
+                      </NavLinkWithOptions>
+                      {
+                        isOwner && (
+                          <button 
+                            onClick={() => handleOpenChannelSettings(uuid)}
+                            className="md:group-hover:flex p-2 pr-4 cursor-pointer hidden justify-center items-center text-textSecondary hover:text-textPrimary"
+                          >
+                            <IoSettingsSharp size={'1rem'} />
+                          </button>
+                        )
+                      }
+                    </div>
               )
               )}
               

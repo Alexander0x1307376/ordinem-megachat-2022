@@ -203,7 +203,10 @@ const InitChatSystemHandlers = (
   }
   channelService.onCreated(({ groupUuid }) => reRequestChannels(groupUuid));
   channelService.onUpdated(({ groupUuid }) => reRequestChannels(groupUuid));
-  channelService.onRemoved(({ groupUuid }) => reRequestChannels(groupUuid));
+  channelService.onRemoved(({ groupUuid, uuid: channelUuid }) => {
+    reRequestChannels(groupUuid);
+    io.socketsLeave(channelUuid);
+  });
   // #endregion
 
 

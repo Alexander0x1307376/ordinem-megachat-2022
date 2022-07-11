@@ -11,7 +11,7 @@ export class Message extends Model {
 
   @Column()
   channelId: number;
-  @ManyToOne(() => Channel)
+  @ManyToOne(() => Channel, {onDelete: "CASCADE"})
   channel: Channel;
 
   @Column()

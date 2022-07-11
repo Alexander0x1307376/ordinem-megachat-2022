@@ -43,6 +43,7 @@ const createChannelController = ({channelService}: {
     remove: cf(async (req: any, res) => {
       const { channelId } = req.params;
       const result = await channelService.removeChannel(channelId);
+      res.json(result);
     })
   }
   return channelController;
