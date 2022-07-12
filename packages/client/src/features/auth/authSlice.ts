@@ -62,3 +62,10 @@ export const authReducer = userSlice.reducer;
 export const selectCurrentUser = (state: RootState) => {
   return state.auth.userData;
 };
+
+export const selectCurrentUserTokens = (state: RootState) => {
+  return {
+    accessToken: state.auth.accessToken,
+    refreshToken: state.auth.refreshToken,
+  };
+};

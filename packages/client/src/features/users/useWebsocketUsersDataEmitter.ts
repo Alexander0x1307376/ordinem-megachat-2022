@@ -3,6 +3,7 @@ import { WebsocketContext } from "../websocketsSystem/websocketContext";
 import { ChatSystemEvents as chatEvents } from "@ordinem-megachat-2022/shared";
 
 const useWebsocketUsersDataEmitter = () => {
+
   const wc = useContext(WebsocketContext);
   if (!wc?.socket) {
     console.warn('there is no socket. users data emitter is not initialized');

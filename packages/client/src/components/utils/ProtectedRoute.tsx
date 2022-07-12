@@ -9,7 +9,7 @@ const ProtectedRoute: React.FC = ({children}) => {
   const location = useLocation();
   const user = useMemo(() => {
     const userStorageData = getUserFromLocalStorage();
-    console.log('ProtectedRoute', userStorageData, location);
+    // console.log('ProtectedRoute', userStorageData, location);
     return userStorageData;
   }, [location.key]);
 

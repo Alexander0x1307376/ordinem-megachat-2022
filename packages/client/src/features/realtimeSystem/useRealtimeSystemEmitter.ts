@@ -11,7 +11,7 @@ const useRealtimeSystemEmitter = () => {
   const dispatch = useAppDispatch();
 
   if (!wc?.socket) {
-    console.warn('there is no socket. users data emitter is not initialized');
+    console.warn('there is no socket. realtime system emitter is not initialized');
   }
   const socket = wc?.socket;
 
