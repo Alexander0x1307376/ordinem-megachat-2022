@@ -23,6 +23,7 @@ import createChannelController from './features/channels/channelController';
 import createMessageService from './features/messages/messageService';
 import createGroupService from './features/group/groupService';
 import createGroupController from './features/group/groupController';
+import createImageService from './features/image/imageService';
 
 export const app = express();
 
@@ -33,7 +34,9 @@ const webSocketsPort = process.env.WS_PORT || 4000;
 const channelService = createChannelService({ dataSource: AppDataSource });
 const channelController = createChannelController({channelService});
 
-const groupService = createGroupService(AppDataSource);
+const imageService = createImageService(AppDataSource);
+
+const groupService = createGroupService({ dataSource: AppDataSource, imageService });
 const groupController = createGroupController(groupService);
 const friendshipEventEmitter = new FriendshipSystemEventEmitter();
 
@@ -45,7 +48,7 @@ const userController = createUserController(userService);
 
 const messageService = createMessageService({ dataSource: AppDataSource });
 
-const authService = createAuthService(userService);
+const authService = createAuthService({userService, imageService});
 const authController = createAuthController(authService);
 
 

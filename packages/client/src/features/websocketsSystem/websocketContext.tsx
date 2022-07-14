@@ -36,6 +36,7 @@ const WebsocketProvider = ({children}: { children: ReactNode; }) => {
         query: handshake
       });
       setSocket(socketInstance);
+      console.log('socket initiated');
       
       realtimeSystemReceiver(socketInstance, store);
       websocketFriendshipReceiver(socketInstance, store);

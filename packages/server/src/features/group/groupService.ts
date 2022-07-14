@@ -2,26 +2,37 @@ import { Group } from "../../entity/Group";
 import { User } from "../../entity/User";
 import { GroupInvite } from "../../entity/GroupInvite";
 import { GroupPostData } from "./groupTypes";
-import imageService from "../image/imageService";
+import { IImageService } from "../image/imageService";
 import ApiError from "../../exceptions/apiError";
 import { nanoid } from 'nanoid';
-import { GroupDetailsResponse } from "@ordinem-megachat-2022/shared";
+import { GroupDetailsResponse, GroupResponse } from "@ordinem-megachat-2022/shared";
 import { DataSource } from "typeorm";
 import { Channel } from "../../entity/Channel";
 import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
+import { Image } from "../../entity/Image";
+import { ImagePostData } from "@ordinem-megachat-2022/shared/src/apiTypes/imageTypes";
+import { pick } from "lodash";
 
 
-export interface IGroupService extends ChangeDataEventEmitter<GroupDetailsResponse> {
+export type FullGroupPostData = GroupPostData & { ownerUuid: string, imageData?: ImagePostData };
+
+
+export interface IGroupService extends ChangeDataEventEmitter<GroupResponse> {
   userGroups: (userUuid: string) => Promise<any>;
   groupDetails: (groupUuid: string) => Promise<GroupDetailsResponse>;
   createInvite: (inviterUuid: string, groupUuid: string) => Promise<any>;
   joinGroup: (userUuid: string, linkId: string) => Promise<any>;
   leaveGroup: (userUuid: string, groupUuid: string) => Promise<any>;
-  create: (groupData: GroupPostData) => Promise<any>;
-  update: (groupUuid: string, groupData: GroupPostData) => Promise<any>;
+  create: (groupData: FullGroupPostData) => Promise<GroupResponse>;
+  update: (groupUuid: string, groupData: FullGroupPostData) => Promise<GroupResponse>;
 }
 
-const createGroupService = (dataSource: DataSource) => {
+const createGroupService = ({ 
+  dataSource, imageService 
+} : { 
+  dataSource: DataSource, 
+  imageService: IImageService
+}) => {
 
 
 
@@ -184,33 +195,61 @@ const createGroupService = (dataSource: DataSource) => {
     name,
     description,
     imageData,
-    user
-  }: GroupPostData | any) => {
+    ownerUuid
+  }: FullGroupPostData) => {
 
     const owner = await User.findOne({
       select: ['id', 'uuid'],
-      where: { uuid: user.uuid },
+      where: { uuid: ownerUuid },
     });
 
     let image;
     if (imageData)
       image = await imageService.create(imageData);
 
+    // console.log('groupData', {
+    //   name, description, avaId: image?.id, ownerId: owner?.id
+    // });
+
     const group = Group.create({
       name, description, avaId: image?.id, ownerId: owner?.id
     });
     await group.save();
 
-    return group;
+    const result: GroupResponse = {
+      uuid: group.uuid,
+      name: group.name,
+      description: group.description,
+      createdAt: group.createdAt.toISOString(),
+      updatedAt: group.updatedAt.toISOString(),
+      ownerUuid: owner!.uuid,
+      avaPath: image?.path
+    };
+    return result;
   }
 
   // изменить группу (неотправленные поля не обновляются)
-  const update = async (groupUuid: string, data: GroupPostData | any) => {
+  const update = async (groupUuid: string, data: FullGroupPostData) => {
 
     const currentUser = await User.findOneOrFail({
       select: ['id', 'uuid'],
-      where: { uuid: data.user.uuid },
+      where: { uuid: data.ownerUuid },
     });
+
+
+    // если есть data.avaPath - проверяем его и используем его, 
+    // если нет - пихаем новое изображение
+    
+    let image;
+    if (data.avaPath) {
+      image = await imageService.getImageByPath(data.avaPath);
+    }
+    else if (data.imageData) {
+      image = await imageService.create(data.imageData);
+    }
+
+    console.log('data', data);
+
 
     const group = await Group.findOneOrFail({
       where: { uuid: groupUuid }
@@ -221,12 +260,22 @@ const createGroupService = (dataSource: DataSource) => {
     }
 
     const { name, description } = data;
-    Object.assign(group, { name, description });
+    Object.assign(group, { name, description, avaId: image?.id });
     await group.save();
-    return group;
+    
+    const result: GroupResponse = {
+      uuid: group.uuid,
+      name: group.name,
+      description: group.description,
+      createdAt: group.createdAt.toISOString(),
+      updatedAt: group.updatedAt.toISOString(),
+      ownerUuid: currentUser!.uuid,
+      avaPath: image?.path
+    };
+    return result;
   }
 
-  const eventEmitter = createChangeDataEventEmitter<Pick<GroupDetailsResponse, 'uuid' | 'avaPath' | 'description'>>({
+  const eventEmitter = createChangeDataEventEmitter<GroupResponse>({
     methods: {
       create,
       update,
@@ -234,16 +283,17 @@ const createGroupService = (dataSource: DataSource) => {
     }
   })
 
-  return {
+  const result: IGroupService = {
     userGroups,
     groupDetails,
-    create: eventEmitter.create,
-    update: eventEmitter.update,
+    create: eventEmitter.create as typeof create,
+    update: eventEmitter.update as typeof update,
     createInvite,
     joinGroup,
     leaveGroup,
-    ...eventEmitter.emitter
-  } as IGroupService
+    ...eventEmitter.emitter    
+  };
+  return result;
 }
 
 export default createGroupService;

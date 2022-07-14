@@ -10,19 +10,20 @@ import IntegratedMenu from "../layouts/IntegratedMenu";
 import FramerModal from "../shared/FramerModal";
 import ModalWindow from "../layouts/ModalWindow";
 import CreateChannelForm from "../forms/CreateChannelForm";
-import { ChannelPostData } from "@ordinem-megachat-2022/shared";
+import { ChannelPostData, GroupPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import { useCreateChannelMutation, useRemoveChannelMutation, useUpdateChannelMutation } from "../../features/channels/channelsService";
-import { useGroupDetailsQuery } from "../../features/groups/groupsService";
+import { useEditGroupMutation, useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
 import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
-import { has } from "lodash";
+import { divide, has, pick } from "lodash";
 import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
 import { selectCurrentUser } from "../../features/auth/authSlice";
 import { useSelector } from "react-redux";
 import NavLinkWithOptions from "../shared/NavLinkWithOptions";
 import Button from "../shared/Button";
+import CreateGroupForm from "../forms/CreateGroupForm";
 
 
 const Group: React.FC = () => {
@@ -107,6 +108,34 @@ const Group: React.FC = () => {
     isLoading: isGroupDataLoading,
     data: groupData
   } = useGroupDetailsQuery(groupId || '');
+
+  const [editGroup, setEditGroup] = useState<Partial<GroupPostData & { uuid: string }>>({});
+  const [updateGroup] = useEditGroupMutation();
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState<boolean>(false);
+
+  const handleGroupModalOpen = () => {
+    setEditGroup(pick(groupData, ['uuid', 'name', 'description', 'avaPath']));
+    setIsEditGroupModalOpen(true);
+  }
+
+  const handleGroupModalClose = () => {
+    setIsEditGroupModalOpen(false);
+  }
+
+  const handleChangeGroup = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.target as HTMLFormElement);
+    try {
+      await updateGroup({ uuid: editGroup.uuid!, data});
+      (event.target as any).reset();
+      handleGroupModalClose();
+    } catch (e) {
+      console.error(e);
+    }
+
+  }
+
+
   // #endregion
 
 
@@ -279,14 +308,37 @@ const Group: React.FC = () => {
         </div>
       </ModalWindow>
     </FramerModal>
-
+    {/* модалка для изменения данных группы */}
+    <FramerModal isOpen={isEditGroupModalOpen} onOutlineClick={handleGroupModalClose}>
+      <ModalWindow
+        isAutoSize
+        onClose={handleGroupModalClose}
+        title="Редактировать группу"
+      >
+        <div className="h-full md:h-[calc(100vh-10rem)] md:w-[30rem] overflow-y-auto">
+          <CreateGroupForm 
+            onSubmit={handleChangeGroup}
+            initialData={editGroup}
+            submitButtonText="Изменить данные группы"
+          />
+        </div>
+      </ModalWindow>
+    </FramerModal>
 
     {/* страница */}
     <div className="h-screen w-screen flex flex-col">
       {/* Заголовок */}
-      <Header title={!isGroupDataLoading ? groupData?.name || 'ошибка' : 'загрузка...'} 
+      <Header 
+        title={!isGroupDataLoading ? groupData?.name || 'ошибка' : 'загрузка...'} 
+        afterTitleContent={
+          isOwner && (
+            <div className="hover:text-textPrimary text-textSecondary transition-colors duration-75">
+              <IconedButton icon={IoSettingsSharp} onClick={handleGroupModalOpen} />
+            </div>
+          )
+        }
         leftContent={
-          <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>  
+          <Link className="p-2" to='/groups'><IoChevronBackOutline size="1.5rem" /></Link>
         }
         rightContent={<>
           <div

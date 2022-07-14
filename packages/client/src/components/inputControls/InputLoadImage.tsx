@@ -5,10 +5,14 @@ import { IoAdd, IoClose } from "react-icons/io5";
 export interface InputLoadImageProps {
   name: string;
   onChange?: (value: any) => void;
+  imagePath?: string;
 }
 const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
-const InputLoadImage: React.FC<InputLoadImageProps> = ({name, onChange}) => {
+const InputLoadImage: React.FC<InputLoadImageProps> = ({ 
+  name, onChange, imagePath 
+}) => {
+
 
   const [avaPreview, setAvaPreview] = useState<any>();
   const [fileName, setFileName] = useState<string>('');

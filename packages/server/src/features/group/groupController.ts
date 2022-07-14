@@ -48,7 +48,7 @@ const createGroupController = (groupService: IGroupService) => {
     create: cf(async (req: any, res) => {
 
       const result = await groupService.create({ 
-        user: req.user,
+        ownerUuid: req.user.uuid,
         imageData: getImageDataFromFile(req), 
         ...req.body, 
       });
@@ -63,9 +63,9 @@ const createGroupController = (groupService: IGroupService) => {
 
       const result = await groupService.update(
         id, { 
-          ...req.body,
-          user: req.user,
+          ownerUuid: req.user.uuid,
           imageData: getImageDataFromFile(req),
+          ...req.body,
         }
       );
       res.json(result);

@@ -29,7 +29,7 @@ const createUserService = ({
   friendshipEventEmitter,
   dataSource
 }: {
-  friendshipEventEmitter: FriendshipSystemEventEmitter,
+  friendshipEventEmitter?: FriendshipSystemEventEmitter,
   dataSource: DataSource
 }) => {
 
@@ -98,8 +98,7 @@ const createUserService = ({
       .orWhere({ usersId_1: userIds[1], usersId_2: userIds[0] })
       .execute();
 
-    friendshipEventEmitter.unfriended(currentUserUuid, friendUuid);
-    // friendshipEventEmitter.friendsIsChanged(currentUserUuid);
+    friendshipEventEmitter?.unfriended(currentUserUuid, friendUuid);
     return result;
   }
 

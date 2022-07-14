@@ -6,7 +6,7 @@ export interface Image {
 }
 
 export interface ImagePostData {
-  name?: string,
+  name: string,
   description?: string,
-  path?: string
+  path: string
 }

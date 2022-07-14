@@ -57,7 +57,7 @@ const App: React.FC = () => {
         </Route>
 
         <Route path='/group/:groupId' element={
-          <Group />
+          <ProtectedRoute><Group /></ProtectedRoute>
         }>
           <Route path=':channelId' element={
             <ChannelChat />
@@ -65,13 +65,13 @@ const App: React.FC = () => {
         </Route>
 
         <Route path='/chat/:chatId' element={
-          <Chat />
+          <ProtectedRoute><Chat /></ProtectedRoute>
         } />
 
 
 
         <Route path='/group/create' element={
-          <CreateGroup />
+          <ProtectedRoute><CreateGroup /></ProtectedRoute>
         } />
 
         <Route path='/login' element={

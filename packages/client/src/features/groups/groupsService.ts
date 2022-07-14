@@ -1,4 +1,4 @@
-import { GroupDetailsResponse } from "@ordinem-megachat-2022/shared";
+import { GroupDetailsResponse, GroupPostData } from "@ordinem-megachat-2022/shared";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
 import { RootState } from "../../store/store";
@@ -45,6 +45,15 @@ export const groupApi = createApi({
         method: 'GET'
       }),
       providesTags: ['groupDetails']
+    }),
+
+    editGroup: build.mutation<any, {uuid: string, data: GroupPostData | any}>({
+      query: ({uuid, data}) => ({
+        url: `group/${uuid}/update`,
+        method: 'POST',
+        body: data
+      }),
+      invalidatesTags: ['groupDetails']
     })
   
   })
@@ -53,6 +62,7 @@ export const groupApi = createApi({
 
 export const { 
   useCreateGroupMutation, 
+  useEditGroupMutation,
   useUserGroupsQuery, 
   useGroupDetailsQuery
 } = groupApi;

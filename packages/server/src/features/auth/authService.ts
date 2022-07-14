@@ -4,7 +4,7 @@ import userService, { IUserService } from "../user/userService";
 import { UserPostData } from '@ordinem-megachat-2022/shared';
 import * as tokenService from "./tokenService";
 import { UserToken } from '../../entity/UserToken';
-import imageService from '../image/imageService';
+import imageService, { IImageService } from '../image/imageService';
 import { Image } from '../../entity/Image';
 
 import {
@@ -24,7 +24,12 @@ export interface IAuthService {
   refresh: (refreshToken: string) => Promise<RefreshResponse>;
 }
 
-const createAuthService = (userService: IUserService) => {
+const createAuthService = ({ 
+  userService, imageService 
+}: {
+  userService: IUserService,
+  imageService: IImageService 
+}) => {
 
   const generateAndSaveTokens = async (
     userId: number, payload: any

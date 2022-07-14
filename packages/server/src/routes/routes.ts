@@ -1,6 +1,6 @@
-import { Request, Router } from 'express';
+import { Router } from 'express';
 import authMiddleware from '../features/auth/authMiddleware';
-import groupController, { IGroupController } from '../features/group/groupController';
+import { IGroupController } from '../features/group/groupController';
 import upload from '../features/fileUploader/uploadMiddleware';
 import { IAuthController } from '../features/auth/authController';
 import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
@@ -36,7 +36,7 @@ const createRouter = ({
   router.post('/group/:id/invite', authMiddleware, groupController.createInvite);
   router.post('/group/:id/leave', authMiddleware, groupController.leave);
 
-  router.put('/group/:id/update', authMiddleware, upload.single('ava'), groupController.update);
+  router.post('/group/:id/update', authMiddleware, upload.single('ava'), groupController.update);
   router.delete('/group/:id/remove', authMiddleware, groupController.remove);
   router.get('/group/:id', authMiddleware, groupController.show);
   // список групп пользователя и групп где он состоит
