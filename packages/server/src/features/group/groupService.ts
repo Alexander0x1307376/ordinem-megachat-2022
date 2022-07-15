@@ -207,9 +207,6 @@ const createGroupService = ({
     if (imageData)
       image = await imageService.create(imageData);
 
-    // console.log('groupData', {
-    //   name, description, avaId: image?.id, ownerId: owner?.id
-    // });
 
     const group = Group.create({
       name, description, avaId: image?.id, ownerId: owner?.id
@@ -248,9 +245,6 @@ const createGroupService = ({
       image = await imageService.create(data.imageData);
     }
 
-    console.log('data', data);
-
-
     const group = await Group.findOneOrFail({
       where: { uuid: groupUuid }
     });
@@ -260,7 +254,7 @@ const createGroupService = ({
     }
 
     const { name, description } = data;
-    Object.assign(group, { name, description, avaId: image?.id });
+    Object.assign(group, { name, description, avaId: image?.id ? image.id : null });
     await group.save();
     
     const result: GroupResponse = {

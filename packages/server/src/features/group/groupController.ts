@@ -59,6 +59,9 @@ const createGroupController = (groupService: IGroupService) => {
     // изменить группу
     update: cf(async (req: any, res) => {
 
+
+      console.log('req.body', req.body);
+
       const { id } = req.params;
 
       const result = await groupService.update(

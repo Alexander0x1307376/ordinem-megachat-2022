@@ -180,7 +180,7 @@ describe('манипуляции с данными групп', () => {
     const newGroupData: FullGroupPostData = {
       name: 'изменённое имя 2',
       description: 'изменённое описание',
-      avaPath: undefined,
+      // avaPath: undefined,
       ownerUuid: userData.uuid
     };
 
@@ -193,7 +193,20 @@ describe('манипуляции с данными групп', () => {
       ownerUuid: userData.uuid
     };
 
+    const expectedResultFromDb = {
+      uuid: group.uuid,
+      name: 'изменённое имя 2',
+      description: 'изменённое описание',
+      avaId: null
+    };
+
+    const resultFromDb = await AppDataSource.createQueryBuilder(Group, 'g')
+      .select('g.uuid, g.name, g.description, g."avaId"')
+      .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
+      .getRawOne();
+
     expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+    expect(resultFromDb).toEqual(expectedResultFromDb);
 
   });
 
