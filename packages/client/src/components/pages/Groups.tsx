@@ -14,43 +14,6 @@ import {
   useCreateGroupMutation, useUserGroupsQuery 
 } from "../../features/groups/groupsService";
 
-const groupData = [
-  {
-    uuid: '001',
-    name: 'Тестовая группа',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '002',
-    name: 'Тестовая группа 2',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '003',
-    name: 'Тестовая группа 3',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '004',
-    name: 'Тестовая группа 4',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '005',
-    name: 'Тестовая группа 5',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '006',
-    name: 'Тестовая группа 6',
-    description: 'Описание группы'
-  },
-  {
-    uuid: '007',
-    name: 'Тестовая группа 7',
-    description: 'Описание группы'
-  }
-]
 
 const Groups: React.FC = () => {
 
@@ -76,11 +39,11 @@ const Groups: React.FC = () => {
     data: userGroupsData
   } = useUserGroupsQuery({});
 
-  const handleCreateGroup = async (event: FormEvent<HTMLFormElement>) => {
+  const handleCreateGroup = async (event: FormEvent<HTMLFormElement>, formData: FormData) => {
     event.preventDefault();
-    const data = new FormData(event.target as HTMLFormElement);
+    const postData = Object.fromEntries(formData.entries());
     try {
-      const result = await createGroup(data).unwrap();
+      const result = await createGroup(postData).unwrap();
       console.log(result);
       setIsModalOpen(false);
     } catch (e) {

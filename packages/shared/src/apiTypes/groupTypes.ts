@@ -24,6 +24,7 @@ export type GroupDetailsResponse = {
   createdAt: string;
   updatedAt: string;
   avaPath?: string;
+  avaUuid?: string;
   owner: User;
   channels: Channel[];
 }
@@ -36,6 +37,7 @@ export type GroupResponse = {
   updatedAt: string;
   ownerUuid: string;
   avaPath?: string;
+  avaUuid?: string;
 }
 
 export type JoinGroupResponse = {
@@ -50,8 +52,7 @@ export type LeaveGroupResponse = {
 export type GroupPostData = {
   name: string;
   description: string;
-  avaPath?: string;
-  imageData?: ImagePostData;
+  avaUuid?: string;
 }
 
 export type FullGroupPostData = GroupPostData & { ownerUuid: string };

@@ -1,57 +1,62 @@
-import React, { ChangeEvent, useRef, useState } from "react";
+import React, { ChangeEvent, MouseEvent, useEffect, useRef, useState } from "react";
 import { IoAdd, IoClose } from "react-icons/io5";
-
+import { BASE_API_URL } from "../../config";
+import { useUploadImageMutation } from "../../features/images/imageService";
 
 export interface InputLoadImageProps {
   name: string;
   onChange?: (value: any) => void;
-  imagePath?: string;
+  initialImagePath?: string;
+  uuid?: string;
 }
 const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
 const InputLoadImage: React.FC<InputLoadImageProps> = ({ 
-  name, onChange, imagePath 
+  name, onChange, initialImagePath, uuid
 }) => {
 
-
-  const [avaPreview, setAvaPreview] = useState<any>();
   const [fileName, setFileName] = useState<string>('');
-
   const [isError, setIsError] = useState<boolean>(false);
-  
-  const inputRef = useRef<any>();
 
+  const [currentAvaPath, setCurrentAvaPath] = useState<string>('');
+  useEffect(() => {
+    setCurrentAvaPath(initialImagePath || '');
+  }, [initialImagePath, setCurrentAvaPath]);
 
-  const handleImageChange = (event: ChangeEvent<HTMLElement> | any) => {
+  const [uploadImage] = useUploadImageMutation();
 
-    const selected = event.target.files[0];
-    if (selected && allowedTypes.includes(selected.type)) {
+  const avaUuidInputRef = useRef<any>();
 
-      setIsError(false);
+  const handleImageChange = async (event: ChangeEvent<HTMLElement> | any) => {
+    if(!avaUuidInputRef.current) return;
 
-      let reader = new FileReader();
-      reader.onloadend = () => {
-        setAvaPreview(reader.result);
-        setFileName(selected.name)
-      }
+    const fileData = event.target.files[0];
+    if(!fileData) {
+      console.log('handleImageChange: файла нет');
+      return;
+    }
+    try {
+      console.log('fileData', fileData);
+      const formData = new FormData();
+      formData.set('ava', fileData);
+      const result = await uploadImage(formData).unwrap();
+      setCurrentAvaPath(BASE_API_URL + result.path);
+      setFileName(result.name);
+      avaUuidInputRef.current.value = result.uuid;
 
-      reader.readAsDataURL(selected);
-
-      onChange?.(selected);
-    } 
-    else {
-      setFileName('');
+      console.log('handleImageChange: result', result);
+    } catch (e) {
+      console.error(e);
       setIsError(true);
-      inputRef.current.value = null;
     }
   }
 
-  const handleClearImage = (event: any) => {
+  const handleClearImage = (event: MouseEvent) => {
     event.preventDefault();
-    setFileName('');
-    setAvaPreview(null);
-    setIsError(false);
-    inputRef.current.value = '';
+    if (!avaUuidInputRef.current) return;
+
+    avaUuidInputRef.current.value = '';
+    setCurrentAvaPath('');
   }
 
   return (
@@ -69,12 +74,12 @@ const InputLoadImage: React.FC<InputLoadImageProps> = ({
         htmlFor={name}
       >
         {
-          avaPreview 
+          (currentAvaPath) 
           ? (<>
               <div className="shrink-0 relative h-32 w-32">
                 <img
                   className="rounded-full h-full w-full object-cover"
-                  src={avaPreview} 
+                  src={currentAvaPath} 
                   alt="ava"
                 />
                 <div className="
@@ -91,6 +96,7 @@ const InputLoadImage: React.FC<InputLoadImageProps> = ({
               </button>
           </>)
           : (
+              
               <div className="
                 bg-bglighten flex flex-col justify-center items-center rounded-full
                 group-hover:bg-bglighten2
@@ -101,13 +107,14 @@ const InputLoadImage: React.FC<InputLoadImageProps> = ({
           )
         }
 
+        {/* Данные файла */}
         <div className="p-4 flex flex-col justify-center truncate">
           <h2>Аватарка</h2>
           { fileName && <h2 className="font-bold truncate">{fileName}</h2> }
           { isError && <h2 className="text-danger">Неверный тип файла</h2> }
         </div>
+
         <input
-          ref={inputRef}
           id={name}
           name={name}
           type="file"
@@ -115,6 +122,13 @@ const InputLoadImage: React.FC<InputLoadImageProps> = ({
           onChange={handleImageChange}
         />
       </label>
+      <input 
+        type="text" 
+        className="hidden" 
+        name={name + 'Uuid'} 
+        defaultValue={uuid}
+        ref={avaUuidInputRef} 
+      />
     </div>
   )
 }

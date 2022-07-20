@@ -1,7 +1,6 @@
 import { Group } from "../../entity/Group";
 import { User } from "../../entity/User";
 import { GroupInvite } from "../../entity/GroupInvite";
-import { GroupPostData } from "./groupTypes";
 import { IImageService } from "../image/imageService";
 import ApiError from "../../exceptions/apiError";
 import { nanoid } from 'nanoid';
@@ -9,12 +8,7 @@ import { GroupDetailsResponse, GroupResponse } from "@ordinem-megachat-2022/shar
 import { DataSource } from "typeorm";
 import { Channel } from "../../entity/Channel";
 import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
-import { Image } from "../../entity/Image";
-import { ImagePostData } from "@ordinem-megachat-2022/shared/src/apiTypes/imageTypes";
-import { pick } from "lodash";
-
-
-export type FullGroupPostData = GroupPostData & { ownerUuid: string, imageData?: ImagePostData };
+import { FullGroupPostData } from "@ordinem-megachat-2022/shared";
 
 
 export interface IGroupService extends ChangeDataEventEmitter<GroupResponse> {
@@ -33,9 +27,6 @@ const createGroupService = ({
   dataSource: DataSource, 
   imageService: IImageService
 }) => {
-
-
-
 
   // группы, в которых состоит пользователь, включая группы, где он владелец
   const userGroups = async (userUuid: string) => {
@@ -81,6 +72,7 @@ const createGroupService = ({
     };
   }
 
+
   // детали одной группы
   const groupDetails = async (groupUuid: string) => {
 
@@ -88,6 +80,7 @@ const createGroupService = ({
       .select(`
         g.id, g.uuid, g.name, g.description, g."createdAt", g."updatedAt",
         i.path as "avaPath",
+        i.uuid as "avaUuid",
         o.uuid as "ownerUuid", o.name as "ownerName", 
         oi.path as "ownerAvaPath"
       `)
@@ -112,6 +105,7 @@ const createGroupService = ({
       createdAt: groupData.createdAt,
       updatedAt: groupData.updatedAt,
       avaPath: groupData.avaPath,
+      avaUuid: groupData.avaUuid,
       owner: {
         uuid: groupData.ownerUuid,
         name: groupData.ownerName,
@@ -194,8 +188,8 @@ const createGroupService = ({
   const create = async ({
     name,
     description,
-    imageData,
-    ownerUuid
+    ownerUuid,
+    avaUuid
   }: FullGroupPostData) => {
 
     const owner = await User.findOne({
@@ -203,10 +197,7 @@ const createGroupService = ({
       where: { uuid: ownerUuid },
     });
 
-    let image;
-    if (imageData)
-      image = await imageService.create(imageData);
-
+    const image = avaUuid ? await imageService.getItem(avaUuid) : undefined;
 
     const group = Group.create({
       name, description, avaId: image?.id, ownerId: owner?.id
@@ -220,7 +211,8 @@ const createGroupService = ({
       createdAt: group.createdAt.toISOString(),
       updatedAt: group.updatedAt.toISOString(),
       ownerUuid: owner!.uuid,
-      avaPath: image?.path
+      avaPath: image?.path,
+      avaUuid: image?.uuid
     };
     return result;
   }
@@ -232,18 +224,8 @@ const createGroupService = ({
       select: ['id', 'uuid'],
       where: { uuid: data.ownerUuid },
     });
-
-
-    // если есть data.avaPath - проверяем его и используем его, 
-    // если нет - пихаем новое изображение
     
-    let image;
-    if (data.avaPath) {
-      image = await imageService.getImageByPath(data.avaPath);
-    }
-    else if (data.imageData) {
-      image = await imageService.create(data.imageData);
-    }
+    const image = data.avaUuid ? await imageService.getItem(data.avaUuid) : undefined;
 
     const group = await Group.findOneOrFail({
       where: { uuid: groupUuid }
@@ -264,7 +246,8 @@ const createGroupService = ({
       createdAt: group.createdAt.toISOString(),
       updatedAt: group.updatedAt.toISOString(),
       ownerUuid: currentUser!.uuid,
-      avaPath: image?.path
+      avaPath: image?.path,
+      avaUuid: image?.uuid
     };
     return result;
   }

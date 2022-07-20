@@ -6,6 +6,7 @@ import { IAuthController } from '../features/auth/authController';
 import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
 import { IUserController } from '../features/user/userController';
 import { IChannelController } from '../features/channels/channelController';
+import { IImageController } from '../features/fileUploader/fileController';
 
 export interface IControllers {
   friendRequestController: IFriendRequestController;
@@ -13,10 +14,12 @@ export interface IControllers {
   authController: IAuthController;
   channelController: IChannelController;
   groupController: IGroupController;
+  imageController: IImageController;
 }
 
 const createRouter = ({
-  friendRequestController, userController, authController, channelController, groupController
+  friendRequestController, userController, authController, 
+  channelController, groupController, imageController
 }: IControllers) => {
   
   const router = Router();
@@ -28,15 +31,16 @@ const createRouter = ({
   router.post('/logout', authController.logout);
   router.get('/refresh', authController.refreshToken);
 
+  router.post('/image/upload', authMiddleware, upload.single('ava'), imageController.uploadImage);
 
-  router.post('/group/create', authMiddleware, upload.single('ava'), groupController.create);
+  router.post('/group/create', authMiddleware, groupController.create);
 
   // присоединение, приглашение выход из группы
   router.get('/group/join/:linkId', authMiddleware, groupController.join);
   router.post('/group/:id/invite', authMiddleware, groupController.createInvite);
   router.post('/group/:id/leave', authMiddleware, groupController.leave);
 
-  router.post('/group/:id/update', authMiddleware, upload.single('ava'), groupController.update);
+  router.post('/group/:id/update', authMiddleware, groupController.update);
   router.delete('/group/:id/remove', authMiddleware, groupController.remove);
   router.get('/group/:id', authMiddleware, groupController.show);
   // список групп пользователя и групп где он состоит

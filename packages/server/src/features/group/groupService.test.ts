@@ -88,30 +88,20 @@ describe('манипуляции с данными групп', () => {
 
   test('группа успешно создаётся', async () => {
 
-    const imageData: ImagePostData = {
-      name: 'group_ava',
-      description: 'this is a test group avatar',
-      path: 'images/group_ava.jpg'
-    };
-
-    const groupPostData: GroupPostData = {
+    const groupPostData: FullGroupPostData = {
       name: 'Тестовая группа',
       description: 'Описание тестовой группы',
+      avaUuid: imageData.uuid,
+      ownerUuid: userData.uuid
     };
 
-    const fullData: FullGroupPostData = {
-      ...groupPostData,
-      ownerUuid: userData.uuid,
-      imageData
-    };
-
-
-    const group = await groupService.create(fullData);
+    const group = await groupService.create(groupPostData);
 
     const expectedData = {
       name: 'Тестовая группа',
       description: 'Описание тестовой группы',
-      avaPath: 'images/group_ava.jpg',
+      avaUuid: imageData.uuid,
+      avaPath: imageData.path,
       ownerUuid: userData.uuid
     };
 
@@ -131,16 +121,11 @@ describe('манипуляции с данными групп', () => {
 
     const group = await groupService.create(groupData);
 
-    const newAva = {
-      name: 'newAva',
-      description: 'a new ava for the group',
-      path: 'images/newAva.jpeg'
-    };
     
     const newGroupData: FullGroupPostData = {
       name: 'изменённое имя',
       description: 'изменённое описание',
-      imageData: newAva,
+      avaUuid: imageData.uuid,
       ownerUuid: userData.uuid
     };
 
@@ -150,7 +135,8 @@ describe('манипуляции с данными групп', () => {
       uuid: group.uuid,
       name: 'изменённое имя',
       description: 'изменённое описание',
-      avaPath: 'images/newAva.jpeg',
+      avaPath: imageData.path,
+      avaUuid: imageData.uuid,
       ownerUuid: userData.uuid
     };
 
@@ -162,27 +148,20 @@ describe('манипуляции с данными групп', () => {
 
   test('группа успешно изменяется. снос имеющейся аватарки', async () => {
     
-    const oldAva = {
-      name: 'oldAva',
-      description: 'an old ava for the group',
-      path: 'images/oldAva.jpeg'
-    };
-
     const groupData: FullGroupPostData = {
       name: 'начальное имя 2',
       description: 'начальное описание',
-      ownerUuid: userData.uuid,
-      imageData: oldAva
+      ownerUuid: userData.uuid
     };
-
+    
     const group = await groupService.create(groupData);
     
     const newGroupData: FullGroupPostData = {
       name: 'изменённое имя 2',
       description: 'изменённое описание',
-      // avaPath: undefined,
       ownerUuid: userData.uuid
     };
+    
 
     const updatedGroup = await groupService.update(group.uuid, newGroupData);
 
@@ -214,17 +193,11 @@ describe('манипуляции с данными групп', () => {
 
   test('группа успешно изменяется. оставление аватарки', async () => {
 
-    const oldAva = {
-      name: 'oldAva2',
-      description: 'an old ava for the group',
-      path: 'images/oldAva2.jpeg'
-    };
-
     const groupData: FullGroupPostData = {
       name: 'начальное имя 3',
       description: 'начальное описание',
       ownerUuid: userData.uuid,
-      imageData: oldAva
+      avaUuid: imageData.uuid
     };
 
     const group = await groupService.create(groupData);
@@ -232,21 +205,35 @@ describe('манипуляции с данными групп', () => {
     const newGroupData: FullGroupPostData = {
       name: 'изменённое имя 3',
       description: 'изменённое описание',
-      avaPath: 'images/oldAva2.jpeg',
-      ownerUuid: userData.uuid
+      ownerUuid: userData.uuid,
+      avaUuid: imageData.uuid
     };
 
     const updatedGroup = await groupService.update(group.uuid, newGroupData);
+
+    const resultFromDb = await AppDataSource.createQueryBuilder(Group, 'g')
+      .select('g.uuid, g.name, g.description, g."avaId"')
+      .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
+      .getRawOne();
 
     const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
       uuid: group.uuid,
       name: 'изменённое имя 3',
       description: 'изменённое описание',
-      avaPath: 'images/oldAva2.jpeg',
-      ownerUuid: userData.uuid
+      ownerUuid: userData.uuid,
+      avaUuid: imageData.uuid,
+      avaPath: imageData.path
+    };
+
+    const expectedResultFromDb = {
+      uuid: group.uuid,
+      name: 'изменённое имя 3',
+      description: 'изменённое описание',
+      avaId: imageData.id
     };
 
     expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+    expect(resultFromDb).toEqual(expectedResultFromDb);
   });
 
 });

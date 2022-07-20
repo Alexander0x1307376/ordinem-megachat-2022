@@ -109,12 +109,12 @@ const Group: React.FC = () => {
     data: groupData
   } = useGroupDetailsQuery(groupId || '');
 
-  const [editGroup, setEditGroup] = useState<Partial<GroupPostData & { uuid: string }>>({});
+  const [editGroup, setEditGroup] = useState<Partial<GroupPostData & { uuid: string; avaUuid: string }>>({});
   const [updateGroup] = useEditGroupMutation();
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState<boolean>(false);
 
   const handleGroupModalOpen = () => {
-    setEditGroup(pick(groupData, ['uuid', 'name', 'description', 'avaPath']));
+    setEditGroup(pick(groupData, ['uuid', 'name', 'description', 'avaPath', 'avaUuid']));
     setIsEditGroupModalOpen(true);
   }
 
@@ -122,11 +122,12 @@ const Group: React.FC = () => {
     setIsEditGroupModalOpen(false);
   }
 
-  const handleChangeGroup = async (event: FormEvent<HTMLFormElement>) => {
+  const handleChangeGroup = async (event: FormEvent<HTMLFormElement>, formData: FormData) => {
     event.preventDefault();
-    const data = new FormData(event.target as HTMLFormElement);
     try {
-      await updateGroup({ uuid: editGroup.uuid!, data});
+      const postData = Object.fromEntries(formData.entries());
+      console.log('formData', postData);
+      await updateGroup({ uuid: editGroup.uuid!, data: postData });
       (event.target as any).reset();
       handleGroupModalClose();
     } catch (e) {

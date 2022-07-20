@@ -8,6 +8,7 @@ import { friendfhipSystemReducer } from "../features/friendshipSystem/friendship
 import { chatSystemReducer } from "../features/chatMessageSystem/chatSystemSlice";
 import { usersDataReducer } from "../features/users/usersDataSlice";
 import { realtimeSystemReducer } from "../features/realtimeSystem/realtimeSystemSlice";
+import { imagesApi } from "../features/images/imageService";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     [groupApi.reducerPath]: groupApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [channelsApi.reducerPath]: channelsApi.reducer,
+    [imagesApi.reducerPath]: imagesApi.reducer,
     chatSystem: chatSystemReducer,
     friendshipSystem: friendfhipSystemReducer,
     auth: authReducer,
@@ -25,9 +27,12 @@ export const store = configureStore({
     authApi.middleware,
     groupApi.middleware,
     userApi.middleware,
-    channelsApi.middleware
+    channelsApi.middleware,
+    imagesApi.middleware
   ])
 });
 
 export type RootState = ReturnType<typeof store.getState>;
+
+export type StoreType = typeof store;
 export type AppDispatch = typeof store.dispatch;

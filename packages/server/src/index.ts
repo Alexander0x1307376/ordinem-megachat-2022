@@ -24,6 +24,7 @@ import createMessageService from './features/messages/messageService';
 import createGroupService from './features/group/groupService';
 import createGroupController from './features/group/groupController';
 import createImageService from './features/image/imageService';
+import createImageController from './features/fileUploader/fileController';
 
 export const app = express();
 
@@ -35,6 +36,7 @@ const channelService = createChannelService({ dataSource: AppDataSource });
 const channelController = createChannelController({channelService});
 
 const imageService = createImageService(AppDataSource);
+const imageController = createImageController(imageService);
 
 const groupService = createGroupService({ dataSource: AppDataSource, imageService });
 const groupController = createGroupController(groupService);
@@ -65,7 +67,8 @@ const router = createRouter({
   userController,
   authController,
   channelController,
-  groupController
+  groupController,
+  imageController
 });
 
 // #region Настройка приложения
