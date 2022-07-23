@@ -55,7 +55,8 @@ const authController = createAuthController(authService);
 
 
 const friendRequestService = createFriendRequestService({
-  friendshipEventEmitter
+  friendshipEventEmitter,
+  dataSource: AppDataSource
 });
 const friendRequestController = createFriendRequestController({
   friendRequestService, userService

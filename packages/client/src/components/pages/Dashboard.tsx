@@ -1,31 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { BASE_API_URL } from "../../config";
 import ModalWindow from "../layouts/ModalWindow";
 import AcceptDeclineMessage from "../shared/AcceptDeclineMessage";
 import ActionItem from "../shared/ActionItem";
 import FramerModal from "../shared/FramerModal";
-import UserSearchPanel from "../shared/UserSearchPanel";
+import AddFriendPanel from "../shared/AddFriendPanel";
 import AccountWidget from "../widgets/AccountWidget";
 import { GiBootKick } from "react-icons/gi";
 import { useLocation } from "react-router-dom";
 import UserItem from "../shared/UserItem";
-import { useDispatch, useSelector } from "react-redux";
-import { friendshipSystemActions as msActions, selectFriendRequests, selectFriendStatuses } from "../../features/friendshipSystem/friendshipSystemSlice";
-import useWebsocketFriendshipEmitter from "../../features/friendshipSystem/useWebsocketFriendshipEmitter";
+import { 
+  useAcceptRequestMutation, 
+  useDeclineRequestMutation, 
+  useFriendRequestsQuery, 
+  useRecallRequestMutation 
+} from "../../features/friendshipSystem/friendRequestsService";
+import { useFriendsQuery, useRemoveFriendMutation } from "../../features/users/usersService";
+import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
+import { useAppSelector } from "../../store/utils/hooks";
+import { selectUsersData } from "../../features/users/usersDataSlice";
+import { has } from "lodash";
 
 
 const Dashboard: React.FC = () => {
 
-  const dispatch = useDispatch();
   const location = useLocation();
 
-  const friendshipEmiiters = useWebsocketFriendshipEmitter();
-
-  // запросы дружбы
-  const requests = useSelector(selectFriendRequests);
-  // статусы друзей
-  const friendStatuses = useSelector(selectFriendStatuses);
+  // запросы дружбы через api
+  const { data: requests } = useFriendRequestsQuery();
+  
+  const [acceptFriendRequest] = useAcceptRequestMutation();
+  const [declineFriendRequest] = useDeclineRequestMutation();
+  const [recallFriendRequest] = useRecallRequestMutation();
+  const [removeFriend] = useRemoveFriendMutation();
 
 
   // модалка поиска и добавления друга
@@ -35,28 +43,53 @@ const Dashboard: React.FC = () => {
   }
 
 
-  const recallFriendRequest = (uuid: string) => {
-    friendshipEmiiters.recallFriendRequest(uuid);
+  const handleRecallFriendRequest = async (uuid: string) => {
+    await recallFriendRequest(uuid);
   }
-  const acceptFriendRequest = (uuid: string) => {
-    friendshipEmiiters.acceptFriendRequest(uuid);
+  const handleAcceptFriendRequest = async (uuid: string) => {
+    await acceptFriendRequest(uuid);
   }
-  const declineFriendRequest = (uuid: string) => {
-    friendshipEmiiters.declineFriendRequest(uuid);
+  const handleDeclineFriendRequest = async (uuid: string) => {
+    await declineFriendRequest(uuid);
   }
 
   // непосредственно друзья
-  const removeFriendRequest = (friendUuid: string) => {
+  const {data: friends} = useFriendsQuery();
+
+  const removeFriendRequest = async (friendUuid: string) => {
+    await removeFriend(friendUuid);
   }
   
+  
+  const {
+    subscribeToChanges, unsubscibeToChanges
+  } = useRealtimeSystemEmitter();
+
+  useEffect(() => {
+
+    if (!friends) return;
+
+    subscribeToChanges({
+      users: friends?.map(item => item.uuid)
+    })
+
+    return () => {
+      unsubscibeToChanges({
+        users: friends?.map(item => item.uuid)
+      })
+    }
+
+  }, [friends, subscribeToChanges, unsubscibeToChanges]);
+
+  const usersData = useAppSelector(selectUsersData);
 
 
   return (<>
 
     {/* Модальное окно поиска друзей */}
     <FramerModal isOpen={isAddFriendModalOpen} onOutlineClick={handleCloseAddFriendModal}>
-      <ModalWindow title="Добавить друга" onClose={handleCloseAddFriendModal}>
-        <UserSearchPanel onRequestSent={handleCloseAddFriendModal} />
+      <ModalWindow isAutoSize title="Добавить в друзья" onClose={handleCloseAddFriendModal}>
+        <AddFriendPanel onRequestSent={handleCloseAddFriendModal} />
       </ModalWindow>
     </FramerModal>
 
@@ -77,8 +110,8 @@ const Dashboard: React.FC = () => {
             ? requests.incomingRequests.map(({ uuid, requester }) => (
               <AcceptDeclineMessage key={uuid} 
                 message={`${requester.name}: запрос дружбы`} 
-                onAcceptClick={() => acceptFriendRequest(uuid)}
-                onDeclineClick={() => declineFriendRequest(uuid)}
+                onAcceptClick={() => handleAcceptFriendRequest(uuid)}
+                onDeclineClick={() => handleDeclineFriendRequest(uuid)}
               />
             ))
 
@@ -108,7 +141,7 @@ const Dashboard: React.FC = () => {
                 message={requested.name}
                 buttonText='отозвать запрос'
                 buttonIcon={IoCloseSharp}
-                onActionClick={() => recallFriendRequest(uuid)}
+                onActionClick={() => handleRecallFriendRequest(uuid)}
               />
             ))
             : <p className="text-textSecondary">нет активных запросов</p>
@@ -125,16 +158,18 @@ const Dashboard: React.FC = () => {
             <h2 className="grow font-semibold">Друзья</h2>
           </div>
           <div className="px-2 pb-2 space-y-2">
-            {[].map(({uuid, name, avaPath}: any) => {
-
-              const status = friendStatuses?.[uuid] || undefined;
+            {friends?.map(({uuid, name, avaPath}) => {
 
               return <UserItem 
                 key={uuid}
                 uuid={uuid}  
                 avaPath={avaPath ? BASE_API_URL + avaPath : undefined}
                 name={name}
-                status={status?.status || 'не в сети'}
+                status={
+                  has(usersData, uuid)
+                  ? usersData[uuid].status
+                  : 'не в сети'
+                }
                 link={`/chat/${uuid}`}
                 routeState={{ previousPath: location.pathname }}
                 options={[{

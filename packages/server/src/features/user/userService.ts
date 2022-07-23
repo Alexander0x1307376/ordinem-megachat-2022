@@ -1,17 +1,11 @@
 import { User } from "../../entity/User";
 import { getPaginatedList, PaginationData } from "../../utils/serviceUtils";
-import { UserPostData } from "@ordinem-megachat-2022/shared";
+import { UserPostData, User as UserItem } from "@ordinem-megachat-2022/shared";
 import { DeleteResult, ILike, In, Not } from "typeorm";
 import FriendshipSystemEventEmitter from "../friendshipSystem/friendshipSystemEventEmitter";
 import { DataSource } from "typeorm";
 import { Group } from "../../entity/Group";
 import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
-
-export type UserItem = {
-  uuid: string;
-  name: string;
-  avaPath?: string;
-}
 
 export interface IUserService extends ChangeDataEventEmitter<any> {
   getItem: (userUuid: string) => Promise<User>;
@@ -98,7 +92,10 @@ const createUserService = ({
       .orWhere({ usersId_1: userIds[1], usersId_2: userIds[0] })
       .execute();
 
-    friendshipEventEmitter?.unfriended(currentUserUuid, friendUuid);
+    friendshipEventEmitter?.friendsIsChanged({
+      userUuid_1: currentUserUuid, 
+      userUuid_2: friendUuid
+    });
     return result;
   }
 

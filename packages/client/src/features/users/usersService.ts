@@ -5,16 +5,6 @@ import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery";
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: baseQueryWithReauth,
-  // baseQuery: fetchBaseQuery({
-  //   baseUrl: BASE_API_URL,
-  //   prepareHeaders: (headers, { getState }) => {
-  //     const token = (getState() as RootState).auth.accessToken;
-  //     if (token) {
-  //       headers.set('authorization', `Bearer ${token}`);
-  //     }
-  //     return headers;
-  //   },
-  // }),
   tagTypes: ['userSearch', 'friends', 'groupMembers'],
 
   endpoints: build => ({
@@ -28,7 +18,7 @@ export const userApi = createApi({
     }),
 
 
-    userSearch: build.query<any, any>({
+    userSearch: build.query<User[], string>({
       query: (search) => ({
         url: 'users/search',
         method: 'GET',
@@ -40,13 +30,14 @@ export const userApi = createApi({
     }),
 
 
-    friends: build.query<any, any>({
+    friends: build.query<User[], void>({
       query: () => ({
         url: 'users/friends',
         method: 'GET'
       }),
       providesTags: ['friends']
     }),
+    
     
     removeFriend: build.mutation<any, any>({
       query: (friendUuid: string) => ({

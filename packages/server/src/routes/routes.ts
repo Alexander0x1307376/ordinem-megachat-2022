@@ -56,7 +56,7 @@ const createRouter = ({
 
   // запросы дружбы
   router.get('/friend-requests', authMiddleware, friendRequestController.requests);
-  router.post('/friend-request/:requestedUuid/create', authMiddleware, friendRequestController.create);
+  router.post('/friend-request/create', authMiddleware, friendRequestController.create);
   router.post('/friend-request/:requestUuid/accept', authMiddleware, friendRequestController.accept);
   router.post('/friend-request/:requestUuid/recall', authMiddleware, friendRequestController.recall);
   router.post('/friend-request/:requestUuid/decline', authMiddleware, friendRequestController.reject);

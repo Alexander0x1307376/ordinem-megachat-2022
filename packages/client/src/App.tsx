@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import Login from './components/pages/Login';
@@ -12,19 +12,10 @@ import Register from './components/pages/Register';
 import Logout from './components/pages/Logout';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import CreateGroup from './components/pages/CreateGroup';
-import { useDispatch } from 'react-redux';
-import { friendshipSystemActions } from './features/friendshipSystem/friendshipSystemSlice';
 import ChannelChat from './components/pages/ChannelChat';
 
 
 const App: React.FC = () => {
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(friendshipSystemActions.startConnecting());
-  }, [dispatch]);
-
 
   const location = useLocation();
 

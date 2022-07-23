@@ -4,16 +4,28 @@ export type FriendRequest = {
   uuid: string;
   requester: User;
   requested: User;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export type RequestsInfo = {
-  friendRequests: {
-    outcomingRequests: FriendRequest[];
-    incomingRequests: FriendRequest[];
+export type FriendRequestMessage = {
+  status: 'success' | 'counterRequest' | 'alreadyFriends' | 'noRequestedUser' | 'toSelf';
+  data: {
+    requester: {
+      uuid: string;
+    },
+    requested: {
+      uuid?: string;
+      name: string;
+    }
   };
-  friendsStatuses: Record<string, {status: string}>;
+}
+
+export type FriendRequestResponse = FriendRequest | FriendRequestMessage;
+
+export type RequestsInfo = {
+  outcomingRequests: FriendRequest[];
+  incomingRequests: FriendRequest[];
 }
 
 export type FriendRequestUuids = {

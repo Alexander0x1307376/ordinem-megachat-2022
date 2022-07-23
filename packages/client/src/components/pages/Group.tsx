@@ -17,7 +17,7 @@ import { useEditGroupMutation, useGroupDetailsQuery } from "../../features/group
 import { useGroupMembersQuery } from "../../features/users/usersService";
 import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
-import { divide, has, pick } from "lodash";
+import { has, pick } from "lodash";
 import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
 import { selectCurrentUser } from "../../features/auth/authSlice";
 import { useSelector } from "react-redux";
@@ -237,7 +237,7 @@ const Group: React.FC = () => {
   // #region статусы участников 
   useEffect(() => {
 
-    if (!(groupData && groupMembers && groupId)) return;
+    if (!(groupData && groupMembers && groupId && !!subscribeToChanges && !!unsubscibeToChanges)) return;
     // запрашиваем статусы участников и владельца
 
     subscribeToChanges({
@@ -254,7 +254,7 @@ const Group: React.FC = () => {
       })
     }
     
-  }, [groupMembers, groupData, groupId]);
+  }, [groupMembers, groupData, groupId, subscribeToChanges, unsubscibeToChanges]);
 
   const usersData = useAppSelector(selectUsersData);
   // #endregion

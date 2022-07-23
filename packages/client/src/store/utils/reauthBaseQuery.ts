@@ -47,7 +47,6 @@ export const baseQueryWithReauth: BaseQueryFn<
           method: 'GET',
           credentials: 'same-origin',
           headers: {
-            // refreshToken: getUserFromLocalStorage()?.refreshToken
             refreshToken: (api.getState() as RootState).auth.refreshToken
           },
         }, api, extraOptions);

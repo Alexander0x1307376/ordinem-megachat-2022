@@ -1,3 +1,4 @@
+import { FriendRequestMessage, FriendRequestResponse, RequestsInfo } from "@ordinem-megachat-2022/shared";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../../store/store"; 
 import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery"; 
@@ -5,24 +6,25 @@ import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery";
 export const friendRequestApi = createApi({
   reducerPath: 'friendRequestApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['friendRequestsToMe', 'myFriendRequests'],
+  tagTypes: ['friendRequests'],
 
   endpoints: build => ({
 
-    friendRequests: build.query<any, void>({
+    friendRequests: build.query<RequestsInfo, void>({
       query: () => ({
         url: 'friend-requests',
         method: 'GET'
       }),
-      providesTags: ['friendRequestsToMe', 'myFriendRequests']
+      providesTags: ['friendRequests']
     }),
 
-    sendFriendRequest: build.mutation<any, string>({
-      query: (requestedUuid) => ({
-        url: `friend-request/${requestedUuid}/create`,
-        method: 'POST'
+    sendFriendRequest: build.mutation<FriendRequestMessage, string>({
+      query: (requestedName) => ({
+        url: `friend-request/create`,
+        method: 'POST',
+        body: { requestedName }
       }),
-      invalidatesTags: ['myFriendRequests']
+      invalidatesTags: ['friendRequests']
     }),
 
     recallRequest: build.mutation<any, string>({
@@ -30,7 +32,7 @@ export const friendRequestApi = createApi({
         url: `friend-request/${requestUuid}/recall`,
         method: 'POST'
       }),
-      invalidatesTags: ['myFriendRequests']
+      invalidatesTags: ['friendRequests']
     }),
 
     acceptRequest: build.mutation<any, string>({
@@ -38,7 +40,7 @@ export const friendRequestApi = createApi({
         url: `friend-request/${requestUuid}/accept`,
         method: 'POST'
       }),
-      invalidatesTags: ['friendRequestsToMe']
+      invalidatesTags: ['friendRequests']
     }),
 
     declineRequest: build.mutation<any, string>({
@@ -46,7 +48,7 @@ export const friendRequestApi = createApi({
         url: `friend-request/${requestUuid}/decline`,
         method: 'POST'
       }),
-      invalidatesTags: ['friendRequestsToMe']
+      invalidatesTags: ['friendRequests']
     }),
 
 
@@ -62,3 +64,5 @@ export const {
   useAcceptRequestMutation,
   useDeclineRequestMutation
 } = friendRequestApi;
+
+export default friendRequestApi;

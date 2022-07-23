@@ -18,9 +18,6 @@ import {
 import { IGroupService } from "../group/groupService";
 import { IUserService } from "../user/userService";
 
-export type ChangedDataSet = {
-  // users: 
-}
 
 const InitChatSystemHandlers = (
   io: Server, {

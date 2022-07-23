@@ -22,16 +22,16 @@ const useWebsocketFriendshipEmitter = () => {
   
   return {
     sendFriendRequest: (friendUuid: string) => {
-      socket.emit(fsEvents.SEND_FRIEND_REQUEST, friendUuid);
+      // socket.emit(fsEvents.SEND_FRIEND_REQUEST, friendUuid);
     },
     recallFriendRequest: (requestUuid: string) => {
-      socket.emit(fsEvents.RECALL_FRIEND_REQUEST, requestUuid);
+      // socket.emit(fsEvents.RECALL_FRIEND_REQUEST, requestUuid);
     },
     acceptFriendRequest: (requestUuid: string) => {
-      socket.emit(fsEvents.ACCEPT_FRIEND_REQUEST, requestUuid);
+      // socket.emit(fsEvents.ACCEPT_FRIEND_REQUEST, requestUuid);
     },
     declineFriendRequest: (requestUuid: string) => {
-      socket.emit(fsEvents.DECLINE_FRIEND_REQUEST, requestUuid);
+      // socket.emit(fsEvents.DECLINE_FRIEND_REQUEST, requestUuid);
     }
   }
 }

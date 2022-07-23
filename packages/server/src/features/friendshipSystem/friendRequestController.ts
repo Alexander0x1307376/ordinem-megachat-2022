@@ -41,9 +41,9 @@ export const createFriendRequestController = ({
 
     create: cf(async (req: any, res) => {
 
-      const { requestedUuid } = req.params;
+      const { requestedName } = req.body;
       const userUuid = req.user.uuid;
-      const result = await friendRequestService.createRequest(userUuid, requestedUuid);
+      const result = await friendRequestService.createRequest(userUuid, requestedName);
       res.json(result);
 
     }),

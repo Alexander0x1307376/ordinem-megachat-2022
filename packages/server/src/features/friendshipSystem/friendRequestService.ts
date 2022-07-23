@@ -1,53 +1,74 @@
-import AppDataSource from "../../dataSource";
 import { User } from '../../entity/User';
 import { FriendRequest } from '../../entity/FriendRequest';
-import { FriendRequest as FriendRequestType, RequestsInfo, FriendRequestUuids } from '@ordinem-megachat-2022/shared';
+import { 
+  FriendRequest as FriendRequestType, 
+  RequestsInfo, 
+  FriendRequestUuids, 
+  FriendRequestMessage
+} from '@ordinem-megachat-2022/shared';
 import { omit } from 'lodash';
 import ApiError from '../../exceptions/apiError';
 import FriendshipSystemEventEmitter from "./friendshipSystemEventEmitter";
+import { DataSource } from "typeorm";
 
 
-type ResultMessage = {
-  message: string;
-  type?: string;
-  data?: any;
-}
 
 
 export interface IFriendRequestService {
   createRequest: (
-    requesterUuid: string, requestedUuid: string
-  ) => Promise<FriendRequestType | ResultMessage>;
+    requesterUuid: string, requestedName: string
+  ) => Promise<FriendRequestMessage>;
   recallRequest: (userUuid: string, requestUuid: string) => Promise<FriendRequestUuids>;
   acceptRequest: (userUuid: string, requestUuid: string) => Promise<FriendRequestUuids>;
   declineRequest: (userUuid: string, requestUuid: string) => Promise<FriendRequestUuids>;
-  getRequests: (userUuid: string) => Promise<RequestsInfo['friendRequests']>;
+  getRequests: (userUuid: string) => Promise<RequestsInfo>;
 }
 
+
+const createFriendRequestMessage = ({
+  requestedUuid, requesterUuid, requestedName
+}: { 
+  requesterUuid: string; 
+  requestedUuid?: string; 
+  requestedName: string;
+}, 
+status: FriendRequestMessage['status']
+): FriendRequestMessage => ({
+  data: {
+    requested: { name: requestedName, uuid: requestedUuid },
+    requester: { uuid: requesterUuid }
+  },
+  status
+});
+
+
 export const createFriendRequestService = ({
-  friendshipEventEmitter
+  friendshipEventEmitter,
+  dataSource
 }: {
-    friendshipEventEmitter: FriendshipSystemEventEmitter
+    friendshipEventEmitter?: FriendshipSystemEventEmitter;
+    dataSource: DataSource;
 }) => {
 
 
   const checkFriendRelation = async (firstUserId: number, secondUserId: number): Promise<boolean> => {
-    const relations = await AppDataSource.createQueryBuilder()
+    const relations = await dataSource.createQueryBuilder()
+      .select('f."usersId_1", f."usersId_2"')
       .from('users_friends_users', 'f')
-      .where('f.usersId_1 = :userId1 AND f.usersId_2 = :userId2')
-      .orWhere('f.usersId_2 = :userId1 AND f.usersId_1 = :userId2')
+      .where('f."usersId_1" = :userId1 AND f."usersId_2" = :userId2')
+      .orWhere('f."usersId_2" = :userId1 AND f."usersId_1" = :userId2')
       .setParameters({
         userId1: firstUserId,
         userId2: secondUserId
       })
-      .getMany();
+      .getRawMany();
 
     return relations.length ? true : false;
   }
 
   const createFriendRelation = async (firstUserId: number, secondUserId: number) => {
 
-    const friendRelation = await AppDataSource.createQueryBuilder()
+    const friendRelation = await dataSource.createQueryBuilder()
       .insert()
       .into('users_friends_users')
       .values({
@@ -60,26 +81,26 @@ export const createFriendRequestService = ({
 
 
 
-  const getRequests = async (userUuid: string): Promise<RequestsInfo['friendRequests']> => {
+  const getRequests = async (userUuid: string): Promise<RequestsInfo> => {
     const currentUser = await User.findOneOrFail({
       where: { uuid: userUuid }
     });
 
 
     const selectString = `
-    fr.uuid, 
-    requester.uuid as "requesterUuid", 
-    requester.name as "requesterName", 
-    "requesterAva".path as "requesterAvaPath",
-    requested.uuid as "requestedUuid", 
-    requested.name as "requestedName", 
-    "requestedAva".path as "requestedAvaPath",
-    fr."createdAt",
-    fr."updatedAt"
-  `;
+      fr.uuid, 
+      requester.uuid as "requesterUuid", 
+      requester.name as "requesterName", 
+      "requesterAva".path as "requesterAvaPath",
+      requested.uuid as "requestedUuid", 
+      requested.name as "requestedName", 
+      "requestedAva".path as "requestedAvaPath",
+      fr."createdAt",
+      fr."updatedAt"
+    `;
 
     // реквесты от текущего пользователя
-    const outcomingRequests = await AppDataSource.createQueryBuilder()
+    const outcomingRequests = await dataSource.createQueryBuilder()
       .from('friend_requests', 'fr')
       .select(selectString)
       .where('fr.requesterId = :requesterId', { requesterId: currentUser.id })
@@ -91,7 +112,7 @@ export const createFriendRequestService = ({
 
 
     // реквесты от других к текущему пользователю
-    const incomingRequests = await AppDataSource.createQueryBuilder()
+    const incomingRequests = await dataSource.createQueryBuilder()
       .from('friend_requests', 'fr')
       .select(selectString)
       .where('fr.requestedId = :requestedId', { requestedId: currentUser.id })
@@ -123,7 +144,7 @@ export const createFriendRequestService = ({
       updatedAt
     }));
 
-    const result: RequestsInfo['friendRequests'] = {
+    const result: RequestsInfo = {
       outcomingRequests: queryToResult(outcomingRequests),
       incomingRequests: queryToResult(incomingRequests)
     };
@@ -138,31 +159,50 @@ export const createFriendRequestService = ({
   // если уже друзья - возвращаем сообщение о том, что уже друзья
   // если уже ранее отправляли приглашение - возвращаем старый запрос
   const createRequest = async (
-    requesterUuid: string, requestedUuid: string
-  ): Promise<FriendRequestType | ResultMessage> => {
+    requesterUuid: string, requestedName: string
+  ): Promise<FriendRequestMessage> => {
 
-    const requester = await AppDataSource.createQueryBuilder()
+    const requester = await dataSource.createQueryBuilder()
       .select('u.id, u.uuid, u.name, i.path as "avaPath"')
       .from(User, 'u')
       .leftJoin('u.ava', 'i')
       .where({ uuid: requesterUuid })
       .getRawOne();
 
-    const requested = await AppDataSource.createQueryBuilder()
+    if(requester.name === requestedName) {
+      return createFriendRequestMessage({
+        requesterUuid,
+        requestedName
+      }, 'toSelf');
+    }
+
+    const requested = await dataSource.createQueryBuilder()
       .select('u.id, u.uuid, u.name, i.path as "avaPath"')
       .from(User, 'u')
       .leftJoin('u.ava', 'i')
-      .where({ uuid: requestedUuid })
+      .where({ name: requestedName })
       .getRawOne();
+
+    if(!requested) {
+      return createFriendRequestMessage({
+        requesterUuid,
+        requestedName
+      }, 'noRequestedUser');
+    }
 
     // проверить наличие дружественной связи
     const areAlreadyFriends = await checkFriendRelation(requester.id, requested.id);
+
     if (areAlreadyFriends) {
-      throw ApiError.BadRequest('Already friends');
+      return createFriendRequestMessage({
+        requesterUuid,
+        requestedName,
+        requestedUuid: requested.uuid
+      }, 'alreadyFriends');
     }
 
     // проверить наличие встречного приглашения
-    const counterRequest = await AppDataSource.createQueryBuilder()
+    const counterRequest = await dataSource.createQueryBuilder()
       .from(FriendRequest, 'fr')
       .select('fr.id, fr.uuid, rer.uuid as "requesterUuid", red.uuid as "requestedUuid"')
       .leftJoin('fr.requester', 'rer')
@@ -173,19 +213,22 @@ export const createFriendRequestService = ({
     // если есть - сносим его и создаём дружественную связь
     if (counterRequest) {
 
-      await AppDataSource.createQueryBuilder()
+      await dataSource.createQueryBuilder()
         .delete()
         .from(FriendRequest)
         .where({ id: counterRequest.id })
         .execute();
 
       await createFriendRelation(requester.id, requested.id);
-      friendshipEventEmitter.becameFriends(requesterUuid, requestedUuid);
-      return {
-        message: 'There was a counter request. The friend relation was created',
-        type: 'counterRequest',
-        data: omit(counterRequest, ['id']) as FriendRequestUuids
-      } as ResultMessage;
+      friendshipEventEmitter?.friendsIsChanged({
+        userUuid_1: requesterUuid,
+        userUuid_2: requested.uuid
+      });
+      return createFriendRequestMessage({
+        requesterUuid,
+        requestedName,
+        requestedUuid: requested.uuid
+      }, 'counterRequest');
     }
 
     // проверить, не отправляли ли мы запрос ранее
@@ -194,13 +237,11 @@ export const createFriendRequestService = ({
     });
     // если отправляли - возвращаем его
     if (earlyRequest) {
-      return {
-        uuid: earlyRequest.uuid,
-        requester: omit(requester, ['id']) as FriendRequestType['requester'],
-        requested: omit(requested, ['id']) as FriendRequestType['requested'],
-        createdAt: earlyRequest.createdAt,
-        updatedAt: earlyRequest.updatedAt
-      }
+      return createFriendRequestMessage({
+        requesterUuid,
+        requestedName,
+        requestedUuid: requested.uuid
+      }, 'success');
     }
 
     // создаём приглашение
@@ -210,13 +251,15 @@ export const createFriendRequestService = ({
     });
     await friendRequest.save();
 
-    return {
-      uuid: friendRequest.uuid,
-      requester: omit(requester, ['id']) as FriendRequestType['requester'],
-      requested: omit(requested, ['id']) as FriendRequestType['requested'],
-      createdAt: friendRequest.createdAt,
-      updatedAt: friendRequest.updatedAt
-    } as FriendRequestType;
+    friendshipEventEmitter?.friendsIsChanged({
+      userUuid_1: requesterUuid,
+      userUuid_2: requested.uuid
+    });
+    return createFriendRequestMessage({
+      requesterUuid,
+      requestedName,
+      requestedUuid: requested.uuid
+    }, 'success');
   }
 
   // отменить (снести) приглашение.
@@ -227,7 +270,7 @@ export const createFriendRequestService = ({
     });
 
 
-    const friendRequest = await AppDataSource.createQueryBuilder()
+    const friendRequest = await dataSource.createQueryBuilder()
       .from(FriendRequest, 'fr')
       .select(`fr.uuid, requester.uuid as "requesterUuid", requested.uuid as "requestedUuid"`)
       .leftJoin('fr.requester', 'requester')
@@ -242,13 +285,16 @@ export const createFriendRequestService = ({
     if (!friendRequest)
       throw ApiError.NotFound(`Запрос дружбы uuid:${requestUuid} от пользователя ${currentUser.name} не найден`);
 
-    AppDataSource.createQueryBuilder()
+    dataSource.createQueryBuilder()
       .delete()
       .from(FriendRequest)
       .where({ uuid: friendRequest.uuid })
       .execute();
 
-
+    friendshipEventEmitter?.friendRequestIsChanged({
+      requesterUuid: friendRequest.requesterUuid,
+      requestedUuid: friendRequest.requestedUuid
+    });
     return {
       uuid: friendRequest.uuid,
       requesterUuid: friendRequest.requesterUuid,
@@ -264,15 +310,15 @@ export const createFriendRequestService = ({
       where: { uuid: userUuid }
     });
 
-    const friendRequest = await AppDataSource.createQueryBuilder()
+    const friendRequest = await dataSource.createQueryBuilder()
       .from(FriendRequest, 'fr')
       .select(`
-      fr.uuid, 
-      requester.uuid as "requesterUuid", 
-      requester.id as "requesterId", 
-      requested.uuid as "requestedUuid",
-      requested.id as "requestedId"
-    `)
+        fr.uuid, 
+        requester.uuid as "requesterUuid", 
+        requester.id as "requesterId", 
+        requested.uuid as "requestedUuid",
+        requested.id as "requestedId"
+      `)
       .leftJoin('fr.requester', 'requester')
       .leftJoin('fr.requested', 'requested')
       .where({ uuid: requestUuid })
@@ -294,7 +340,7 @@ export const createFriendRequestService = ({
     }
 
     // сносим запрос
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .delete()
       .from(FriendRequest)
       .where({ uuid: friendRequest.uuid })
@@ -303,7 +349,10 @@ export const createFriendRequestService = ({
     // сохраняем отношение
     await createFriendRelation(currentUser.id, friendRequest.requesterId);
 
-    friendshipEventEmitter.becameFriends(currentUser.uuid, friendRequest.requesterUuid);
+    friendshipEventEmitter?.friendsIsChanged({
+      userUuid_1: currentUser.uuid,
+      userUuid_2: friendRequest.requesterUuid
+    });
     return {
       uuid: friendRequest.uuid,
       requesterUuid: friendRequest.requesterUuid,
@@ -315,7 +364,7 @@ export const createFriendRequestService = ({
   // отклонить запрос на дружбу (тупо сносим его)
   const declineRequest = async (userUuid: string, requestUuid: string): Promise<FriendRequestUuids> => {
 
-    const friendRequest = await AppDataSource.createQueryBuilder()
+    const friendRequest = await dataSource.createQueryBuilder()
       .from(FriendRequest, 'fr')
       .select(`fr.uuid, requester.uuid as "requesterUuid", requested.uuid as "requestedUuid"`)
       .leftJoin('fr.requester', 'requester')
@@ -326,12 +375,16 @@ export const createFriendRequestService = ({
     if (!friendRequest)
       throw ApiError.NotFound('Не найден запрос для отклонения. Возможно он был отозван отправителем');
 
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .delete()
       .from(FriendRequest)
       .where({ uuid: friendRequest.uuid })
       .execute();
 
+    friendshipEventEmitter?.friendRequestIsChanged({
+      requestedUuid: friendRequest.requestedUuid,
+      requesterUuid: friendRequest.requesterUuid
+    });
     return {
       uuid: friendRequest.uuid,
       requestedUuid: friendRequest.requestedUuid,
