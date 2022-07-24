@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IoChevronBackOutline, IoEllipsisVertical, IoPeopleCircleOutline, IoSettingsSharp } from "react-icons/io5";
 import { Link, Outlet, useParams } from "react-router-dom";
 import IconedButton from "../shared/IconedButton";
@@ -7,12 +7,8 @@ import { useMediaQuery } from "react-responsive";
 import Header from "../shared/Header";
 import UserItemMember from "../shared/UserItemMember";
 import IntegratedMenu from "../layouts/IntegratedMenu";
-import FramerModal from "../shared/FramerModal";
-import ModalWindow from "../layouts/ModalWindow";
-import CreateChannelForm from "../forms/CreateChannelForm";
 import { ChannelPostData, GroupPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { useCreateChannelMutation, useRemoveChannelMutation, useUpdateChannelMutation } from "../../features/channels/channelsService";
 import { useEditGroupMutation, useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
 import { useAppSelector } from "../../store/utils/hooks";
@@ -22,8 +18,9 @@ import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeS
 import { selectCurrentUser } from "../../features/auth/authSlice";
 import { useSelector } from "react-redux";
 import NavLinkWithOptions from "../shared/NavLinkWithOptions";
-import Button from "../shared/Button";
-import CreateGroupForm from "../forms/CreateGroupForm";
+import CreateChannelModal from "../features/channels/CreateChannelModal";
+import EditChannelModal from "../features/channels/EditChannelModal";
+import EditGroupModal from "../features/groups/EditGroupModal";
 
 
 const Group: React.FC = () => {
@@ -122,18 +119,8 @@ const Group: React.FC = () => {
     setIsEditGroupModalOpen(false);
   }
 
-  const handleChangeGroup = async (event: FormEvent<HTMLFormElement>, formData: FormData) => {
-    event.preventDefault();
-    try {
-      const postData = Object.fromEntries(formData.entries());
-      console.log('formData', postData);
-      await updateGroup({ uuid: editGroup.uuid!, data: postData });
-      (event.target as any).reset();
-      handleGroupModalClose();
-    } catch (e) {
-      console.error(e);
-    }
-
+  const handleChangeGroup = async () => { 
+    handleGroupModalClose();
   }
 
 
@@ -156,25 +143,6 @@ const Group: React.FC = () => {
   // #endregion
   
   // #region каналы
-  // создание каналов
-  const [createChannel, { isLoading: createChannelLoading }] = useCreateChannelMutation();
-  const handleSubmitCreateChannel = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.target as HTMLFormElement);
-    try {
-      const postData: ChannelPostData = {
-        ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
-        groupUuid: groupId!
-      };
-      await createChannel(postData);
-      (event.target as any).reset();
-      handleCreateChannelModalClose();
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  
 
   // редактирование канала
   const [editChannel, setEditChannel] = useState<Partial<ChannelPostData & { uuid: string }>>({});
@@ -189,50 +157,11 @@ const Group: React.FC = () => {
     setIsEditChannelModalOpen(true);
   }
 
-  const [updateChannel, { isLoading: updateChannelLoading }] = useUpdateChannelMutation();
-  const handleSubmitEditChannel = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.target as HTMLFormElement);
-    try {
-
-      const postData: ChannelPostData = {
-        ...Object.fromEntries(data) as Pick<ChannelPostData, 'name' | 'description'>,
-        groupUuid: groupId!
-      };
-      await updateChannel({ uuid: editChannel.uuid!, data: postData});
-    }
-    catch (e) {
-      console.error(e);
-    }
-  }
-
-  // удаление канала
-  const [isRemoveChannelModalOpen, setIsRemoveChannelModalOpen] = useState<boolean>(false);
-  const [removeChannel] = useRemoveChannelMutation();
-
-  const handleRemoveChannelModalClose = () => {
-    setIsRemoveChannelModalOpen(false);
-  };
-
-  const handleRemoveChannelModalOpen = () => {
-    setIsRemoveChannelModalOpen(true);
-  };
-
-  const handleRemoveChannel = async () => {
-    if (!editChannel.uuid) return;
-    
-    await removeChannel(editChannel.uuid);
-    handleRemoveChannelModalClose();
-    handleEditChannelModalClose();
-  }
-  // #endregion
-
-
   const {
     subscribeToChanges, unsubscibeToChanges
   } = useRealtimeSystemEmitter();
 
-
+  //#endregion
 
   // #region статусы участников 
   useEffect(() => {
@@ -261,70 +190,26 @@ const Group: React.FC = () => {
 
   return (<>
     {/* модалка для добавления нового канала */}
-    <FramerModal isOpen={isCreateChannelModalOpen} onOutlineClick={handleCreateChannelModalClose}>
-      <ModalWindow
-        isAutoSize
-        onClose={handleCreateChannelModalClose}
-        title="Добавить канал"
-      >
-        <div className="h-full md:h-[calc(100vh-10rem)] md:w-[30rem] overflow-y-auto">
-          <CreateChannelForm onSubmit={handleSubmitCreateChannel} />
-        </div>
-      </ModalWindow>
-    </FramerModal>
+    <CreateChannelModal 
+      groupUuid={groupId} 
+      isOpen={isCreateChannelModalOpen}
+      onClose={handleCreateChannelModalClose} 
+    />
     {/* модалка для изменеия канала */}
-    <FramerModal isOpen={isEditChannelModalOpen} onOutlineClick={handleEditChannelModalClose}>
-      <ModalWindow
-        isAutoSize
-        onClose={handleEditChannelModalClose}
-        title="Редактировать канал"
-      >
-        <div className="h-full md:h-[calc(100vh-10rem)] md:w-[30rem] overflow-y-auto">
-          <CreateChannelForm 
-            onSubmit={handleSubmitEditChannel} 
-            initialData={editChannel} 
-            submitButtonText="Изменить"
-            onDelete={handleRemoveChannelModalOpen}
-          />
-        </div>
-      </ModalWindow>
-    </FramerModal>
-    {/* модалка для подтверждения удаления */}
-    <FramerModal isOpen={isRemoveChannelModalOpen} onOutlineClick={handleRemoveChannelModalClose}>
-      <ModalWindow
-        isAutoSize
-        onClose={handleRemoveChannelModalClose}
-        title="Удаление канала"
-      >
-        <div className="overflow-y-auto flex h-full justify-center items-center">
-          <div>
-            <div className="text-center">
-              Уверены в снесении канала? Сообщения канала будут также снесены. Это неотменяемая операция.
-            </div>
-            <div className="flex justify-around mt-4">
-              <Button type="danger" onClick={handleRemoveChannel}>Снести</Button>
-              <Button type="info" onClick={handleRemoveChannelModalClose}>Отмена</Button>
-            </div>
-          </div>
-        </div>
-      </ModalWindow>
-    </FramerModal>
+    <EditChannelModal 
+      groupUuid={groupId}
+      isOpen={isEditChannelModalOpen}
+      onClose={handleEditChannelModalClose}
+      channelData={editChannel}
+    />
     {/* модалка для изменения данных группы */}
-    <FramerModal isOpen={isEditGroupModalOpen} onOutlineClick={handleGroupModalClose}>
-      <ModalWindow
-        isAutoSize
-        onClose={handleGroupModalClose}
-        title="Редактировать группу"
-      >
-        <div className="h-full md:h-[calc(100vh-10rem)] md:w-[30rem] overflow-y-auto">
-          <CreateGroupForm 
-            onSubmit={handleChangeGroup}
-            initialData={editGroup}
-            submitButtonText="Изменить данные группы"
-          />
-        </div>
-      </ModalWindow>
-    </FramerModal>
+    <EditGroupModal 
+      groupData={editGroup}
+      isOpen={isEditGroupModalOpen}
+      onClose={handleGroupModalClose}
+      onSuccess={handleGroupModalClose}
+      onFail={() => {console.log('EditGroupModal. Somethong gone wrong')}}
+    />
 
     {/* страница */}
     <div className="h-screen w-screen flex flex-col">
