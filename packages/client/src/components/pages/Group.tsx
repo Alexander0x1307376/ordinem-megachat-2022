@@ -9,7 +9,7 @@ import UserItemMember from "../shared/UserItemMember";
 import IntegratedMenu from "../layouts/IntegratedMenu";
 import { ChannelPostData, GroupPostData } from "@ordinem-megachat-2022/shared";
 import LoadingSpinner from "../shared/LoadingSpinner";
-import { useEditGroupMutation, useGroupDetailsQuery } from "../../features/groups/groupsService";
+import { useGroupDetailsQuery } from "../../features/groups/groupsService";
 import { useGroupMembersQuery } from "../../features/users/usersService";
 import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
@@ -107,7 +107,6 @@ const Group: React.FC = () => {
   } = useGroupDetailsQuery(groupId || '');
 
   const [editGroup, setEditGroup] = useState<Partial<GroupPostData & { uuid: string; avaUuid: string }>>({});
-  const [updateGroup] = useEditGroupMutation();
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState<boolean>(false);
 
   const handleGroupModalOpen = () => {
@@ -118,12 +117,6 @@ const Group: React.FC = () => {
   const handleGroupModalClose = () => {
     setIsEditGroupModalOpen(false);
   }
-
-  const handleChangeGroup = async () => { 
-    handleGroupModalClose();
-  }
-
-
   // #endregion
 
 
