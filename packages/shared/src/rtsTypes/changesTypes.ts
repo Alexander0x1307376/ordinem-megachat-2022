@@ -1,7 +1,7 @@
 export type SubscribeToChangeData = {
   users: string[];
   groups: string[];
-  channels: string[];
+  rooms: string[];
 }
 
 export type ChangeData = Record<string, {

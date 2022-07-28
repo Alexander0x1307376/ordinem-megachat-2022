@@ -10,11 +10,10 @@ import { AnyAction, Store } from "@reduxjs/toolkit";
 
 const realtimeSystemReceiver = (socket: Socket, store: Store<RootState, AnyAction>) => {
   socket.on('connect', () => {
-    // store.dispatch(msActions.connectionEstablished());
     console.log('RealtimeSystem: connection established!');
 
     const syncData = store.getState().realtimeSystem;
-    if (syncData.channels.length && syncData.users.length && syncData.groups.length)
+    if (syncData.rooms.length && syncData.users.length && syncData.groups.length)
       setTimeout(() => socket.emit(csEvents.SUBSCRIBE_TO_CHANGES, syncData), 200);
   });
 
@@ -23,17 +22,14 @@ const realtimeSystemReceiver = (socket: Socket, store: Store<RootState, AnyActio
   });
 
   socket.on(csEvents.USER_ONLINE, (userUuid: string) => {
-    console.log('USER_ONLINE: ', userUuid);
     store.dispatch(usersDataActions.setUserStatus({ userUuid, status: 'в сети' }));
   });
 
   socket.on(csEvents.USER_OFFLINE, (userUuid: string) => {
-    console.log('USER_OFFLINE: ', userUuid);
     store.dispatch(usersDataActions.removeUser(userUuid));
   });
   
   socket.on(csEvents.CHANGES, (response: ChangeData) => {
-    console.log('CHANGES', response);
 
     // устанавливаем статусы юзеров
     const userData = response.users?.data

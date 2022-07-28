@@ -165,14 +165,14 @@ const Group: React.FC = () => {
     subscribeToChanges({
       groups: [groupId],
       users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
-      channels: groupData.channels.map(item => item.uuid) 
+      rooms: groupData.channels.map(item => item.chatRoomUuid) 
     })
 
     return () => {
       unsubscibeToChanges({
         groups: [groupId],
         users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
-        channels: groupData.channels.map(item => item.uuid) 
+        rooms: groupData.channels.map(item => item.chatRoomUuid) 
       })
     }
     

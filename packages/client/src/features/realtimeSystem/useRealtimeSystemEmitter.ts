@@ -5,8 +5,13 @@ import { SubscribeToChangeData } from "@ordinem-megachat-2022/shared";
 import { useAppDispatch } from "../../store/utils/hooks";
 import { realtimeSystemActions } from "./realtimeSystemSlice";
 
-
+/**
+ * useRealtimeSystemEmitter служит для подписки на измения данных,
+ * изменения которых нужно отслеживать в реальном времени
+ * (сообщения чатов, данные пользователлей - их личные данные и онлайн статус и т.п.)
+ */
 const useRealtimeSystemEmitter = () => {
+
   const wc = useContext(WebsocketContext);
   const dispatch = useAppDispatch();
 
@@ -14,10 +19,6 @@ const useRealtimeSystemEmitter = () => {
     console.warn('there is no socket. realtime system emitter is not initialized');
   }
   const socket = wc?.socket;
-
-  const synchronization = () => {
-    // socket?.emit(chatEvents.REQUEST_USER_STATUSES, userUuidList);
-  };
 
   const subscribeToChanges = (data: Partial<SubscribeToChangeData>) => {
     dispatch(realtimeSystemActions.setRealtimeState(data));
@@ -31,7 +32,6 @@ const useRealtimeSystemEmitter = () => {
 
 
   const methods = useMemo(() => ({
-    synchronization,
     subscribeToChanges,
     unsubscibeToChanges
   }), [socket]);

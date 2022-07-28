@@ -13,7 +13,7 @@ export type UnsetActionPayload = Partial<RealtimeState>
 
 const initialState: RealtimeState = {
   users: [],
-  channels: [],
+  rooms: [],
   groups: []
 };
 
@@ -28,10 +28,10 @@ const realtimeSystemSlice = createSlice({
       });
     },
     removeRealtimeState: (state, action: PayloadAction<UnsetActionPayload>) => {
-      const { channels, groups, users } = action.payload;
+      const { rooms, groups, users } = action.payload;
 
       state.groups = difference(state.groups, groups || []);
-      state.channels = difference(state.channels, channels || []);
+      state.rooms = difference(state.rooms, rooms || []);
       state.users = difference(state.users, users || []);
     },
 
@@ -43,7 +43,7 @@ const realtimeSystemSlice = createSlice({
       state.groups = [action.payload];
     },
     setChannel: (state, action: PayloadAction<string>) => {
-      state.channels = [action.payload];
+      state.rooms = [action.payload];
     },
 
 
@@ -54,7 +54,7 @@ const realtimeSystemSlice = createSlice({
       state.groups = [];
     },
     unsetChannel: (state) => {
-      state.channels = [];
+      state.rooms = [];
     },
   }
 });

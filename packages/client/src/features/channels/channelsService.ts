@@ -59,7 +59,8 @@ export const channelsApi = createApi({
       query: (uuid) => ({
         url: `channel/${uuid}`,
         method: 'GET'
-      })
+      }),
+      providesTags: ['channels']
     })
   
   })

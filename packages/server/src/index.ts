@@ -25,12 +25,15 @@ import createGroupService from './features/group/groupService';
 import createGroupController from './features/group/groupController';
 import createImageService from './features/image/imageService';
 import createImageController from './features/fileUploader/fileController';
+import createChatRoomService from './features/chatRoom/chatRoomService';
 
 export const app = express();
 
 const corsOrigin = process.env.ALLOWED_ORIGIN;
 const port = process.env.PORT || 8000;
 const webSocketsPort = process.env.WS_PORT || 4000;
+
+const chatRoomService = createChatRoomService(AppDataSource);
 
 const channelService = createChannelService({ dataSource: AppDataSource });
 const channelController = createChannelController({channelService});
@@ -111,7 +114,8 @@ CreateMainHandler(io, {
   userService,
   messageService,
   channelService,
-  groupService
+  groupService,
+  chatRoomService
 });
 
 

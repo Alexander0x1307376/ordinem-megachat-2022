@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 import Model from "./Model";
 import { User } from "./User";
-import { Channel } from "./Channel";
+import { ChatRoom } from "./ChatRoom";
 
 @Entity('messages')
 export class Message extends Model {
@@ -10,9 +10,9 @@ export class Message extends Model {
   text: string;
 
   @Column()
-  channelId: number;
-  @ManyToOne(() => Channel, {onDelete: "CASCADE"})
-  channel: Channel;
+  chatRoomId: number;
+  @ManyToOne(() => ChatRoom, {onDelete: "CASCADE"})
+  chatRoom: ChatRoom;
 
   @Column()
   authorId: number;

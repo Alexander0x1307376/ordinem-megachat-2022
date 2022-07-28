@@ -1,5 +1,3 @@
-import { assert } from 'console';
-import { decode, encode } from 'js-base64';
 import { DataSource } from 'typeorm';
 import { v4 } from 'uuid';
 import { Channel } from '../../entity/Channel';
@@ -11,7 +9,9 @@ import { Message } from '../../entity/Message';
 import { User } from '../../entity/User';
 import { UserToken } from '../../entity/UserToken';
 import createChannelService from './channelService';
-import { omit, mapValues, pick } from 'lodash';
+import { omit } from 'lodash';
+import { Conversation } from '../../entity/Conversation';
+import { ChatRoom } from '../../entity/ChatRoom';
 
 
 describe('манипуляции с данными каналов', () => {
@@ -26,8 +26,8 @@ describe('манипуляции с данными каналов', () => {
     synchronize: true,
     logging: false,
     entities: [
-      User, UserToken, Image, Group, Channel,
-      Message, GroupInvite, FriendRequest
+      ChatRoom, User, UserToken, Image, Group, Channel,
+      Message, GroupInvite, FriendRequest, Conversation
     ],
     subscribers: [],
     migrations: [],
@@ -46,7 +46,9 @@ describe('манипуляции с данными каналов', () => {
     id: 1, uuid: v4(), name: 'Тестовая группа User 1', description: 'Это тестовая группа', ownerId: 1
   };
 
-  const channelData = { id: 1, uuid: v4(), name: 'Тестовый канал', groupId: 1 };
+  
+  const chatRoomData = { id: 1, uuid: v4() };
+  const channelData = { id: 1, uuid: v4(), name: 'Тестовый канал', groupId: 1, chatRoomId: 1 };
 
 
   beforeAll(async () => {
@@ -65,7 +67,14 @@ describe('манипуляции с данными каналов', () => {
       .values([groupData])
       .execute();
 
-    // создаём канал
+    // создаём канал с комнатой
+
+    const chatRoom = await AppDataSource.createQueryBuilder()
+      .insert()
+      .into('chatrooms')
+      .values([chatRoomData])
+      .execute();
+
     const channel = await AppDataSource.createQueryBuilder(Channel, 'c')
       .insert()
       .values([channelData])
@@ -79,7 +88,40 @@ describe('манипуляции с данными каналов', () => {
   });
 
 
-  test('канал удаляется из базы, данные канала возвращаются', async () => {
+  test('канал создаётся вместе с со своим чатрумом', async () => {
+    
+    const channel = await channelService.createChannel({
+      name: 'Канал!',
+      description: 'описание',
+      groupUuid: groupData.uuid
+    });
+
+    // данные канала из модели
+    const assertingChannelData = {
+      uuid: channel.uuid,
+      name: 'Канал!',
+      description: 'описание',
+      groupUuid: groupData.uuid,
+      chatRoomUuid: channel.chatRoomUuid
+    };
+
+    // данные комнаты
+    const assertingChatRoomData = {
+      uuid: channel.chatRoomUuid
+    };
+    
+    // данные комнаты из БД
+    const chatRoomData = await AppDataSource.createQueryBuilder(ChatRoom, 'r')
+      .select('r.uuid as uuid')
+      .where('r.uuid = :uuid', { uuid: channel.chatRoomUuid })
+      .getRawOne();
+
+    expect(omit(channel, ['createdAt', 'updatedAt'])).toEqual(assertingChannelData);
+    expect(chatRoomData).toEqual(assertingChatRoomData);
+  });
+
+
+  test('канал удаляется из базы вместе с чатрумом, данные канала возвращаются', async () => {
 
     const newChannel = await channelService.createChannel({
       name: 'Новый канал',
@@ -93,16 +135,21 @@ describe('манипуляции с данными каналов', () => {
       uuid: newChannel.uuid,
       name: 'Новый канал',
       description: 'описание',
-      groupUuid: groupData.uuid
+      groupUuid: groupData.uuid,
+      chatRoomUuid: deletedChannelData.chatRoomUuid
     };
 
+    // данные комнаты из БД
+    const chatRoomData = await AppDataSource.createQueryBuilder(ChatRoom, 'r')
+      .select('r.uuid as uuid')
+      .where('r.uuid = :uuid', { uuid: newChannel.uuid })
+      .getRawOne();
+
+      
+    expect(chatRoomData).toEqual(undefined);
     expect(omit(deletedChannelData, ['createdAt', 'updatedAt'])).toEqual(assertingData);
     
   });
 
-
-
-
   
-
 });

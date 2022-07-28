@@ -12,6 +12,8 @@ import { User } from '../../entity/User';
 import { UserToken } from '../../entity/UserToken';
 import createMessageService from './messageService';
 import { omit, mapValues, pick } from 'lodash';
+import { ChatRoom } from '../../entity/ChatRoom';
+import { MessageItemResponse, MessagePostData, MessageSet } from '@ordinem-megachat-2022/shared';
 
 
 describe('набор сообщений извлекается согласно курсору', () => {
@@ -27,7 +29,7 @@ describe('набор сообщений извлекается согласно 
     logging: false,
     entities: [
       User, UserToken, Image, Group, Channel, 
-      Message, GroupInvite, FriendRequest
+      Message, GroupInvite, FriendRequest, ChatRoom
     ],
     subscribers: [],
     migrations: [],
@@ -48,18 +50,21 @@ describe('набор сообщений извлекается согласно 
     id: 1, uuid: v4(), name: 'Тестовая группа User 1', description: 'Это тестовая группа', ownerId: 1 
   };
 
-  const channelData = { id: 1, uuid: v4(), name: 'Тестовый канал', groupId: 1 };
+
+  const chatRoomData = { id: 1, uuid: v4() };
+  const channelData = { id: 1, uuid: v4(), name: 'Тестовый канал', groupId: 1, chatRoomId: 1 };
+
 
   const messagesData = [
-    { id: 1, uuid: v4(), text: 'Тестовое сообщение №1', authorId: 1, channelId: 1 }, // 0
-    { id: 2, uuid: v4(), text: 'Тестовое сообщение №2', authorId: 2, channelId: 1 }, // 1
-    { id: 3, uuid: v4(), text: 'Тестовое сообщение №3', authorId: 3, channelId: 1 }, // 2
-    { id: 4, uuid: v4(), text: 'Тестовое сообщение №4', authorId: 1, channelId: 1 }, // 3
-    { id: 5, uuid: v4(), text: 'Тестовое сообщение №5', authorId: 2, channelId: 1 }, // 4
-    { id: 6, uuid: v4(), text: 'Тестовое сообщение №6', authorId: 3, channelId: 1 }, // 5
-    { id: 7, uuid: v4(), text: 'Тестовое сообщение №7', authorId: 1, channelId: 1 }, // 6
-    { id: 8, uuid: v4(), text: 'Тестовое сообщение №8', authorId: 2, channelId: 1 }, // 7
-    { id: 9, uuid: v4(), text: 'Тестовое сообщение №9', authorId: 3, channelId: 1 }  // 8
+    { id: 1, uuid: v4(), text: 'Тестовое сообщение №1', authorId: 1, chatRoomId: 1 }, // 0
+    { id: 2, uuid: v4(), text: 'Тестовое сообщение №2', authorId: 2, chatRoomId: 1 }, // 1
+    { id: 3, uuid: v4(), text: 'Тестовое сообщение №3', authorId: 3, chatRoomId: 1 }, // 2
+    { id: 4, uuid: v4(), text: 'Тестовое сообщение №4', authorId: 1, chatRoomId: 1 }, // 3
+    { id: 5, uuid: v4(), text: 'Тестовое сообщение №5', authorId: 2, chatRoomId: 1 }, // 4
+    { id: 6, uuid: v4(), text: 'Тестовое сообщение №6', authorId: 3, chatRoomId: 1 }, // 5
+    { id: 7, uuid: v4(), text: 'Тестовое сообщение №7', authorId: 1, chatRoomId: 1 }, // 6
+    { id: 8, uuid: v4(), text: 'Тестовое сообщение №8', authorId: 2, chatRoomId: 1 }, // 7
+    { id: 9, uuid: v4(), text: 'Тестовое сообщение №9', authorId: 3, chatRoomId: 1 }  // 8
   ];
 
   beforeAll(async () => {
@@ -76,6 +81,13 @@ describe('набор сообщений извлекается согласно 
     const group = await AppDataSource.createQueryBuilder(Group, 'g')
       .insert()
       .values([groupData])
+      .execute();
+
+    
+    const chatRoom = await AppDataSource.createQueryBuilder()
+      .insert()
+      .into('chatrooms')
+      .values([chatRoomData])
       .execute();
 
     // создаём канал
@@ -108,7 +120,7 @@ describe('набор сообщений извлекается согласно 
     const assertingData = {
       messages: {
         [messagesData[0].uuid]: { 
-          id: 1, uuid: messagesData[0].uuid, text: 'Тестовое сообщение №1' 
+          id: 1, uuid: messagesData[0].uuid, text: 'Тестовое сообщение №1', 
         }, 
         [messagesData[1].uuid]: { 
           id: 2, uuid: messagesData[1].uuid, text: 'Тестовое сообщение №2' 
@@ -120,7 +132,7 @@ describe('набор сообщений извлекается согласно 
           id: 4, uuid: messagesData[3].uuid, text: 'Тестовое сообщение №4' 
         }, 
       },
-      channelUuid: channelData.uuid,
+      chatRoomUuid: chatRoomData.uuid,
       cursors: {
         next: encode(JSON.stringify({
           value: messagesData[3].uuid,
@@ -129,7 +141,7 @@ describe('набор сообщений извлекается согласно 
       }
     };
 
-    const data = await messageService.getMessagesOfChannel(channelData.uuid, encodedCursor, 10);
+    const data = await messageService.getMessagesOfRoom(chatRoomData.uuid, encodedCursor, 10);
     const omittedData = {
       ...data,
       messages: Object.keys(data.messages).reduce((acc, item) => {
@@ -164,7 +176,7 @@ describe('набор сообщений извлекается согласно 
           id: 9, uuid: messagesData[8].uuid, text: 'Тестовое сообщение №9'
         }
       },
-      channelUuid: channelData.uuid,
+      chatRoomUuid: chatRoomData.uuid,
       cursors: {
         prev: encode(JSON.stringify({
           value: messagesData[6].uuid,
@@ -173,7 +185,7 @@ describe('набор сообщений извлекается согласно 
       }
     };
 
-    const data = await messageService.getMessagesOfChannel(channelData.uuid, encodedCursor, 10);
+    const data = await messageService.getMessagesOfRoom(chatRoomData.uuid, encodedCursor, 10);
     const omittedData = {
       ...data,
       messages: Object.keys(data.messages).reduce((acc, item) => {
@@ -215,7 +227,7 @@ describe('набор сообщений извлекается согласно 
           id: 6, uuid: messagesData[5].uuid, text: 'Тестовое сообщение №6'
         }
       },
-      channelUuid: channelData.uuid,
+      chatRoomUuid: chatRoomData.uuid,
       cursors: {
         prev: encode(JSON.stringify({
           value: messagesData[2].uuid,
@@ -228,7 +240,7 @@ describe('набор сообщений извлекается согласно 
       }
     };
 
-    const data = await messageService.getMessagesOfChannel(channelData.uuid, encodedCursor, 4);
+    const data = await messageService.getMessagesOfRoom(chatRoomData.uuid, encodedCursor, 4);
     const omittedData = {
       ...data,
       messages: Object.keys(data.messages).reduce((acc, item) => {
@@ -266,7 +278,7 @@ describe('набор сообщений извлекается согласно 
           id: 6, uuid: messagesData[5].uuid, text: 'Тестовое сообщение №6'
         }
       },
-      channelUuid: channelData.uuid,
+      chatRoomUuid: chatRoomData.uuid,
       cursors: {
         prev: encode(JSON.stringify({
           value: messagesData[2].uuid,
@@ -279,7 +291,7 @@ describe('набор сообщений извлекается согласно 
       }
     };
 
-    const data = await messageService.getMessagesOfChannel(channelData.uuid, encodedCursor, 4);
+    const data = await messageService.getMessagesOfRoom(chatRoomData.uuid, encodedCursor, 4);
     const omittedData = {
       ...data,
       messages: Object.keys(data.messages).reduce((acc, item) => {
@@ -313,7 +325,7 @@ describe('набор сообщений извлекается согласно 
           id: 9, uuid: messagesData[8].uuid, text: 'Тестовое сообщение №9'
         }
       },
-      channelUuid: channelData.uuid,
+      chatRoomUuid: chatRoomData.uuid,
       cursors: {
         prev: encode(JSON.stringify({
           value: messagesData[5].uuid,
@@ -322,7 +334,7 @@ describe('набор сообщений извлекается согласно 
       }
     };
 
-    const data = await messageService.getLastMessagesOfChannel(channelData.uuid, 4);
+    const data = await messageService.getLastMessagesOfRoom(chatRoomData.uuid, 4);
     const omittedData = {
       ...data,
       messages: Object.keys(data.messages).reduce((acc, item) => {
@@ -339,10 +351,33 @@ describe('набор сообщений извлекается согласно 
   });
 
 
+  test.only('создание сообщения', async () => {
 
-  
-  test('запрос последний сообщений если данных нет', async () => {
+    const authorUuid = usersData[0].uuid;
+    const messagePostData: MessagePostData = {
+      text: 'тестовое сообщение',
+      chatRoomUuid: chatRoomData.uuid
+    };
+
+    const message = await messageService.createMessage(authorUuid, messagePostData);
+
+    const assertingData: Omit<MessageItemResponse, 'id' | 'createdAt' | 'updatedAt'> = {
+      uuid: message.uuid,
+      text: 'тестовое сообщение',
+      authorName: usersData[0].name,
+      authorUuid: usersData[0].uuid,
+      chatRoomUuid: chatRoomData.uuid
+    };
+
+    const omittedData = omit(message, ['id', 'createdAt', 'updatedAt', 'authorAvaPath']);
+
+    expect(omittedData).toEqual(assertingData);
 
   });
+
+  
+  // test('запрос последний сообщений если данных нет', async () => {
+
+  // });
 
 });

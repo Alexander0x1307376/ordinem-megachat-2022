@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { BASE_API_URL } from "../../config";
 import { 
-  selectMessagesOfChannel 
+  selectMessagesOfRoom 
 } from "../../features/chatMessageSystem/chatSystemSlice";
 import useWebsocketChatMessageEmitter from "../../features/chatMessageSystem/useWebsocketChatMessageEmitter";
 import { useAppSelector } from "../../store/utils/hooks";
@@ -10,13 +10,24 @@ import ChatMessage from "../features/chat/ChatMessage";
 import { encode } from "js-base64";
 import { RootState } from "../../store/store";
 import { useInView } from "react-intersection-observer";
+import { useChannelDetailsQuery } from "../../features/channels/channelsService";
+
+
 
 const ChannelChat: React.FC = () => {
 
   const { channelId } = useParams();
-  const channelMessages = useAppSelector((state: RootState) => selectMessagesOfChannel(state.chatSystem, channelId || ''));
+
+  const {data: channelData, isLoading: isChannelLoading} = useChannelDetailsQuery(channelId || '');
+
+  const channelMessages = useAppSelector((state: RootState) => 
+    selectMessagesOfRoom(state.chatSystem, channelData?.chatRoomUuid || '')
+  );
+
   const messageEmitter = useWebsocketChatMessageEmitter();
 
+  
+  // #region подгрузка сообщений
   const messageSection = useRef<HTMLDivElement>(null);
 
   const [topObservable, inViewTop, entryTop] = useInView({
@@ -32,23 +43,23 @@ const ChannelChat: React.FC = () => {
   });
 
   useEffect(() => {
-    if (entryTop?.isIntersecting && channelMessages?.length) {
+    if (entryTop?.isIntersecting && channelMessages?.length && !isChannelLoading && channelData?.chatRoomUuid) {
       const cursor = encode(JSON.stringify({
         value: channelMessages?.[0].uuid,
         type: 'prev'
       }));
-      messageEmitter.getMessages(channelId as string, cursor);
+      messageEmitter.getMessages(channelData.chatRoomUuid, cursor);
     }
-  }, [entryTop])
+  }, [entryTop, channelData, channelMessages]);
+
+  // #endregion
 
   
   useEffect(() => {
     let currentMessageSection: Element | null = null;
-
     // websocket emits
-    if(channelId) {
-      console.log('ws emit for', channelId);
-      messageEmitter.joinChannel(channelId);
+    if (channelData?.chatRoomUuid) {
+      messageEmitter.joinRoom(channelData.chatRoomUuid);
     }
     return () => {
       // messageEmitter.leaveChannel(channelId!);
@@ -56,20 +67,23 @@ const ChannelChat: React.FC = () => {
         currentMessageSection = null;
     }
   }, [
-    channelId, messageEmitter, messageSection
+    channelId, messageEmitter, messageSection, channelData
   ]);
 
   useEffect(() => () => {
-    console.log('left channels');
+    if (channelData?.chatRoomUuid) {
+      messageEmitter.leaveRoom(channelData.chatRoomUuid);
+      console.log('left room', channelData.chatRoomUuid);
+    }
   }, []);
 
 
 
   const [messageToSend, setMessageToSend] = useState<string>('');
   const handleSendMessage = (message: string) => {
-    if (!channelId) return;
+    if (!channelData?.chatRoomUuid) return;
 
-    messageEmitter.sendMessage(channelId, message);
+    messageEmitter.sendMessage(channelData.chatRoomUuid, message);
     setMessageToSend('');
   }
   
@@ -96,7 +110,7 @@ const ChannelChat: React.FC = () => {
             </>
           )
           : (
-            <div className="text-center p-4">
+            <div className="text-center p-4 mb-4">
               в этом канале пока что нет сообщений
             </div>
           )
@@ -104,7 +118,7 @@ const ChannelChat: React.FC = () => {
         
 
       </div>
-      <div className="grow-0 px-4 pb-4">
+      <div className="grow-0 px-4 pb-4 flex">
         <input
           value={messageToSend}
           onChange={(event) => setMessageToSend(event.target.value)}
@@ -112,9 +126,12 @@ const ChannelChat: React.FC = () => {
             if (event.key === 'Enter' && messageToSend) 
               handleSendMessage(messageToSend)
           }}
-          className="w-full p-4 rounded-lg bg-glassy font-thin text-lg outline-none"
+          className="w-full p-4 rounded-l-lg bg-glassy font-thin text-lg outline-none"
           type="text"
         />
+        <div className="bg-glassy rounded-r-lg flex pr-4">
+          {/* здесь будут кнопы */}
+        </div>
       </div>
     </div>
   )

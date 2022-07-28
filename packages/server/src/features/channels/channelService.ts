@@ -5,6 +5,7 @@ import { Group } from "../../entity/Group";
 import ApiError from "../../exceptions/apiError";
 import { DataSource } from "typeorm";
 import createChangeDataEventEmitter, { ChangeDataEventEmitter } from "../crudService/changeDataEventEmitter";
+import { ChatRoom } from "../../entity/ChatRoom";
 
 
 export interface IChannelService extends ChangeDataEventEmitter<ChannelItem> {
@@ -47,9 +48,13 @@ const createChannelService = ({
 
     const result = await dataSource
       .createQueryBuilder(Channel, 'c')
-      .select('c.uuid, c.name, c.description, c."createdAt", c."updatedAt", g.uuid as "groupUuid"')
+      .select(`
+        c.uuid, c.name, c.description, c."createdAt", 
+        c."updatedAt", g.uuid as "groupUuid", r.uuid as "chatRoomUuid"
+      `)
       .where('c.uuid = :channelUuid', { channelUuid })
       .leftJoin('c.group', 'g')
+      .leftJoin('c.chatRoom', 'r')
       .getRawOne();
 
     if(!result)
@@ -67,8 +72,11 @@ const createChannelService = ({
     if(!group)
       throw ApiError.BadRequest(`group with uuid ${groupUuid} not found`);
 
-    const channel = Channel.create({
-      name, description, groupId: group.id
+    const chatRoom = dataSource.getRepository(ChatRoom).create();
+    await chatRoom.save();
+
+    const channel = dataSource.getRepository(Channel).create({
+      name, description, groupId: group.id, chatRoomId: chatRoom.id
     });
     await channel.save();
     
@@ -78,15 +86,19 @@ const createChannelService = ({
       description: channel.description,
       createdAt: channel.createdAt,
       updatedAt: channel.updatedAt,
+      chatRoomUuid: chatRoom.uuid,
       groupUuid
-    }
+    };
     return result;
   }
 
   const updateChannel = async (
     uuid: string, channelData: ChannelPostData
   ): Promise<ChannelItem> => {
-    const channel = await Channel.findOne({where: {uuid}});
+    const channel = await dataSource.getRepository(Channel).findOne({
+      where: {uuid},
+      relations: { chatRoom: true }
+    });
     if (!channel)
       throw ApiError.NotFound(`channel with uuid ${uuid} not found`);
 
@@ -99,8 +111,9 @@ const createChannelService = ({
       createdAt: channel.createdAt,
       updatedAt: channel.updatedAt,
       uuid: channel.name,
-      groupUuid: channelData.groupUuid
-    }
+      groupUuid: channelData.groupUuid,
+      chatRoomUuid: channel.chatRoom.uuid,
+    };
     return result;
   }
 

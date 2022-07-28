@@ -7,6 +7,8 @@ import { UserToken } from "./entity/UserToken";
 import { Message } from "./entity/Message";
 import { GroupInvite } from "./entity/GroupInvite";
 import { FriendRequest } from "./entity/FriendRequest";
+import { ChatRoom } from "./entity/ChatRoom";
+import { Conversation } from "./entity/Conversation";
 
 const AppDataSource = new DataSource({
   type: "postgres",
@@ -17,7 +19,10 @@ const AppDataSource = new DataSource({
   database: "ordinem_megachat",
   synchronize: true,
   logging: false,
-  entities: [User, UserToken, Image, Group, Channel, Message, GroupInvite, FriendRequest],
+  entities: [
+    User, UserToken, Image, Group, Channel, 
+    Message, GroupInvite, FriendRequest, ChatRoom, Conversation
+  ],
   subscribers: [],
   migrations: [],
 });

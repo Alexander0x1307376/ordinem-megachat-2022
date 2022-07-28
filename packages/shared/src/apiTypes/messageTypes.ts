@@ -15,13 +15,13 @@ export type MessageItemResponse = {
   authorUuid: string;
   authorName: string;
   authorAvaPath?: string;
-  channelUuid: string;
+  chatRoomUuid: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export type MessageSet = {
-  channelUuid: string;
+  chatRoomUuid: string;
   messages: Record<string, MessageItemResponse>;
   cursors?: {
     prev?: string;
@@ -30,6 +30,6 @@ export type MessageSet = {
 }
 
 export type MessagePostData = {
-  channelUuid: string;
+  chatRoomUuid: string;
   text: string;
 }

@@ -1,13 +1,10 @@
 import { 
-  createEntityAdapter, createSlice, EntityState, PayloadAction, createSelector 
+  createEntityAdapter, createSlice, PayloadAction, createSelector 
 } from "@reduxjs/toolkit";
-import { Channel, MessageItemResponse } from "@ordinem-megachat-2022/shared";
-import { RootState } from "../../store/store";
+import { MessageItemResponse } from "@ordinem-megachat-2022/shared";
 import { MessageSet } from "@ordinem-megachat-2022/shared";
-import { mapValues, pick, pickBy } from "lodash";
+import { mapValues, pick } from "lodash";
 
-
-type ChannelEntity = Pick<Channel, "uuid">;
 type MessageEntity = MessageItemResponse;
 
 
@@ -27,10 +24,10 @@ const chatSystemSlice = createSlice({
     setMessages: (
       state, action: PayloadAction<MessageSet>
     ) => {
-      const { channelUuid, messages } = action.payload;
+      const { chatRoomUuid, messages } = action.payload;
       messagesAdapter.upsertMany(
         state, 
-        mapValues(messages, (message) => ({...message, channelUuid}))
+        mapValues(messages, (message) => ({ ...message, chatRoomUuid }))
       );
     },
     
@@ -45,31 +42,22 @@ const chatSystemSlice = createSlice({
 
 const messageEntitySelectors = messagesAdapter.getSelectors();
 
-export const selectMessagesOfChannel = createSelector(
+export const selectMessagesOfRoom = createSelector(
   [
     messageEntitySelectors.selectEntities,
     messageEntitySelectors.selectIds,
-    (state, channelUuid) => channelUuid
+    (state, chatroomUuid) => chatroomUuid
   ],
-  (entities, ids, channelUuid) => {
-    if (!channelUuid) return undefined;
+  (entities, ids, chatroomUuid) => {
+    if (!chatroomUuid) return undefined;
 
-    const selectIds = ids.filter(id => entities[id]?.channelUuid === channelUuid);
+    const selectIds = ids.filter(id => entities[id]?.chatRoomUuid === chatroomUuid);
 
     const selectedEntites = pick(entities, selectIds);
     const result = Object.values(selectedEntites);
     return result as MessageItemResponse[];
   }
 );
-
-// export const selectMessagesOfChannel = (channelUuid: string) => (state: RootState) => {
-//   if (!channelUuid) return undefined;
-//   const { ids, entities } = state.chatSystem.messages;
-//   const selectedEntites = pickBy(entities, (value) => value!.channelUuid === channelUuid);
-//   const result = Object.values(selectedEntites);
-//   return result;
-// };
-
 
 
 export const chatSystemActions = chatSystemSlice.actions;

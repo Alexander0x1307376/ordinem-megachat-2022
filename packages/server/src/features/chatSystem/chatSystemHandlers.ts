@@ -5,18 +5,19 @@ import UsersOnlineStore, { UserData, UsersStoreEvents as usEvents } from "../use
 import { SubscribeToChangeData, ChatSystemEvents as csEvents, MessagePostData, ChangeData, Channel } from "@ordinem-megachat-2022/shared";
 import { IMessageService } from "../messages/messageService";
 import { 
-  getChannelRoomName,
+  getChatRoomName,
   getGroupRoomName,
   getObserveUserRoomName,
-  joinChannelRoom, 
+  joinChatRoom, 
   joinGroupRoom, 
-  leaveChannelRoom, 
+  leaveChatRoom, 
   leaveGroupRoom, 
   observeUser,
   unobserveUser
 } from "./utils";
 import { IGroupService } from "../group/groupService";
 import { IUserService } from "../user/userService";
+import { IChatRoomService } from "../chatRoom/chatRoomService";
 
 
 const InitChatSystemHandlers = (
@@ -25,12 +26,14 @@ const InitChatSystemHandlers = (
     channelService,
     messageService,
     groupService,
+    chatRoomService,
     userService
   }: {
     usersOnlineStore: UsersOnlineStore,
     channelService: IChannelService,
     messageService: IMessageService,
     userService: IUserService,
+    chatRoomService: IChatRoomService,
     groupService: IGroupService
   }
 ) => {
@@ -49,7 +52,7 @@ const InitChatSystemHandlers = (
         
         // подписываемся на изменения сущностий
         data.groups?.forEach(item => joinGroupRoom(socket, item));
-        data.channels?.forEach(item => joinChannelRoom(socket, item));
+        data.rooms?.forEach(item => joinChatRoom(socket, item));
         data.users?.forEach(item => observeUser(socket, item));
 
         // собираем актуальные данные реального времени 
@@ -79,8 +82,8 @@ const InitChatSystemHandlers = (
       data.groups?.forEach(item => {
         leaveGroupRoom(socket, item);
       });
-      data.channels?.forEach(item => {
-        leaveChannelRoom(socket, item);
+      data.rooms?.forEach(item => {
+        leaveChatRoom(socket, item);
       });
       data.users?.forEach(item => {
         unobserveUser(socket, item);
@@ -93,14 +96,14 @@ const InitChatSystemHandlers = (
     // #region каналы
 
     // пользователь подключился к каналу
-    socket.on(csEvents.JOIN_CHANNEL, async (channelUuid: string) => {
+    socket.on(csEvents.JOIN_ROOM, async (roomUuid: string) => {
       try {
 
         // проверить существование канала
-        const isChannelExists = await channelService.checkIfChannelExists(channelUuid);
-        if (!isChannelExists) {
-          io.to(socketId).emit(csEvents.JOIN_CHANNEL_ERROR, {
-            message: `channel with uuid ${channelUuid} doesn't exist`
+        const isRoomExist = await chatRoomService.checkIfRoomExist(roomUuid);
+        if (!isRoomExist) {
+          io.to(socketId).emit(csEvents.JOIN_ROOM_ERROR, {
+            message: `room with uuid ${roomUuid} doesn't exist`
           });
           return;
         }
@@ -108,35 +111,36 @@ const InitChatSystemHandlers = (
         // если юзер уже был присоединён к другой комнате - переключить его
         // если юзер уже в комнате - ничего не делать
         const userStoreData = usersOnlineStore.getUser(userUuid);
-        if (!userStoreData) throw new Error('Error while joining user to the channel');
+        if (!userStoreData) 
+          throw new Error('Error while joining user to the channel');
         
-        joinChannelRoom(socket, channelUuid);
+        joinChatRoom(socket, roomUuid);
         
-        const lastMessages = await messageService.getLastMessagesOfChannel(channelUuid);
-        io.to(socketId).emit(csEvents.JOIN_CHANNEL_SUCCESS, lastMessages);
-        console.log(`user ${userData.userName} joined channel ${channelUuid}`);
+        const lastMessages = await messageService.getLastMessagesOfRoom(roomUuid);
+        io.to(socketId).emit(csEvents.JOIN_ROOM_SUCCESS, lastMessages);
+        console.log(`user ${userData.userName} joined channel ${roomUuid}`);
       } 
       catch (e: any) {
         console.error(e);
-        io.to(socketId).emit(csEvents.JOIN_CHANNEL_ERROR, e.message);
+        io.to(socketId).emit(csEvents.JOIN_ROOM_ERROR, e.message);
       }
     });
     
 
     // пользователь отключился от канала
-    socket.on(csEvents.LEAVE_CHANNEL, async (channelUuid: string) => {
-      const isChannelExists = await channelService.checkIfChannelExists(channelUuid);
+    socket.on(csEvents.LEAVE_ROOM, async (roomUuid: string) => {
+      const isChannelExists = await chatRoomService.checkIfRoomExist(roomUuid);
       if (!isChannelExists) {
-        io.to(socketId).emit(csEvents.LEAVE_CHANNEL_ERROR, { 
-          message: `channel with uuid ${channelUuid} doesn't exist` 
+        io.to(socketId).emit(csEvents.LEAVE_ROOM_ERROR, { 
+          message: `channel with uuid ${roomUuid} doesn't exist` 
         });
         return;
       }
 
-      leaveChannelRoom(socket, channelUuid);
+      leaveChatRoom(socket, roomUuid);
 
-      io.to(socketId).emit(csEvents.LEAVE_CHANNEL_SUCCESS);
-      console.log(`user ${userData.userName} left channel ${channelUuid}`);
+      io.to(socketId).emit(csEvents.LEAVE_ROOM_SUCCESS);
+      console.log(`user ${userData.userName} left channel ${roomUuid}`);
     });
 
 
@@ -146,9 +150,9 @@ const InitChatSystemHandlers = (
     // #region сообщения
 
     // запрос сообщений
-    socket.on(csEvents.REQUEST_CHAT_MESSAGES, async ({ channelUuid, cursor }: {channelUuid: string, cursor: string}) => {
+    socket.on(csEvents.REQUEST_CHAT_MESSAGES, async ({ chatroomUuid, cursor }: { chatroomUuid: string, cursor: string}) => {
       try {
-        const messageData = await messageService.getMessagesOfChannel(channelUuid, cursor, 20);
+        const messageData = await messageService.getMessagesOfRoom(chatroomUuid, cursor, 20);
         io.to(socketId).emit(csEvents.REQUEST_CHAT_MESSAGES_SUCCESS, messageData);
       }
       catch (e) {
@@ -163,10 +167,10 @@ const InitChatSystemHandlers = (
       try {
         const result = await messageService.createMessage(userUuid, response);
 
-        const channelRoom = getChannelRoomName(response.channelUuid);
+        const chatRoom = getChatRoomName(response.chatRoomUuid);
 
         // послать сообщение всем, кто сейчас в канале
-        io.in(channelRoom).emit(csEvents.NEW_MESSAGE, result);
+        io.in(chatRoom).emit(csEvents.NEW_MESSAGE, result);
       } catch (e) {
         console.error(e);
         io.to(socketId).emit(csEvents.SEND_MESSAGE_ERROR, e);

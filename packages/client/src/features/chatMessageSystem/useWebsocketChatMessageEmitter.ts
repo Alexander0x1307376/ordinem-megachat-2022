@@ -9,30 +9,30 @@ const useWebsocketChatMessageEmitter = () => {
   }
   const socket = wc?.socket;
 
-  const joinChannel = (channelUuid: string) => {
-    socket?.emit(chatEvents.JOIN_CHANNEL, channelUuid);
+  const joinRoom = (roomUuid: string) => {
+    socket?.emit(chatEvents.JOIN_ROOM, roomUuid);
   };
 
-  const leaveChannel = (channelUuid: string) => {
-    socket?.emit(chatEvents.LEAVE_CHANNEL, channelUuid);
+  const leaveRoom = (roomUuid: string) => {
+    socket?.emit(chatEvents.LEAVE_ROOM, roomUuid);
   };
 
-  const getLastMessages = (channelUuid: string) => {
-    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, channelUuid);
+  const getLastMessages = (roomUuid: string) => {
+    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, roomUuid);
   };
 
-  const getMessages = (channelUuid: string, cursor: string) => {
-    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, { channelUuid, cursor });
+  const getMessages = (roomUuid: string, cursor: string) => {
+    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, { roomUuid, cursor });
   };
 
-  const sendMessage = (channelUuid: string, text: string) => {
-    socket?.emit(chatEvents.SEND_MESSAGE, { channelUuid, text } as MessagePostData);
+  const sendMessage = (chatRoomUuid: string, text: string) => {
+    socket?.emit(chatEvents.SEND_MESSAGE, { chatRoomUuid, text } as MessagePostData);
   };
 
   const methods = useMemo(() => ({
     getMessages,
-    joinChannel,
-    leaveChannel,
+    joinRoom,
+    leaveRoom,
     getLastMessages,
     sendMessage
   }), [socket]);

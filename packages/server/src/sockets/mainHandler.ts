@@ -8,6 +8,7 @@ import InitFriendshipSystemHandlers from "../features/friendshipSystem/friendshi
 import UsersOnlineStore from "../features/usersOnlineStore/UsersOnlineStore";
 import InitChatSystemHandlers from "../features/chatSystem/chatSystemHandlers";
 import { IGroupService } from "../features/group/groupService";
+import { IChatRoomService } from "../features/chatRoom/chatRoomService";
 
 
 interface ICreateMainHandler {
@@ -18,6 +19,7 @@ interface ICreateMainHandler {
   messageService: IMessageService;
   channelService: IChannelService;
   groupService: IGroupService;
+  chatRoomService: IChatRoomService;
 }
 
 export const CreateMainHandler = (socketServer: Server, {
@@ -27,7 +29,8 @@ export const CreateMainHandler = (socketServer: Server, {
   userService, 
   messageService,
   channelService,
-  groupService
+  groupService,
+  chatRoomService
 }: ICreateMainHandler) => {
 
   const friendshipSystemHandlers = InitFriendshipSystemHandlers(socketServer, {
@@ -41,7 +44,8 @@ export const CreateMainHandler = (socketServer: Server, {
     channelService,
     messageService,
     userService,
-    groupService
+    groupService,
+    chatRoomService
   });
 
 

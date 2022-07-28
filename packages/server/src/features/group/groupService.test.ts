@@ -15,6 +15,7 @@ import createImageService from '../image/imageService';
 import { FullGroupPostData, GroupPostData } from '@ordinem-megachat-2022/shared';
 import createUserService from '../user/userService';
 import { ImagePostData, GroupResponse } from '@ordinem-megachat-2022/shared';
+import { ChatRoom } from '../../entity/ChatRoom';
 
 describe('манипуляции с данными групп', () => {
 
@@ -29,7 +30,7 @@ describe('манипуляции с данными групп', () => {
     logging: false,
     entities: [
       User, UserToken, Image, Group, Channel,
-      Message, GroupInvite, FriendRequest
+      Message, GroupInvite, FriendRequest, ChatRoom
     ],
     subscribers: [],
     migrations: [],

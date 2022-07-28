@@ -7,11 +7,12 @@ import ApiError from "../../exceptions/apiError";
 import { DataSource, LessThan, MoreThan } from "typeorm";
 import { validateCursorData } from "../../utils/cursorUtils";
 import AppDataSource from "../../dataSource";
+import { ChatRoom } from "../../entity/ChatRoom";
 
 
 export interface IMessageService {
-  getMessagesOfChannel: (channelUuid: string, cursor: string, count?: number) => Promise<MessageSet>;
-  getLastMessagesOfChannel: (channelUuid: string, count?: number) => Promise<MessageSet>;
+  getMessagesOfRoom: (roomUuid: string, cursor: string, count?: number) => Promise<MessageSet>;
+  getLastMessagesOfRoom: (roomUuid: string, count?: number) => Promise<MessageSet>;
   createMessage: (authorUuid: string, messageData: MessagePostData) => Promise<MessageItemResponse>;
 }
 
@@ -27,43 +28,13 @@ const createMessageService = ({
   dataSource: DataSource
 }) => {
 
-  /*
-    
-      data: [
-        111,
-        222,
-        333
-      ],
-      cursor: {
-        next: 444
-      }
+  const getLastMessagesOfRoom = async (roomUuid: string, count: number = 20) => {
 
-      data: [
-        444,
-        555,
-        666
-      ],
-      cursor: {
-        prev: 333,
-        next: 777
-      }
-
-      data: [
-        777,
-        888
-      ],
-      cursor: {
-        prev: 666
-      }
-
-    */
-
-  const getLastMessagesOfChannel = async (channelUuid: string, count: number = 20) => {
-
-    const channel = await Channel.findOneOrFail({
-      select: ['id'],
-      where: { uuid: channelUuid },
-    });
+    const room = await dataSource.getRepository(ChatRoom)
+      .findOneOrFail({
+        select: ['id'],
+        where: { uuid: roomUuid },
+      });
 
     const messages = await dataSource.createQueryBuilder(Message, 'm')
       .select(`
@@ -76,13 +47,13 @@ const createMessageService = ({
       .leftJoin('m.author', 'u')
       .leftJoin('u.ava', 'image')
       .where({
-        channelId: channel.id,
+        chatRoomId: room.id,
       })
       .limit(count)
       .getRawMany();
 
     if(!messages.length)
-      return { channelUuid, messages: {}, cursors: {} } as MessageSet;
+      return { chatRoomUuid: roomUuid, messages: {}, cursors: {} } as MessageSet;
 
 
     const messagesObj = messages.reduce((acc, item) => {
@@ -101,25 +72,23 @@ const createMessageService = ({
 
     return {
       messages: messagesObj,
-      channelUuid,
+      chatRoomUuid: roomUuid,
       cursors
     } as MessageSet
   }
       
 
 
-  const getMessagesOfChannel = async (channelUuid: string, cursor: string, count: number = 20) => {
+  const getMessagesOfChannel = async (chatRoomUuid: string, cursor: string, count: number = 20) => {
     
     const cursorData = JSON.parse(decode(cursor)) as Cursor;
     if(!validateCursorData(cursorData))
       throw new Error('cursor is not valid!!');
 
-    const channel = await Channel.findOneOrFail({
+    const room = await dataSource.getRepository(ChatRoom).findOneOrFail({
       select: ['id'],
-      where: { uuid: channelUuid },
+      where: { uuid: chatRoomUuid },
     });
-
-
 
     const anchorMessage = await Message.findOneOrFail({ select: ['id'], where: { uuid: cursorData.value }});
 
@@ -134,7 +103,7 @@ const createMessageService = ({
       .leftJoin('m.author', 'u')
       .leftJoin('u.ava', 'image')
       .where({
-        channelId: channel.id,
+        chatRoomId: room.id,
         id: cursorData.type === 'next' 
           ? MoreThan(anchorMessage.id) 
           : LessThan(anchorMessage.id)
@@ -143,7 +112,7 @@ const createMessageService = ({
       .getRawMany();
 
     if (!messages.length)
-      return { channelUuid, messages: {}, cursors: {} } as MessageSet;
+      return { chatRoomUuid, messages: {}, cursors: {} } as MessageSet;
 
     // при входящем курсоре prev - сортировка по id от большего к меньшему (DESC)
     // поэтому граничную запись - искать с конца
@@ -212,7 +181,7 @@ const createMessageService = ({
 
     return {
       messages: messagesObj,
-      channelUuid,
+      chatRoomUuid,
       cursors: encryptedCursorData
     } as MessageSet
   }
@@ -221,8 +190,7 @@ const createMessageService = ({
 
   const createMessage = async (authorUuid: string, messageData: MessagePostData) => {
 
-    // const author = await User.findOne({select: ['id', 'name'], where: {uuid: authorUuid}})
-    const author = await AppDataSource.createQueryBuilder(User, 'a')
+    const author = await dataSource.createQueryBuilder(User, 'a')
       .select('a.id, a.uuid, a.name, i.path as "authorAvaPath"')
       .leftJoin('a.ava', 'i')
       .where('a.uuid = :authorUuid', { authorUuid })
@@ -231,14 +199,18 @@ const createMessageService = ({
     if(!author)
       throw ApiError.BadRequest(`Author with uuid ${authorUuid} not found`);
 
-    const channel = await Channel.findOne({ select: ['id', 'uuid'], where: { uuid: messageData.channelUuid } });
-    if(!channel)
-      throw ApiError.BadRequest(`Channel with uuid ${authorUuid} not found`);
+    const room = await dataSource.createQueryBuilder(ChatRoom, 'r')
+      .select('r.id, r.uuid')
+      .where('r.uuid = :chatRoomUuid', { chatRoomUuid: messageData.chatRoomUuid })
+      .getRawOne();
+    
+    if (!room)
+      throw ApiError.BadRequest(`Chatroom with uuid ${messageData.chatRoomUuid} not found`);
 
     const message = Message.create({
       text: messageData.text,
       authorId: author.id,
-      channelId: channel.id
+      chatRoomId: room.id
     });
     await message.save();
 
@@ -249,7 +221,7 @@ const createMessageService = ({
       authorName: author.name,
       authorUuid: author.uuid,
       authorAvaPath: author.authorAvaPath,
-      channelUuid: channel.uuid,
+      chatRoomUuid: room.uuid,
       createdAt: message.createdAt.toISOString(),
       updatedAt: message.updatedAt.toISOString(),
     };
@@ -258,8 +230,8 @@ const createMessageService = ({
   }
 
   const result: IMessageService = {
-    getLastMessagesOfChannel,
-    getMessagesOfChannel,
+    getLastMessagesOfRoom,
+    getMessagesOfRoom: getMessagesOfChannel,
     createMessage
   }
 

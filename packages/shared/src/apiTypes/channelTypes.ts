@@ -3,6 +3,7 @@ export type Channel = {
   name: string;
   description?: string;
   groupUuid: string;
+  chatRoomUuid: string;
   createdAt: Date;
   updatedAt: Date;
 }

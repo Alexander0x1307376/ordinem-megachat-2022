@@ -1,8 +1,9 @@
-import { FriendRequest as FriendRequestType, FriendRequestMessage } from '@ordinem-megachat-2022/shared';
+import { FriendRequestMessage } from '@ordinem-megachat-2022/shared';
 import { omit } from 'lodash';
 import { DataSource } from 'typeorm';
 import { v4 } from 'uuid';
 import { Channel } from '../../entity/Channel';
+import { ChatRoom } from '../../entity/ChatRoom';
 import { FriendRequest } from '../../entity/FriendRequest';
 import { Group } from '../../entity/Group';
 import { GroupInvite } from '../../entity/GroupInvite';
@@ -25,7 +26,7 @@ describe('манипуляции с данными групп', () => {
     logging: false,
     entities: [
       User, UserToken, Image, Group, Channel,
-      Message, GroupInvite, FriendRequest
+      Message, GroupInvite, FriendRequest, ChatRoom
     ],
     subscribers: [],
     migrations: [],
