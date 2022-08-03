@@ -9,9 +9,9 @@ import { Message } from '../../entity/Message';
 import { User } from '../../entity/User';
 import { UserToken } from '../../entity/UserToken';
 import createChannelService from './channelService';
-import { omit } from 'lodash';
 import { Conversation } from '../../entity/Conversation';
 import { ChatRoom } from '../../entity/ChatRoom';
+import { omit } from 'lodash';
 
 
 describe('манипуляции с данными каналов', () => {

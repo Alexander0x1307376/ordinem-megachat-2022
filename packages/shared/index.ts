@@ -5,6 +5,7 @@ export * from './src/apiTypes/userTypes';
 export * from './src/apiTypes/channelTypes';
 export * from './src/apiTypes/messageTypes';
 export * from './src/apiTypes/imageTypes';
+export * from './src/apiTypes/conversationTypes';
 export * from './src/rtsTypes/changesTypes';
 export { fsEvents as FriendshipSystemEvents } from './src/webSocketMessages/friendshipSystemEvents';
 export { ChatSystemEvents } from './src/webSocketMessages/chatSystemEvents';
