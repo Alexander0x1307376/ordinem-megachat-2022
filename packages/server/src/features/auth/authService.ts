@@ -2,7 +2,7 @@ import { compare } from 'bcrypt';
 import ApiError from '../../exceptions/apiError';
 import userService, { IUserService } from "../user/userService";
 import { UserPostData } from '@ordinem-megachat-2022/shared';
-import * as tokenService from "./tokenService";
+import { ITokenService } from "./tokenService";
 import { UserToken } from '../../entity/UserToken';
 import imageService, { IImageService } from '../image/imageService';
 import { Image } from '../../entity/Image';
@@ -25,8 +25,9 @@ export interface IAuthService {
 }
 
 const createAuthService = ({ 
-  userService, imageService 
+  userService, imageService, tokenService
 }: {
+  tokenService: ITokenService,
   userService: IUserService,
   imageService: IImageService 
 }) => {

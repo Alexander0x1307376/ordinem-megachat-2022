@@ -7,7 +7,7 @@ import errorMiddleware from './middlewares/errorMiddleware';
 import AppDataSource from './dataSource';
 import { queryParser } from 'express-query-parser';
 import path from 'path';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { createServer } from 'http';
 import CreateMainHandler from './sockets/mainHandler';
 import createFriendRequestService from './features/friendshipSystem/friendRequestService';
@@ -26,6 +26,9 @@ import createGroupController from './features/group/groupController';
 import createImageService from './features/image/imageService';
 import createImageController from './features/fileUploader/fileController';
 import createChatRoomService from './features/chatRoom/chatRoomService';
+import expressToSocketIoMiddlewareAdapter from './utils/middlewareUtils';
+import createAuthMiddleware from './features/auth/authMiddleware';
+import createTokenService from './features/auth/tokenService';
 
 export const app = express();
 
@@ -53,7 +56,11 @@ const userController = createUserController(userService);
 
 const messageService = createMessageService({ dataSource: AppDataSource });
 
-const authService = createAuthService({userService, imageService});
+
+const tokenService = createTokenService({ dataSource: AppDataSource });
+const authMiddleware = createAuthMiddleware(tokenService);
+
+const authService = createAuthService({ userService, imageService, tokenService });
 const authController = createAuthController(authService);
 
 
@@ -66,13 +73,16 @@ const friendRequestController = createFriendRequestController({
 });
 
 
+
+
 const router = createRouter({
   friendRequestController,
   userController,
   authController,
   channelController,
   groupController,
-  imageController
+  imageController,
+  authMiddleware
 });
 
 // #region Настройка приложения
@@ -103,6 +113,13 @@ const io = new Server(webSocketServer, {
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
+
+// io.use(expressToSocketIoMiddlewareAdapter(authMiddleware));
+// io.use((socket, next) => {
+//   console.log('socket middleware:', socket.request);
+//   next();
+// });
+
 
 const usersOnlineStore = new UsersOnlineStore();
 

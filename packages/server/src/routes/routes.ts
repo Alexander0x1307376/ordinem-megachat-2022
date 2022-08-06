@@ -15,11 +15,12 @@ export interface IControllers {
   channelController: IChannelController;
   groupController: IGroupController;
   imageController: IImageController;
+  authMiddleware: any
 }
 
 const createRouter = ({
   friendRequestController, userController, authController, 
-  channelController, groupController, imageController
+  channelController, groupController, imageController, authMiddleware
 }: IControllers) => {
   
   const router = Router();
@@ -67,6 +68,11 @@ const createRouter = ({
   router.post('/users/friend/:id/remove', authMiddleware, friendRequestController.removeFriend);
 
   router.get('/users/search', authMiddleware, userController.search);
+
+
+  router.get('/', (req, res) => {
+    res.json({message: 'ok'});
+  })
 
   return router;
 }

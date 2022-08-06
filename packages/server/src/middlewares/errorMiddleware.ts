@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import ApiError from '../exceptions/apiError';
 
-export default (err: any | ApiError, req: Request, res: Response, next: NextFunction) => {
+
+const errorMiddleware = (err: any | ApiError, req: Request, res: Response, next: NextFunction) => {
   console.log(err.message);
   // console.error(err);
 
@@ -12,3 +13,5 @@ export default (err: any | ApiError, req: Request, res: Response, next: NextFunc
     res.status(500).json({ message: 'Непредвиденная ошибка' })
   }
 }
+
+export default errorMiddleware;
