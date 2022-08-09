@@ -9,6 +9,7 @@ import { GroupInvite } from "./entity/GroupInvite";
 import { FriendRequest } from "./entity/FriendRequest";
 import { ChatRoom } from "./entity/ChatRoom";
 import { Conversation } from "./entity/Conversation";
+import { DirectChat } from "./entity/DirectChat";
 
 const AppDataSource = new DataSource({
   type: "postgres",
@@ -20,7 +21,7 @@ const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   entities: [
-    User, UserToken, Image, Group, Channel, 
+    User, UserToken, Image, Group, Channel, DirectChat,
     Message, GroupInvite, FriendRequest, ChatRoom, Conversation
   ],
   subscribers: [],

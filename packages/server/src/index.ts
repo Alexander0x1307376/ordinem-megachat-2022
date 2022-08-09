@@ -29,6 +29,8 @@ import createChatRoomService from './features/chatRoom/chatRoomService';
 import expressToSocketIoMiddlewareAdapter from './utils/middlewareUtils';
 import createAuthMiddleware from './features/auth/authMiddleware';
 import createTokenService from './features/auth/tokenService';
+import createContactController from './features/contacts/contactController';
+import createContactService from './features/contacts/contactService';
 
 export const app = express();
 
@@ -72,8 +74,8 @@ const friendRequestController = createFriendRequestController({
   friendRequestService, userService
 });
 
-
-
+const contactService = createContactService({dataSource:AppDataSource});
+const contactController = createContactController({ contactService });
 
 const router = createRouter({
   friendRequestController,
@@ -82,7 +84,8 @@ const router = createRouter({
   channelController,
   groupController,
   imageController,
-  authMiddleware
+  authMiddleware,
+  contactController
 });
 
 // #region Настройка приложения

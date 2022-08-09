@@ -10,6 +10,9 @@ import { omit } from 'lodash';
 import ApiError from '../../exceptions/apiError';
 import FriendshipSystemEventEmitter from "./friendshipSystemEventEmitter";
 import { DataSource } from "typeorm";
+import { DirectChat } from '../../entity/DirectChat';
+import { Conversation } from '../../entity/Conversation';
+import { ChatRoom } from '../../entity/ChatRoom';
 
 
 
@@ -66,6 +69,8 @@ export const createFriendRequestService = ({
     return relations.length ? true : false;
   }
 
+
+
   const createFriendRelation = async (firstUserId: number, secondUserId: number) => {
 
     const friendRelation = await dataSource.createQueryBuilder()
@@ -79,6 +84,22 @@ export const createFriendRequestService = ({
     return friendRelation;
   }
 
+
+
+  const createDirectChat = async (firstUserId: number, secondUserId: number) => {
+
+    const chatRoom = await dataSource.getRepository(ChatRoom)
+      .create().save();
+
+    const directChat = await dataSource.getRepository(DirectChat)
+      .create({
+        user1Id: firstUserId,
+        user2Id: secondUserId,
+        chatRoomId: chatRoom.id
+      }).save();
+
+    return directChat;
+  }
 
 
   const getRequests = async (userUuid: string): Promise<RequestsInfo> => {
@@ -306,7 +327,7 @@ export const createFriendRequestService = ({
   const acceptRequest = async (userUuid: string, requestUuid: string): Promise<FriendRequestUuids> => {
 
     // это мы
-    const currentUser = await User.findOneOrFail({
+    const currentUser = await dataSource.getRepository(User).findOneOrFail({
       where: { uuid: userUuid }
     });
 
@@ -325,9 +346,8 @@ export const createFriendRequestService = ({
       .getRawOne();
 
 
-
     // проверить встречный запрос (если мы отправляли реквестеру запрос ранее)
-    const requestOfCurrentUser = await FriendRequest.findOne({
+    const requestOfCurrentUser = await dataSource.getRepository(FriendRequest).findOne({
       select: ['id'],
       where: {
         requesterId: currentUser.id,
@@ -348,6 +368,8 @@ export const createFriendRequestService = ({
 
     // сохраняем отношение
     await createFriendRelation(currentUser.id, friendRequest.requesterId);
+    // создаём личную беседу
+    await createDirectChat(currentUser.id, friendRequest.requesterId);
 
     friendshipEventEmitter?.friendsIsChanged({
       userUuid_1: currentUser.uuid,
@@ -363,6 +385,11 @@ export const createFriendRequestService = ({
 
   // отклонить запрос на дружбу (тупо сносим его)
   const declineRequest = async (userUuid: string, requestUuid: string): Promise<FriendRequestUuids> => {
+
+    const currentUser = await dataSource.getRepository(User).findOneOrFail({
+      where: { uuid: userUuid }
+    });
+
 
     const friendRequest = await dataSource.createQueryBuilder()
       .from(FriendRequest, 'fr')

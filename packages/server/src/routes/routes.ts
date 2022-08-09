@@ -7,6 +7,7 @@ import { IFriendRequestController } from '../features/friendshipSystem/friendReq
 import { IUserController } from '../features/user/userController';
 import { IChannelController } from '../features/channels/channelController';
 import { IImageController } from '../features/fileUploader/fileController';
+import { IContactController } from '../features/contacts/contactController';
 
 export interface IControllers {
   friendRequestController: IFriendRequestController;
@@ -15,12 +16,14 @@ export interface IControllers {
   channelController: IChannelController;
   groupController: IGroupController;
   imageController: IImageController;
+  contactController: IContactController;
   authMiddleware: any
 }
 
 const createRouter = ({
   friendRequestController, userController, authController, 
-  channelController, groupController, imageController, authMiddleware
+  channelController, groupController, imageController, authMiddleware,
+  contactController
 }: IControllers) => {
   
   const router = Router();
@@ -54,6 +57,9 @@ const createRouter = ({
   router.delete('/channel/:channelId/remove', authMiddleware, channelController.remove);
   router.get('/channel/:channelId', authMiddleware, channelController.show);
 
+
+  // контакты
+  router.get('/user-contacts', authMiddleware, contactController.getContactsData);
 
   // запросы дружбы
   router.get('/friend-requests', authMiddleware, friendRequestController.requests);
