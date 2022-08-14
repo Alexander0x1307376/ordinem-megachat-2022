@@ -32,6 +32,8 @@ import createTokenService from './features/auth/tokenService';
 import createContactController from './features/contacts/contactController';
 import createContactService from './features/contacts/contactService';
 
+// http://172.30.177.93:3000
+
 export const app = express();
 
 const corsOrigin = process.env.ALLOWED_ORIGIN;
