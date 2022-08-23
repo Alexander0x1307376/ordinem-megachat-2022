@@ -1,7 +1,5 @@
 import { GroupDetailsResponse, GroupPostData } from "@ordinem-megachat-2022/shared";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_API_URL } from "../../config";
-import { RootState } from "../../store/store";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery";
 
 export const groupApi = createApi({
@@ -23,7 +21,7 @@ export const groupApi = createApi({
 
     userGroups: build.query<any, any>({
       query: () => ({
-        url: 'user-groups',
+        url: 'group/user-groups',
         method: 'GET'
       }),
       providesTags: ['userGroups']

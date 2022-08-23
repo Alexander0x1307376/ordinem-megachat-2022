@@ -3,7 +3,7 @@ import ApiError from '../exceptions/apiError';
 
 
 const errorMiddleware = (err: any | ApiError, req: Request, res: Response, next: NextFunction) => {
-  console.log(err.message);
+  console.log('ОШИБКА!', err.message);
   // console.error(err);
 
   if (err instanceof ApiError) {

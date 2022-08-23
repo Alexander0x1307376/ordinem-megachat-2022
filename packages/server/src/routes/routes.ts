@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import authMiddleware from '../features/auth/authMiddleware';
-import { IGroupController } from '../features/group/groupController';
+import { IGroupController } from "../features/group/IGroupController";
 import upload from '../features/fileUploader/uploadMiddleware';
-import { IAuthController } from '../features/auth/authController';
-import { IFriendRequestController } from '../features/friendshipSystem/friendRequestController';
-import { IUserController } from '../features/user/userController';
-import { IChannelController } from '../features/channels/channelController';
-import { IImageController } from '../features/fileUploader/fileController';
-import { IContactController } from '../features/contacts/contactController';
+import { IAuthController } from "../features/auth/IAuthController";
+import { IFriendRequestController } from "../features/friendshipSystem/IFriendRequestController";
+import { IUserController } from "../features/user/IUserController";
+import { IChannelController } from "../features/channels/IChannelController";
+import { IImageController } from "../features/image/IImageController";
+import { IContactController } from "../features/contacts/IContactController";
 
 export interface IControllers {
   friendRequestController: IFriendRequestController;

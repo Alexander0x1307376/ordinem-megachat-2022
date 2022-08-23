@@ -1,14 +1,14 @@
 import { Server, Socket } from "socket.io";
-import { IFriendRequestService } from "../features/friendshipSystem/friendRequestService";
-import { IUserService } from "../features/user/userService";
-import { IMessageService } from "../features/messages/messageService";
-import { IChannelService } from "../features/channels/channelService";
+import { IFriendRequestService } from "../features/friendshipSystem/IFriendRequestService";
+import { IUserService } from "../features/user/IUserService";
+import { IMessageService } from "../features/messages/IMessageService";
+import { IChannelService } from "../features/channels/IChannelService";
 import FriendshipSystemEventEmitter from "../features/friendshipSystem/friendshipSystemEventEmitter";
 import InitFriendshipSystemHandlers from "../features/friendshipSystem/friendshipSystemHandlers";
 import UsersOnlineStore from "../features/usersOnlineStore/UsersOnlineStore";
 import InitChatSystemHandlers from "../features/chatSystem/chatSystemHandlers";
-import { IGroupService } from "../features/group/groupService";
-import { IChatRoomService } from "../features/chatRoom/chatRoomService";
+import { IGroupService } from "../features/group/IGroupService";
+import { IChatRoomService } from "../features/chatRoom/IChatRoomService";
 
 
 interface ICreateMainHandler {

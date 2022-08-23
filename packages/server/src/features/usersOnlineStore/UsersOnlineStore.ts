@@ -1,5 +1,7 @@
+import 'reflect-metadata';
 import EventEmitter from "events";
 import { SubscribeToChangeData } from "@ordinem-megachat-2022/shared";
+import { inject, injectable } from "inversify";
 
 export type UserData = {
   uuid: string;
@@ -27,6 +29,7 @@ export enum UsersStoreEvents {
  */
 export type OnlineStoreEventData = { data: Partial<SubscribeToChangeData>, type: ChangeType };
 
+@injectable()
 class UsersOnlineStore extends EventEmitter {
   
   private userList = new Map<string, UserData>();
@@ -36,8 +39,22 @@ class UsersOnlineStore extends EventEmitter {
     super();
   }
 
+  onUserOnline(callback: (userData: UserData) => void) {
+    this.on(UsersStoreEvents.USER_ONLINE, callback);
+  }
+  offUserOnline(callback: (userData: UserData) => void) {
+    this.off(UsersStoreEvents.USER_ONLINE, callback);
+  }
 
-  addUser = (data: UserData) => {
+  onUserOffline(callback: (userData: UserData) => void) {
+    this.on(UsersStoreEvents.USER_OFFLINE, callback);
+  }
+  offUserOffline(callback: (userData: UserData) => void) {
+    this.off(UsersStoreEvents.USER_OFFLINE, callback);
+  }
+
+
+  addUser(data: UserData) {
     this.userList.set(data.uuid, {
       uuid: data.uuid,
       socketId: data.socketId,
@@ -46,22 +63,22 @@ class UsersOnlineStore extends EventEmitter {
     this.emit(UsersStoreEvents.USER_ONLINE, data as UserData);
   }
 
-  removeUser = (userUuid: string) => {
+  removeUser(userUuid: string) {
     const user = this.userList.get(userUuid);
     this.emit(UsersStoreEvents.USER_OFFLINE, user as UserData);
     this.userList.delete(userUuid);
   }
 
 
-  getUser = (userUuid: string) => {
+  getUser(userUuid: string) {
     return this.userList.get(userUuid);
   }
 
-  getList = () => {
+  getList() {
     return this.userList;
   }
 
-  getSocketId = (userUuid: string) => {
+  getSocketId(userUuid: string) {
     return this.userList.get(userUuid)?.socketId;
   }
 }
