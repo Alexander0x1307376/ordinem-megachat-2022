@@ -12,7 +12,7 @@ export const friendRequestApi = createApi({
 
     friendRequests: build.query<RequestsInfo, void>({
       query: () => ({
-        url: 'friend-requests',
+        url: 'friend-request',
         method: 'GET'
       }),
       providesTags: ['friendRequests']
