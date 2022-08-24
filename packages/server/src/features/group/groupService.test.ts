@@ -25,6 +25,7 @@ import { TYPES } from '../../injectableTypes';
 import { configServiceMock } from '../../tests/mocks/configServiceMock';
 import { ImageService } from '../image/ImageService';
 import { GroupService } from './GroupService';
+import { GroupEventEmitter } from './GroupEventEmitter';
 
 describe('манипуляции с данными групп', () => {
 
@@ -58,15 +59,18 @@ describe('манипуляции с данными групп', () => {
 
   beforeAll(async () => {
 
+    const groupEventEmitter = new GroupEventEmitter();
+
     container.bind<IConfigService>(TYPES.ConfigService).toConstantValue(configServiceMock);
     container.bind<AppDataSource>(TYPES.DataSource).to(AppDataSource).inSingletonScope();
     container.bind<IImageService>(TYPES.ImageService).to(ImageService);
+    container.bind<GroupEventEmitter>(TYPES.GroupEventEmitter).toConstantValue(groupEventEmitter);
     container.bind<IGroupService>(TYPES.GroupService).to(GroupService);
   
     configService = container.get<IConfigService>(TYPES.ConfigService);
     appDataSource = container.get<AppDataSource>(TYPES.DataSource);
     imageService = container.get<IImageService>(TYPES.ImageService);
-
+    groupService = container.get<IGroupService>(TYPES.GroupService);
 
     await appDataSource.init();
     dataSource = appDataSource.dataSource;
