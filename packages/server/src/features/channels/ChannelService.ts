@@ -26,7 +26,11 @@ export class ChannelService implements IChannelService {
   ) {
     this.dataSource = dataSource.dataSource;
 
-    this.channelRepository = this.dataSource.getRepository(Channel);
+    // const getRep = this.dataSource.getRepository.bind(this.dataSource);
+    // this.channelRepository = getRep(Channel)
+    // this.chatRoomRepository = getRep(ChatRoom);
+    // this.groupRepository = getRep(Group);
+    this.channelRepository = this.dataSource.getRepository(Channel)
     this.chatRoomRepository = this.dataSource.getRepository(ChatRoom);
     this.groupRepository = this.dataSource.getRepository(Group);
 
@@ -77,11 +81,8 @@ export class ChannelService implements IChannelService {
     return result as ChannelItem;
   }
 
-  // async createChannel({ name, description, groupUuid }: ChannelPostData): Promise<ChannelItem> {
-  createChannel = async ({ name, description, groupUuid }: ChannelPostData): Promise<ChannelItem> => {
-
-    console.log('METADATA!!!', this.groupRepository.metadata);
-
+  // createChannel = async ({ name, description, groupUuid }: ChannelPostData): Promise<ChannelItem> => {
+  async createChannel({ name, description, groupUuid }: ChannelPostData): Promise<ChannelItem> {
     const group = await this.groupRepository.findOne({
       select: ['id'],
       where: { uuid: groupUuid }

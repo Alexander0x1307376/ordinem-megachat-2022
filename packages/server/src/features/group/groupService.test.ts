@@ -16,225 +16,236 @@ import { FullGroupPostData, GroupPostData } from '@ordinem-megachat-2022/shared'
 // import createUserService from '../user/userService';
 import { ImagePostData, GroupResponse } from '@ordinem-megachat-2022/shared';
 import { ChatRoom } from '../../entity/ChatRoom';
+import { IImageService } from '../image/IImageService';
+import { IGroupService } from './IGroupService';
+import { AppDataSource } from '../../AppDataSource';
+import { IConfigService } from '../config/IConfigService';
+import { Container } from 'inversify';
+import { TYPES } from '../../injectableTypes';
+import { configServiceMock } from '../../tests/mocks/configServiceMock';
+import { ImageService } from '../image/ImageService';
+import { GroupService } from './GroupService';
 
-// describe('манипуляции с данными групп', () => {
+describe('манипуляции с данными групп', () => {
 
-//   const AppDataSource = new DataSource({
-//     type: "postgres",
-//     host: "localhost",
-//     port: 5442,
-//     username: "postgres",
-//     password: "secret",
-//     database: "ordinem_megachat",
-//     synchronize: true,
-//     logging: false,
-//     entities: [
-//       User, UserToken, Image, Group, Channel,
-//       Message, GroupInvite, FriendRequest, ChatRoom
-//     ],
-//     subscribers: [],
-//     migrations: [],
-//   });
+  const userData = { 
+    id: 1, uuid: v4(), name: 'User 1', email: 'user1@test.dev', password: '1234' 
+  };
 
+  const imageData = {
+    id: 1, uuid: v4(), name: 'test ava', path: 'images/test_ava.jpg'
+  };
 
-//   const imageService = createImageService(AppDataSource);
+  const groupData = {
+    id: 1, uuid: v4(), name: 'Тестовая группа User 1', description: 'Это тестовая группа', ownerId: 1
+  };
 
-//   const groupService = createGroupService({
-//     dataSource: AppDataSource,
-//     imageService
-//   });
+  // const imageService = createImageService(AppDataSource);
 
-//   const userData = { 
-//     id: 1, uuid: v4(), name: 'User 1', email: 'user1@test.dev', password: '1234' 
-//   };
+  // const groupService = createGroupService({
+  //   dataSource: AppDataSource,
+  //   imageService
+  // });
 
-//   const imageData = {
-//     id: 1, uuid: v4(), name: 'test ava', path: 'images/test_ava.jpg'
-//   };
+  const container = new Container({
+    skipBaseClassChecks: true
+  });
+  let configService: IConfigService;
+  let appDataSource: AppDataSource;
+  let imageService: IImageService;
+  let groupService: IGroupService;
+  let dataSource: DataSource;
 
-//   const groupData = {
-//     id: 1, uuid: v4(), name: 'Тестовая группа User 1', description: 'Это тестовая группа', ownerId: 1
-//   };
+  beforeAll(async () => {
 
-//   beforeAll(async () => {
-
-//     await AppDataSource.initialize();
-
-//     // создаём пользователя
-//     const user = await AppDataSource.createQueryBuilder(User, 'u')
-//       .insert()
-//       .values(userData)
-//       .execute();
-
-//     const image = await AppDataSource.createQueryBuilder(Image, 'i')
-//       .insert()
-//       .values(imageData)
-//       .execute();
-
-//     // создаём группу
-//     const group = await AppDataSource.createQueryBuilder(Group, 'g')
-//       .insert()
-//       .values([groupData])
-//       .execute();
-
-    
-//   });
-
-//   afterAll(async () => {
-//     // сносим все созданные записи
-//     await AppDataSource.dropDatabase();
-//     await AppDataSource.destroy();
-//   });
+    container.bind<IConfigService>(TYPES.ConfigService).toConstantValue(configServiceMock);
+    container.bind<AppDataSource>(TYPES.DataSource).to(AppDataSource).inSingletonScope();
+    container.bind<IImageService>(TYPES.ImageService).to(ImageService);
+    container.bind<IGroupService>(TYPES.GroupService).to(GroupService);
+  
+    configService = container.get<IConfigService>(TYPES.ConfigService);
+    appDataSource = container.get<AppDataSource>(TYPES.DataSource);
+    imageService = container.get<IImageService>(TYPES.ImageService);
 
 
-//   test('группа успешно создаётся', async () => {
+    await appDataSource.init();
+    dataSource = appDataSource.dataSource;
 
-//     const groupPostData: FullGroupPostData = {
-//       name: 'Тестовая группа',
-//       description: 'Описание тестовой группы',
-//       avaUuid: imageData.uuid,
-//       ownerUuid: userData.uuid
-//     };
+    // создаём пользователя
+    const user = await dataSource.createQueryBuilder(User, 'u')
+      .insert()
+      .values(userData)
+      .execute();
 
-//     const group = await groupService.create(groupPostData);
+    const image = await dataSource.createQueryBuilder(Image, 'i')
+      .insert()
+      .values(imageData)
+      .execute();
 
-//     const expectedData = {
-//       name: 'Тестовая группа',
-//       description: 'Описание тестовой группы',
-//       avaUuid: imageData.uuid,
-//       avaPath: imageData.path,
-//       ownerUuid: userData.uuid
-//     };
-
-//     expect(omit(group, ['id', 'uuid', 'createdAt', 'updatedAt'])).toEqual(expectedData);
-
-//   });
-
-
-
-//   test('группа успешно изменяется. добавление аватарки', async () => {
-
-//     const groupData: FullGroupPostData = {
-//       name: 'начальное имя',
-//       description: 'начальное описание',
-//       ownerUuid: userData.uuid
-//     };
-
-//     const group = await groupService.create(groupData);
+    // создаём группу
+    const group = await dataSource.createQueryBuilder(Group, 'g')
+      .insert()
+      .values([groupData])
+      .execute();
 
     
-//     const newGroupData: FullGroupPostData = {
-//       name: 'изменённое имя',
-//       description: 'изменённое описание',
-//       avaUuid: imageData.uuid,
-//       ownerUuid: userData.uuid
-//     };
+  });
 
-//     const updatedGroup = await groupService.update(group.uuid, newGroupData);
-
-//     const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
-//       uuid: group.uuid,
-//       name: 'изменённое имя',
-//       description: 'изменённое описание',
-//       avaPath: imageData.path,
-//       avaUuid: imageData.uuid,
-//       ownerUuid: userData.uuid
-//     };
-
-//     expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
-
-//   });
+  afterAll(async () => {
+    // сносим все созданные записи
+    await dataSource.dropDatabase();
+    await dataSource.destroy();
+  });
 
 
+  test('группа успешно создаётся', async () => {
 
-//   test('группа успешно изменяется. снос имеющейся аватарки', async () => {
+    const groupPostData: FullGroupPostData = {
+      name: 'Тестовая группа',
+      description: 'Описание тестовой группы',
+      avaUuid: imageData.uuid,
+      ownerUuid: userData.uuid
+    };
+
+    const group = await groupService.create(groupPostData);
+
+    const expectedData = {
+      name: 'Тестовая группа',
+      description: 'Описание тестовой группы',
+      avaUuid: imageData.uuid,
+      avaPath: imageData.path,
+      ownerUuid: userData.uuid
+    };
+
+    expect(omit(group, ['id', 'uuid', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+
+  });
+
+
+
+  test('группа успешно изменяется. добавление аватарки', async () => {
+
+    const groupData: FullGroupPostData = {
+      name: 'начальное имя',
+      description: 'начальное описание',
+      ownerUuid: userData.uuid
+    };
+
+    const group = await groupService.create(groupData);
+
     
-//     const groupData: FullGroupPostData = {
-//       name: 'начальное имя 2',
-//       description: 'начальное описание',
-//       ownerUuid: userData.uuid
-//     };
+    const newGroupData: FullGroupPostData = {
+      name: 'изменённое имя',
+      description: 'изменённое описание',
+      avaUuid: imageData.uuid,
+      ownerUuid: userData.uuid
+    };
+
+    const updatedGroup = await groupService.update(group.uuid, newGroupData);
+
+    const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
+      uuid: group.uuid,
+      name: 'изменённое имя',
+      description: 'изменённое описание',
+      avaPath: imageData.path,
+      avaUuid: imageData.uuid,
+      ownerUuid: userData.uuid
+    };
+
+    expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+
+  });
+
+
+
+  test('группа успешно изменяется. снос имеющейся аватарки', async () => {
     
-//     const group = await groupService.create(groupData);
+    const groupData: FullGroupPostData = {
+      name: 'начальное имя 2',
+      description: 'начальное описание',
+      ownerUuid: userData.uuid
+    };
     
-//     const newGroupData: FullGroupPostData = {
-//       name: 'изменённое имя 2',
-//       description: 'изменённое описание',
-//       ownerUuid: userData.uuid
-//     };
+    const group = await groupService.create(groupData);
+    
+    const newGroupData: FullGroupPostData = {
+      name: 'изменённое имя 2',
+      description: 'изменённое описание',
+      ownerUuid: userData.uuid
+    };
     
 
-//     const updatedGroup = await groupService.update(group.uuid, newGroupData);
+    const updatedGroup = await groupService.update(group.uuid, newGroupData);
 
-//     const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
-//       uuid: group.uuid,
-//       name: 'изменённое имя 2',
-//       description: 'изменённое описание',
-//       ownerUuid: userData.uuid
-//     };
+    const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
+      uuid: group.uuid,
+      name: 'изменённое имя 2',
+      description: 'изменённое описание',
+      ownerUuid: userData.uuid
+    };
 
-//     const expectedResultFromDb = {
-//       uuid: group.uuid,
-//       name: 'изменённое имя 2',
-//       description: 'изменённое описание',
-//       avaId: null
-//     };
+    const expectedResultFromDb = {
+      uuid: group.uuid,
+      name: 'изменённое имя 2',
+      description: 'изменённое описание',
+      avaId: null
+    };
 
-//     const resultFromDb = await AppDataSource.createQueryBuilder(Group, 'g')
-//       .select('g.uuid, g.name, g.description, g."avaId"')
-//       .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
-//       .getRawOne();
+    const resultFromDb = await dataSource.createQueryBuilder(Group, 'g')
+      .select('g.uuid, g.name, g.description, g."avaId"')
+      .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
+      .getRawOne();
 
-//     expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
-//     expect(resultFromDb).toEqual(expectedResultFromDb);
+    expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+    expect(resultFromDb).toEqual(expectedResultFromDb);
 
-//   });
+  });
 
 
 
-//   test('группа успешно изменяется. оставление аватарки', async () => {
+  test('группа успешно изменяется. оставление аватарки', async () => {
 
-//     const groupData: FullGroupPostData = {
-//       name: 'начальное имя 3',
-//       description: 'начальное описание',
-//       ownerUuid: userData.uuid,
-//       avaUuid: imageData.uuid
-//     };
+    const groupData: FullGroupPostData = {
+      name: 'начальное имя 3',
+      description: 'начальное описание',
+      ownerUuid: userData.uuid,
+      avaUuid: imageData.uuid
+    };
 
-//     const group = await groupService.create(groupData);
+    const group = await groupService.create(groupData);
 
-//     const newGroupData: FullGroupPostData = {
-//       name: 'изменённое имя 3',
-//       description: 'изменённое описание',
-//       ownerUuid: userData.uuid,
-//       avaUuid: imageData.uuid
-//     };
+    const newGroupData: FullGroupPostData = {
+      name: 'изменённое имя 3',
+      description: 'изменённое описание',
+      ownerUuid: userData.uuid,
+      avaUuid: imageData.uuid
+    };
 
-//     const updatedGroup = await groupService.update(group.uuid, newGroupData);
+    const updatedGroup = await groupService.update(group.uuid, newGroupData);
 
-//     const resultFromDb = await AppDataSource.createQueryBuilder(Group, 'g')
-//       .select('g.uuid, g.name, g.description, g."avaId"')
-//       .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
-//       .getRawOne();
+    const resultFromDb = await dataSource.createQueryBuilder(Group, 'g')
+      .select('g.uuid, g.name, g.description, g."avaId"')
+      .where('g.uuid = :groupUuid', { groupUuid: group.uuid })
+      .getRawOne();
 
-//     const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
-//       uuid: group.uuid,
-//       name: 'изменённое имя 3',
-//       description: 'изменённое описание',
-//       ownerUuid: userData.uuid,
-//       avaUuid: imageData.uuid,
-//       avaPath: imageData.path
-//     };
+    const expectedData: Omit<GroupResponse, 'createdAt' | 'updatedAt'> = {
+      uuid: group.uuid,
+      name: 'изменённое имя 3',
+      description: 'изменённое описание',
+      ownerUuid: userData.uuid,
+      avaUuid: imageData.uuid,
+      avaPath: imageData.path
+    };
 
-//     const expectedResultFromDb = {
-//       uuid: group.uuid,
-//       name: 'изменённое имя 3',
-//       description: 'изменённое описание',
-//       avaId: imageData.id
-//     };
+    const expectedResultFromDb = {
+      uuid: group.uuid,
+      name: 'изменённое имя 3',
+      description: 'изменённое описание',
+      avaId: imageData.id
+    };
 
-//     expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
-//     expect(resultFromDb).toEqual(expectedResultFromDb);
-//   });
+    expect(omit(updatedGroup, ['id', 'createdAt', 'updatedAt'])).toEqual(expectedData);
+    expect(resultFromDb).toEqual(expectedResultFromDb);
+  });
 
-// });
+});

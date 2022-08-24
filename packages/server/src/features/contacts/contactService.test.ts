@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { DataSource } from "typeorm";
 import { Channel } from '../../entity/Channel';
 import { FriendRequest } from '../../entity/FriendRequest';
@@ -10,33 +11,17 @@ import { UserToken } from '../../entity/UserToken';
 import { Conversation } from '../../entity/Conversation';
 import { ChatRoom } from '../../entity/ChatRoom';
 import { v4 } from "uuid";
-import createContactService from "./contactService";
-import { DirectChat } from "../../entity/DirectChat";
-import createConversationService from "../conversation/conversationService";
+import { Container } from 'inversify';
+import { IConversationService } from '../conversation/IConversationService';
+import { IContactService } from './IContactService';
+import { IConfigService } from '../config/IConfigService';
+import { TYPES } from '../../injectableTypes';
+import { configServiceMock } from '../../tests/mocks/configServiceMock';
+import { AppDataSource } from '../../AppDataSource';
+import { ContactService } from './ContactService';
 
 
 describe('контакты пользователя', () => {
-
-  const AppDataSource = new DataSource({
-    type: "postgres",
-    host: "localhost",
-    port: 5442,
-    username: "postgres",
-    password: "secret",
-    database: "ordinem_megachat",
-    synchronize: true,
-    logging: false,
-    entities: [
-      ChatRoom, User, UserToken, Image, Group, Channel,
-      Message, GroupInvite, FriendRequest, Conversation, DirectChat
-    ],
-    subscribers: [],
-    migrations: [],
-  });
-
-
-  const conversationService = createConversationService({ dataSource: AppDataSource });
-  const contactService = createContactService({ dataSource: AppDataSource });
 
   const usersData = [
     { id: 1, uuid: v4(), name: 'User 1', email: 'user1@test.dev', password: '1234' },
@@ -90,65 +75,77 @@ describe('контакты пользователя', () => {
     { conversationsId: 3, usersId: 2 }
   ];
 
+  const container = new Container({
+    skipBaseClassChecks: true
+  });
+
+  let configService: IConfigService;
+  let appDataSource: AppDataSource;
+  let contactService: IContactService;
+
   beforeAll(async () => {
 
-    await AppDataSource.initialize();
-
+    container.bind<IConfigService>(TYPES.ConfigService).toConstantValue(configServiceMock);
+    container.bind<AppDataSource>(TYPES.DataSource).to(AppDataSource).inSingletonScope();
+    container.bind<IContactService>(TYPES.ContactService).to(ContactService);
     
-    await AppDataSource.createQueryBuilder()
+    configService = container.get<IConfigService>(TYPES.ConfigService);
+    appDataSource = container.get<AppDataSource>(TYPES.DataSource);
+    contactService = container.get<IContactService>(TYPES.ContactService);
+
+    await appDataSource.init();
+    let dataSource = appDataSource.dataSource;
+    
+    await dataSource.createQueryBuilder()
       .insert()
       .into('users')
       .values(usersData)
       .execute();
 
-
     // отношения дружбы, комнаты и "прямые чаты"
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('users_friends_users')
       .values(friendshipRelations)
       .execute();
 
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('chatrooms')
       .values(directChatRooms)
       .execute();
 
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('direct_chats')
       .values(directChats)
       .execute();
       
-      
     // беседы
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('chatrooms')
       .values(conversationChatRooms)
       .execute();
 
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('conversations')
       .values(conversationsData)
       .execute();
 
-    await AppDataSource.createQueryBuilder()
+    await dataSource.createQueryBuilder()
       .insert()
       .into('conversations_members_users')
       .values(converstionMembers)
       .execute();
 
-    
-
   });
 
   afterAll(async () => {
     // сносим все созданные записи
-    await AppDataSource.dropDatabase();
-    await AppDataSource.destroy();
+    await appDataSource.dataSource.dropDatabase();
+    await appDataSource.dataSource.destroy();
   });
 
   test('запрос всех чятегов пользователя (личные сообщения и беседы)', async () => {

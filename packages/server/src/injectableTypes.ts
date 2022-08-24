@@ -14,6 +14,8 @@ export const TYPES = {
   AuthService: Symbol.for('AuthService'),
 
   ChatRoomService: Symbol.for('ChatRoomService'),
+
+  ConversationService: Symbol.for('ConversationService'),
   
   ChannelController: Symbol.for('ChannelController'),
   ChannelService: Symbol.for('ChannelService'),

@@ -28,6 +28,7 @@ export class ConversationService implements IConversationService {
     this.userRepository = this.dataSource.getRepository(User);
     this.chatRoomRepository = this.dataSource.getRepository(ChatRoom);
     this.imageRepository = this.dataSource.getRepository(Image);
+    this.conversationRepository = this.dataSource.getRepository(Conversation);
   }
 
   async createConveration(userUuid: string, data: ConversationFullPostData) {

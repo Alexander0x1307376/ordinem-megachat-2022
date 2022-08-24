@@ -50,7 +50,6 @@ export class AppDataSource {
       migrations: [],
     });
     this.dataSource = dataSource;
-
     this.init = this.init.bind(this);
   }
 
