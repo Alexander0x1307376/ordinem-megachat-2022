@@ -131,7 +131,7 @@ export class ChannelService implements IChannelService {
       description: channel.description,
       createdAt: channel.createdAt,
       updatedAt: channel.updatedAt,
-      uuid: channel.name,
+      uuid: channel.uuid,
       groupUuid: channelData.groupUuid,
       chatRoomUuid: channel.chatRoom.uuid,
     };

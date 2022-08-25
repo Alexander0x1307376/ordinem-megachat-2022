@@ -70,18 +70,18 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
   
   bind<IChannelController>(TYPES.ChannelController).to(ChannelController);
   bind<IChannelService>(TYPES.ChannelService).to(ChannelService);
-  bind<ChannelEventEmitter>(TYPES.ChannelEventEmitter).to(ChannelEventEmitter);
+  bind<ChannelEventEmitter>(TYPES.ChannelEventEmitter).to(ChannelEventEmitter).inSingletonScope();
   
   bind<IImageController>(TYPES.ImageController).to(ImageController);
   bind<IImageService>(TYPES.ImageService).to(ImageService);
   
   bind<IGroupController>(TYPES.GroupController).to(GroupController);
   bind<IGroupService>(TYPES.GroupService).to(GroupService);
-  bind<GroupEventEmitter>(TYPES.GroupEventEmitter).to(GroupEventEmitter);
+  bind<GroupEventEmitter>(TYPES.GroupEventEmitter).to(GroupEventEmitter).inSingletonScope();
 
   bind<IUserController>(TYPES.UserController).to(UserController);
   bind<IUserService>(TYPES.UserService).to(UserService);
-  bind<UserEventEmitter>(TYPES.UserEventEmitter).to(UserEventEmitter);
+  bind<UserEventEmitter>(TYPES.UserEventEmitter).to(UserEventEmitter).inSingletonScope();
 
   bind<IMessageService>(TYPES.MessageService).to(MessageService);
 
@@ -89,7 +89,7 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<IFriendRequestController>(TYPES.FriendRequestController).to(FriendRequestController);
   bind<IFriendRequestService>(TYPES.FriendRequestService).to(FriendRequestService);
-  bind<FriendshipSystemEventEmitter>(TYPES.FriendshipEventEmitter).to(FriendshipSystemEventEmitter);
+  bind<FriendshipSystemEventEmitter>(TYPES.FriendshipEventEmitter).to(FriendshipSystemEventEmitter).inSingletonScope();
   
   bind<IContactController>(TYPES.ContactController).to(ContactController);
   bind<IContactService>(TYPES.ContactService).to(ContactService);

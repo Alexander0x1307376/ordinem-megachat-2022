@@ -35,6 +35,9 @@ import { IChatRoomService } from './features/chatRoom/IChatRoomService';
 import { IMessageService } from './features/messages/IMessageService';
 import { FriendshipSystemEventEmitter } from './features/friendshipSystem/FriendshipSystemEventEmitter';
 import { toInteger } from 'lodash';
+import { GroupEventEmitter } from './features/group/GroupEventEmitter';
+import { ChannelEventEmitter } from './features/channels/ChannelEventEmitter';
+import { IConfigService } from './features/config/IConfigService';
 
 
 // TODO: собрать конфиг где-нибудь в одном месте
@@ -52,6 +55,7 @@ export class App {
   
   constructor(
     @inject(TYPES.ILogger) private logger: ILogger,
+    @inject(TYPES.ConfigService) private configService: IConfigService,
     @inject(TYPES.DataSource) private dataSource: AppDataSource,
     @inject(TYPES.FriendRequestController) private friendRequestController: FriendRequestController,
     @inject(TYPES.UserController) private userController: UserController,
@@ -66,11 +70,13 @@ export class App {
     @inject(TYPES.ChatRoomService) private chatRoomService: IChatRoomService,
     @inject(TYPES.MessageService) private messageService: IMessageService,
     @inject(TYPES.FriendshipEventEmitter) private friendshipEventEmitter: FriendshipSystemEventEmitter,
+    @inject(TYPES.GroupEventEmitter) private groupEventEmitter: GroupEventEmitter,
+    @inject(TYPES.ChannelEventEmitter) private channelEventEmitter: ChannelEventEmitter
 
   ) {
     this.app = express();
-    this.port = 8000; //TODO: сделать по-нормальному    
-    this.webSocketsPort = 4000;     
+    this.port = toInteger(this.configService.get('PORT'));    
+    this.webSocketsPort = toInteger(this.configService.get('WS_PORT'));     
   }
 
   useRoutes() {
@@ -128,7 +134,9 @@ export class App {
       this.logger, 
       this.chatRoomService, 
       this.messageService, 
-      this.friendshipEventEmitter
+      this.friendshipEventEmitter,
+      this.groupEventEmitter,
+      this.channelEventEmitter
     );
     wcHandler.init();
 

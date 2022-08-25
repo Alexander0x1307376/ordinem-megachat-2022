@@ -37,8 +37,9 @@ const EditChannelModal: React.FC<CreateChannelModalProps> = ({
   }
 
 
-  const [updateChannel, { isLoading: updateChannelLoading }] = useUpdateChannelMutation();
+  const [updateChannel] = useUpdateChannelMutation();
   const handleSubmitEditChannel = async (event: FormEvent<HTMLFormElement>) => {
+    console.log('handleSubmitEditChannel');
     event.preventDefault();
     if (!(groupUuid && channelData.uuid)) return;
     const data = new FormData(event.target as HTMLFormElement);

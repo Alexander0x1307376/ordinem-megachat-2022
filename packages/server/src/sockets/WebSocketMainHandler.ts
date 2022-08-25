@@ -9,6 +9,8 @@ import UsersOnlineStore from '../features/usersOnlineStore/UsersOnlineStore';
 import { ILogger } from '../logger/ILogger';
 import { FriendshipRealtimeSystem } from '../features/friendshipSystem/FriendshipRealtimeSystem';
 import { bindAll } from 'lodash';
+import { GroupEventEmitter } from '../features/group/GroupEventEmitter';
+import { ChannelEventEmitter } from '../features/channels/ChannelEventEmitter';
 
 export class WebSocketMainHandler {
   constructor(
@@ -18,6 +20,8 @@ export class WebSocketMainHandler {
     private chatRoomService: IChatRoomService,
     private messageService: IMessageService,
     private friendshipEventEmitter: FriendshipSystemEventEmitter,
+    private groupEventEmitter: GroupEventEmitter,
+    private channelEventEmitter: ChannelEventEmitter
 
   ) {
     bindAll(this, ['init', 'handleConnection']);
@@ -44,6 +48,7 @@ export class WebSocketMainHandler {
     const chatSocketHandler = new ChatSocketHandler(
       this.socketServer, 
       socket, 
+      this.logger,
       this.usersOnlineStore,
       this.chatRoomService, 
       this.messageService, userData
@@ -58,7 +63,7 @@ export class WebSocketMainHandler {
 
   async init() {
     const chatRealtimeSystem = new ChatRealtimeSystem(
-      this.socketServer, this.usersOnlineStore
+      this.socketServer, this.usersOnlineStore, this.groupEventEmitter, this.channelEventEmitter
     );
     const friendshipRealtimeSystem = new FriendshipRealtimeSystem(
       this.socketServer, this.usersOnlineStore, this.friendshipEventEmitter

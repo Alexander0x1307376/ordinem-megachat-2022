@@ -16,6 +16,7 @@ import { IChatRoomService } from "../chatRoom/IChatRoomService";
 import { IMessageService } from "../messages/IMessageService";
 import { SocketUserData } from "../../sockets/socketTypes";
 import { bindAll } from "lodash";
+import { ILogger } from "../../logger/ILogger";
 
 
 
@@ -29,10 +30,12 @@ export class ChatSocketHandler {
   constructor(
     private socketServer: Server, 
     private socket: Socket,
+    private logger: ILogger,
+
     private usersOnlineStore: UsersOnlineStore,
     private chatRoomService: IChatRoomService,
     private messageService: IMessageService,
-    private userData: SocketUserData
+    private userData: SocketUserData,
   ) {
     // super(socketServer, socket);
     this.socketId = socket.id;
@@ -116,10 +119,10 @@ export class ChatSocketHandler {
 
       const lastMessages = await this.messageService.getLastMessagesOfRoom(roomUuid);
       this.socketServer.to(this.socketId).emit(csEvents.JOIN_ROOM_SUCCESS, lastMessages);
-      console.log(`user ${this.userData.userName} joined channel ${roomUuid}`);
+      this.logger.log(`user ${this.userData.userName} joined channel ${roomUuid}`);
     }
     catch (e: any) {
-      console.error(e);
+      this.logger.error(e);
       this.socketServer.to(this.socketId).emit(csEvents.JOIN_ROOM_ERROR, e.message);
     }
   }
@@ -137,7 +140,7 @@ export class ChatSocketHandler {
     leaveChatRoom(this.socket, roomUuid);
 
     this.socketServer.to(this.socketId).emit(csEvents.LEAVE_ROOM_SUCCESS);
-    console.log(`user ${this.userData.userName} left channel ${roomUuid}`);
+    this.logger.log(`user ${this.userData.userName} left channel ${roomUuid}`);
   }
 
   private async handleRequestChatMessages({ chatroomUuid, cursor }: { chatroomUuid: string, cursor: string }) {
