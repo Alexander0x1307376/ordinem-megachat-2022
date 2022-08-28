@@ -86,8 +86,22 @@ export class FriendRequestService implements IFriendRequestService {
   }
 
 
+  private async findOrCreateDirectChat(firstUserId: number, secondUserId: number) {
+    const directChat = await this.directChatRepository
+      .findOne({
+        where: [
+          { user1Id: firstUserId, user2Id: secondUserId },
+          { user2Id: firstUserId, user1Id: secondUserId }
+        ]     
+      });
 
-   private async createDirectChat(firstUserId: number, secondUserId: number) {
+    if(directChat) 
+      return directChat;
+    else
+      return await this.createDirectChat(firstUserId, secondUserId);
+  }
+
+  private async createDirectChat(firstUserId: number, secondUserId: number) {
 
     const chatRoom = await this.chatRoomRepository
       .create().save();
@@ -247,10 +261,6 @@ export class FriendRequestService implements IFriendRequestService {
         userUuid_1: requesterUuid,
         userUuid_2: requested.uuid
       });
-      // this.friendshipEventEmitter.friendsIsChanged({
-      //   userUuid_1: requesterUuid,
-      //   userUuid_2: requested.uuid
-      // });
       return createFriendRequestMessage({
         requesterUuid,
         requestedName,
@@ -374,17 +384,14 @@ export class FriendRequestService implements IFriendRequestService {
 
     // сохраняем отношение
     await this.createFriendRelation(currentUser.id, friendRequest.requesterId);
-    // создаём личную беседу
-    await this.createDirectChat(currentUser.id, friendRequest.requesterId);
+    
+    //  создаём личную беседу
+    await this.findOrCreateDirectChat(currentUser.id, friendRequest.requesterId);
 
     this.friendshipEventEmitter.emitFriendsChanged({
       userUuid_1: currentUser.uuid,
       userUuid_2: friendRequest.requesterUuid
     });
-    // friendshipEventEmitter?.friendsIsChanged({
-    //   userUuid_1: currentUser.uuid,
-    //   userUuid_2: friendRequest.requesterUuid
-    // });
     return {
       uuid: friendRequest.uuid,
       requesterUuid: friendRequest.requesterUuid,

@@ -10,24 +10,27 @@ const useWebsocketUsersDataEmitter = () => {
   }
   const socket = wc?.socket;
 
-  const getUserStatuses = (userUuidList: string[]) => {
-    socket?.emit(chatEvents.REQUEST_USER_STATUSES, userUuidList);
-  };
-  
-  const observeUserStatuses = (userUuidList: string[]) => {
-    // socket?.emit(chatEvents.WATCH_USER_STATUSES, userUuidList);
-  }
+  const methods = useMemo(() => {
+    
+    const getUserStatuses = (userUuidList: string[]) => {
+      socket?.emit(chatEvents.REQUEST_USER_STATUSES, userUuidList);
+    };
 
-  const unobserveUserStatuses = (userUuidList: string[]) => {
-    // socket?.emit(chatEvents.UNWATCH_USER_STATUSES, userUuidList);
-  }
+    const observeUserStatuses = (userUuidList: string[]) => {
+      // socket?.emit(chatEvents.WATCH_USER_STATUSES, userUuidList);
+    }
 
-
-  const methods = useMemo(() => ({
-    getUserStatuses,
-    observeUserStatuses,
-    unobserveUserStatuses
-  }), [socket]);
+    const unobserveUserStatuses = (userUuidList: string[]) => {
+      // socket?.emit(chatEvents.UNWATCH_USER_STATUSES, userUuidList);
+    }
+    
+    return {
+      getUserStatuses,
+      observeUserStatuses,
+      unobserveUserStatuses,
+      isSocketLoaded: !!socket
+    }
+  }, [socket]);
 
   return methods;
 }

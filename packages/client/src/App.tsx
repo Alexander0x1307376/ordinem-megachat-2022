@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import Login from './components/pages/Login';
@@ -13,11 +13,28 @@ import Logout from './components/pages/Logout';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import CreateGroup from './components/pages/CreateGroup';
 import ChannelChat from './components/pages/ChannelChat';
+import useRealtimeSystemEmitter from './features/realtimeSystem/useRealtimeSystemEmitter';
+import { useFriendRequestsQuery } from './features/friendshipSystem/friendRequestsService';
+import { useFriendsQuery } from './features/users/usersService';
 
 
 const App: React.FC = () => {
 
   const location = useLocation();
+
+  const realtimeEmitter = useRealtimeSystemEmitter();
+  const { data: requests, isLoading: isRequestsLoading } = useFriendRequestsQuery();
+  const { data: friends, isLoading: isFriendsLoading } = useFriendsQuery();
+
+
+  useEffect(() => {
+    if (realtimeEmitter.isSocketLoaded && friends && !isFriendsLoading) {
+
+      realtimeEmitter.subscribeToChanges({
+        users: friends.map(item => item.uuid)
+      });
+    }
+  }, [realtimeEmitter, friends, isFriendsLoading]);
 
 
   return (

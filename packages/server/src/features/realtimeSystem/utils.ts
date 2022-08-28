@@ -30,9 +30,22 @@ const getRoomsByPrefix = (socket: Socket, prefix: string) => {
   return result;
 }
 
-// TODO: разобраться, будет ли пользователь одновременно подключён к одному каналу или всё же к нескольким
-export const joinChatRoom = (socket: Socket, channelUuid: string) => {
-  socket.join(getChatRoomName(channelUuid));
+
+export const leaveAllChatRooms = (socket: Socket) => {
+  socket.rooms.forEach((val => {
+    if (val.includes(chatRoomPrefix)) {
+      socket.leave(val);
+    }
+  }))
+}
+
+export const joinChatRoom = (socket: Socket, roomUuid: string) => {
+  socket.join(getChatRoomName(roomUuid));
+}
+
+export const switchChatRoom = (socket: Socket, roomUuid: string) => {
+  leaveAllChatRooms(socket);
+  joinChatRoom(socket, roomUuid);
 }
 
 export const joinGroupRoom = (socket: Socket, groupUuid: string) => {

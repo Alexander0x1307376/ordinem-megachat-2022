@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import useOutsideClickHandler from "../../utils/useOutsideClickHandler";
 import IconedButton from "../shared/IconedButton";

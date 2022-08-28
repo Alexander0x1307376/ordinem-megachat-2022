@@ -17,6 +17,10 @@ const initialState: RealtimeState = {
   groups: []
 };
 
+
+/**
+ * здесь - данные для отслеживания их в реальном времени
+ */
 const realtimeSystemSlice = createSlice({
   name: 'realtimeData',
   initialState,

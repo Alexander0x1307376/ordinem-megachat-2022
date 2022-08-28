@@ -15,7 +15,7 @@ const CreateChannelModal: React.FC<CreateChannelModalProps> = ({
   isOpen, onClose, groupUuid
 }) => {
 
-  const [createChannel, { isLoading: createChannelLoading }] = useCreateChannelMutation();
+  const [createChannel] = useCreateChannelMutation();
   const handleSubmitCreateChannel = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!groupUuid) return;

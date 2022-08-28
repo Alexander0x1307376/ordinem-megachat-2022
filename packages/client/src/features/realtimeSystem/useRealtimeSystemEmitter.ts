@@ -20,23 +20,26 @@ const useRealtimeSystemEmitter = () => {
   }
   const socket = wc?.socket;
 
-  const subscribeToChanges = (data: Partial<SubscribeToChangeData>) => {
-    dispatch(realtimeSystemActions.setRealtimeState(data));
-    socket?.emit(chatEvents.SUBSCRIBE_TO_CHANGES, data);
-  }
+  const result = useMemo(() => {
 
-  const unsubscibeToChanges = (data: Partial<SubscribeToChangeData>) => {
-    dispatch(realtimeSystemActions.removeRealtimeState(data));
-    socket?.emit(chatEvents.UNSUBSCRIBE_TO_CHANGES, data);
-  }
+    const subscribeToChanges = (data: Partial<SubscribeToChangeData>) => {
+      dispatch(realtimeSystemActions.setRealtimeState(data));
+      socket?.emit(chatEvents.SUBSCRIBE_TO_CHANGES, data);
+    };
 
+    const unsubscibeToChanges = (data: Partial<SubscribeToChangeData>) => {
+      dispatch(realtimeSystemActions.removeRealtimeState(data));
+      socket?.emit(chatEvents.UNSUBSCRIBE_TO_CHANGES, data);
+    };
 
-  const methods = useMemo(() => ({
-    subscribeToChanges,
-    unsubscibeToChanges
-  }), [socket]);
+    return {
+      subscribeToChanges,
+      unsubscibeToChanges,
+      isSocketLoaded: !!socket && !!dispatch
+    }
 
-  return methods;
+  }, [dispatch, socket]);
+  return result;
 }
 
 export default useRealtimeSystemEmitter;

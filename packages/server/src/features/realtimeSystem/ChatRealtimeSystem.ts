@@ -10,7 +10,11 @@ import { GroupEventEmitter } from "../group/GroupEventEmitter";
 import { ChannelEventEmitter } from "../channels/ChannelEventEmitter";
 import { Channel as ChannelItem } from "@ordinem-megachat-2022/shared";
 
-
+/**
+ * ChatRealtimeSystem принимает сигналы от эмиттеров сущностей, связанных с чатами
+ * (GroupEventEmitter, ChannelEventEmitter, ConversationEventEmitter) и отсылает их
+ * пользователям, которые подписаны на соответстующие изменения
+ */
 export class ChatRealtimeSystem extends BaseRealtimeSystem {
 
   constructor(

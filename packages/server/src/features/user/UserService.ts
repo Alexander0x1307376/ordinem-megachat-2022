@@ -9,6 +9,7 @@ import { getPaginatedList } from "../../utils/serviceUtils";
 import { Group } from "../../entity/Group";
 import EntityEventEmitter from "../../common/EntityEventEmitter";
 import { AppDataSource } from '../../AppDataSource';
+import { FriendshipSystemEventEmitter } from '../friendshipSystem/FriendshipSystemEventEmitter';
 
 
 
@@ -20,7 +21,8 @@ export class UserService implements IUserService {
 
   constructor(
     @inject(TYPES.DataSource) dataSource: AppDataSource,
-    @inject(TYPES.UserEventEmitter) private eventEmitter: EntityEventEmitter
+    @inject(TYPES.UserEventEmitter) private userEventEmitter: EntityEventEmitter,
+    @inject(TYPES.FriendshipEventEmitter) private  friendshipEventEmitter: FriendshipSystemEventEmitter
   ) {
     this.dataSource = dataSource.dataSource;
     this.userRepository = this.dataSource.getRepository(User);
@@ -91,10 +93,10 @@ export class UserService implements IUserService {
       .orWhere({ usersId_1: userIds[1], usersId_2: userIds[0] })
       .execute();
 
-    // friendshipEventEmitter?.friendsIsChanged({
-    //   userUuid_1: currentUserUuid,
-    //   userUuid_2: friendUuid
-    // });
+    this.friendshipEventEmitter.emitFriendsChanged({
+      userUuid_1: currentUserUuid,
+      userUuid_2: friendUuid
+    });
     return result;
   }
 
@@ -155,7 +157,7 @@ export class UserService implements IUserService {
   async create(data: UserPostData) {
     const user = this.userRepository.create(data);
     await user.save();
-    this.eventEmitter.emitCreated(user);
+    this.userEventEmitter.emitCreated(user);
     return user;
   }
 

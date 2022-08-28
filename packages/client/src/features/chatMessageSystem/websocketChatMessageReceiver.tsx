@@ -6,7 +6,7 @@ import { chatSystemActions } from "./chatSystemSlice";
 const websocketChatMessageReceiver = (socket: Socket, store: typeof mainStore) => {
 
   socket.on(chatEvents.JOIN_ROOM_SUCCESS, (response: MessageSet) => {
-    console.log('joined the channel!');
+    // console.log('chatEvents.JOIN_ROOM_SUCCESS!');
     store.dispatch(chatSystemActions.setMessages(response));
   });
 
@@ -15,11 +15,11 @@ const websocketChatMessageReceiver = (socket: Socket, store: typeof mainStore) =
   });
 
   socket.on(chatEvents.LEAVE_ROOM_SUCCESS, () => {
-    console.log('left the channel!');
+    // console.log('chatEvents.LEAVE_ROOM_SUCCESS!');
   });
 
   socket.on(chatEvents.LEAVE_ROOM_ERROR, (response) => {
-    console.log('something gone wrong while leaving channel!', response);
+    // console.log('chatEvents.LEAVE_ROOM_ERROR!', response);
   });
 
   socket.on(chatEvents.REQUEST_CHAT_MESSAGES_SUCCESS, (response: MessageSet) => {

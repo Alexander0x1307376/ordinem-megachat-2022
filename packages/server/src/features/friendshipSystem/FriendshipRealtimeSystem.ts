@@ -7,6 +7,11 @@ import UsersOnlineStore from "../usersOnlineStore/UsersOnlineStore";
 import { BaseRealtimeSystem } from "../../common/BaseRealtimeSystem";
 
 
+/**
+ * FriendshipRealtimeSystem принимает события о запросах дружбы от 
+ * "внутреннего" эмиттера FriendshipSystemEventEmitter
+ * и отсылает их пользователям, которых это касается (пользователей берёт из usersOnlineStore)
+ */
 export class FriendshipRealtimeSystem extends BaseRealtimeSystem {
   constructor(
     protected socketServer: Server,
@@ -22,7 +27,6 @@ export class FriendshipRealtimeSystem extends BaseRealtimeSystem {
   }
 
   private handleFriendRequestsIsChanged(uuids: RequesterAndRequestedUuids): void {
-    console.log('FRIEND_REQUESTS_IS_CHANGED');
     const user_1 = this.usersOnlineStore.getUser(uuids.requesterUuid);
     const user_2 = this.usersOnlineStore.getUser(uuids.requestedUuid);
 

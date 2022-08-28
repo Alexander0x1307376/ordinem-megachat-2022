@@ -159,24 +159,27 @@ const Group: React.FC = () => {
   // #region статусы участников 
   useEffect(() => {
 
-    if (!(groupData && groupMembers && groupId && !!subscribeToChanges && !!unsubscibeToChanges)) return;
+    if (!(groupData && groupMembers && groupId && groupData.uuid === groupId)) return;
     // запрашиваем статусы участников и владельца
-
+    console.log('группа!');
     subscribeToChanges({
       groups: [groupId],
       users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
       rooms: groupData.channels.map(item => item.chatRoomUuid) 
-    })
-
-    return () => {
-      unsubscibeToChanges({
-        groups: [groupId],
-        users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
-        rooms: groupData.channels.map(item => item.chatRoomUuid) 
-      })
-    }
+    });
     
-  }, [groupMembers, groupData, groupId, subscribeToChanges, unsubscibeToChanges]);
+  }, [groupMembers, groupData, groupId, subscribeToChanges]);
+
+  useEffect(() => () => {
+    // отписываемся только если покидаем группу
+    if (!(groupData && groupId && groupMembers)) return;
+    console.log('покидаем группу');
+    unsubscibeToChanges({
+      groups: [groupId],
+      users: groupMembers.map(item => item.uuid).concat(groupData.owner.uuid),
+      rooms: groupData.channels.map(item => item.chatRoomUuid)
+    })
+  }, [groupId, groupMembers, groupData, unsubscibeToChanges]);
 
   const usersData = useAppSelector(selectUsersData);
   // #endregion

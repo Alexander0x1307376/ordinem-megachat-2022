@@ -12,7 +12,7 @@ const AvaOrLetter: React.FC<AvaOrLetterProps> = ({
 }) => {
 
 
-  const backgroundColor = useMemo(() => !imageUrl ? stc(text) : undefined, [text]);
+  const backgroundColor = useMemo(() => !imageUrl ? stc(text) : undefined, [imageUrl, text]);
 
   return (
     <div>

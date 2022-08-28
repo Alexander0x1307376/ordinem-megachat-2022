@@ -45,7 +45,7 @@ const WebsocketProvider = ({children}: { children: ReactNode; }) => {
 
     }
 
-  }, [store, user, setSocket]);
+  }, [store, user, setSocket, socket, tokens]);
 
 
 

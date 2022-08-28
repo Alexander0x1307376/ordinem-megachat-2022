@@ -9,35 +9,48 @@ const useWebsocketChatMessageEmitter = () => {
   }
   const socket = wc?.socket;
 
-  const joinRoom = (roomUuid: string) => {
-    socket?.emit(chatEvents.JOIN_ROOM, roomUuid);
-  };
 
-  const leaveRoom = (roomUuid: string) => {
-    socket?.emit(chatEvents.LEAVE_ROOM, roomUuid);
-  };
+  const result = useMemo(() => {
 
-  const getLastMessages = (roomUuid: string) => {
-    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, roomUuid);
-  };
+    const joinRoom = (roomUuid: string) => {
+      // console.log('ChatMessageEmitter.joinRoom');
+      socket?.emit(chatEvents.JOIN_ROOM, roomUuid);
+    };
 
-  const getMessages = (roomUuid: string, cursor: string) => {
-    socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, { roomUuid, cursor });
-  };
+    const leaveRoom = (roomUuid: string) => {
+      // console.log('ChatMessageEmitter.leaveRoom');
+      socket?.emit(chatEvents.LEAVE_ROOM, roomUuid);
+    };
 
-  const sendMessage = (chatRoomUuid: string, text: string) => {
-    socket?.emit(chatEvents.SEND_MESSAGE, { chatRoomUuid, text } as MessagePostData);
-  };
+    const leaveAllRooms = () => {
+      // console.log('ChatMessageEmitter.leaveRoom');
+      socket?.emit(chatEvents.LEAVE_ALL_ROOMS);
+    };
 
-  const methods = useMemo(() => ({
-    getMessages,
-    joinRoom,
-    leaveRoom,
-    getLastMessages,
-    sendMessage
-  }), [socket]);
+    const getLastMessages = (roomUuid: string) => {
+      socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, roomUuid);
+    };
 
-  return methods;
+    const getMessages = (roomUuid: string, cursor: string) => {
+      socket?.emit(chatEvents.REQUEST_CHAT_MESSAGES, { roomUuid, cursor });
+    };
+
+    const sendMessage = (chatRoomUuid: string, text: string) => {
+      socket?.emit(chatEvents.SEND_MESSAGE, { chatRoomUuid, text } as MessagePostData);
+    };
+
+    return {
+      getMessages,
+      joinRoom,
+      leaveRoom,
+      leaveAllRooms,
+      getLastMessages,
+      sendMessage,
+      isSocketLoaded: !!socket
+    }
+  }, [socket]);
+  return result;
+
 }
 
 export default useWebsocketChatMessageEmitter;

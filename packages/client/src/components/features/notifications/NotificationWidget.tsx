@@ -4,7 +4,6 @@ import ModalWindow from "../../layouts/ModalWindow";
 import FramerModal from "../../shared/FramerModal";
 import IconedButton from "../../shared/IconedButton";
 import NotificationItem from "./NotificationItem";
-import stc from "string-to-color"; 
 
 const notifications = [
   {

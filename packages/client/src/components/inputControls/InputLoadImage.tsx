@@ -9,7 +9,7 @@ export interface InputLoadImageProps {
   initialImagePath?: string;
   uuid?: string;
 }
-const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+// const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
 const InputLoadImage: React.FC<InputLoadImageProps> = ({ 
   name, onChange, initialImagePath, uuid

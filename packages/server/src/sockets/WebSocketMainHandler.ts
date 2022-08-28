@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Server, Socket } from 'socket.io';
 import { IChatRoomService } from '../features/chatRoom/IChatRoomService';
-import { ChatSocketHandler } from '../features/chatSystem/ChatSocketHandler';
-import { ChatRealtimeSystem } from '../features/chatSystem/ChatRealtimeSystem';
+import { RealtimeSubscriptionsSocketHandler } from '../features/realtimeSystem/RealtimeSubscriptionsSocketHandler';
+import { ChatRealtimeSystem } from '../features/realtimeSystem/ChatRealtimeSystem';
 import { FriendshipSystemEventEmitter } from '../features/friendshipSystem/FriendshipSystemEventEmitter';
 import { IMessageService } from '../features/messages/IMessageService';
 import UsersOnlineStore from '../features/usersOnlineStore/UsersOnlineStore';
@@ -11,6 +11,7 @@ import { FriendshipRealtimeSystem } from '../features/friendshipSystem/Friendshi
 import { bindAll } from 'lodash';
 import { GroupEventEmitter } from '../features/group/GroupEventEmitter';
 import { ChannelEventEmitter } from '../features/channels/ChannelEventEmitter';
+import { ChatRoomSocketHandler } from '../features/realtimeSystem/ChatRoomSocketHandler';
 
 export class WebSocketMainHandler {
   constructor(
@@ -45,15 +46,23 @@ export class WebSocketMainHandler {
     };
 
     // подключаем обработчики
-    const chatSocketHandler = new ChatSocketHandler(
+    const subscriptionsSocketHandler = new RealtimeSubscriptionsSocketHandler(
       this.socketServer, 
       socket, 
       this.logger,
-      this.usersOnlineStore,
-      this.chatRoomService, 
-      this.messageService, userData
+      this.usersOnlineStore
     );
-    chatSocketHandler.initHandlers();
+    const chatRoomSocketHandler = new ChatRoomSocketHandler(
+      this.socketServer,
+      socket,
+      this.logger,
+      this.usersOnlineStore,
+      this.chatRoomService,
+      this.messageService,
+      userData
+    );
+    subscriptionsSocketHandler.initHandlers();
+    chatRoomSocketHandler.initHandlers();
 
     socket.on('disconnect', (reason: any) => {
       this.logger.log(`user ${name} has disconnected`);
@@ -65,6 +74,7 @@ export class WebSocketMainHandler {
     const chatRealtimeSystem = new ChatRealtimeSystem(
       this.socketServer, this.usersOnlineStore, this.groupEventEmitter, this.channelEventEmitter
     );
+    
     const friendshipRealtimeSystem = new FriendshipRealtimeSystem(
       this.socketServer, this.usersOnlineStore, this.friendshipEventEmitter
     );

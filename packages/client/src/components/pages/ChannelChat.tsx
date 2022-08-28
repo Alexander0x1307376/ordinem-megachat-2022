@@ -30,12 +30,14 @@ const ChannelChat: React.FC = () => {
   // #region подгрузка сообщений
   const messageSection = useRef<HTMLDivElement>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [topObservable, inViewTop, entryTop] = useInView({
     root: messageSection.current,
     rootMargin: "300px",
     threshold: 0
   });
-
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [bottomObservable, inViewBottom, entryBottom] = useInView({
     root: messageSection.current,
     rootMargin: "300px",
@@ -50,33 +52,21 @@ const ChannelChat: React.FC = () => {
       }));
       messageEmitter.getMessages(channelData.chatRoomUuid, cursor);
     }
-  }, [entryTop, channelData, channelMessages]);
+  }, [entryTop, channelData, channelMessages, isChannelLoading, messageEmitter]);
 
   // #endregion
 
-  
+
   useEffect(() => {
-    let currentMessageSection: Element | null = null;
-    // websocket emits
-    if (channelData?.chatRoomUuid) {
+    if (channelId === channelData?.uuid && channelData && !isChannelLoading) {
+      console.log('вход в канал: ', channelData.name);
       messageEmitter.joinRoom(channelData.chatRoomUuid);
     }
-    return () => {
-      // messageEmitter.leaveChannel(channelId!);
-      if (currentMessageSection) 
-        currentMessageSection = null;
-    }
-  }, [
-    channelId, messageEmitter, messageSection, channelData
-  ]);
+  }, [channelId, channelData, isChannelLoading, messageEmitter]);
 
   useEffect(() => () => {
-    if (channelData?.chatRoomUuid) {
-      messageEmitter.leaveRoom(channelData.chatRoomUuid);
-      console.log('left room', channelData.chatRoomUuid);
-    }
-  }, []);
-
+    messageEmitter.leaveAllRooms();
+  }, [messageEmitter]);
 
 
   const [messageToSend, setMessageToSend] = useState<string>('');

@@ -93,7 +93,7 @@ describe('манипуляции с данными групп', () => {
 
 
 
-  test('запрос дружбы отправляется. получателя с таким ником нет', async () => {
+  test('запрос дружбы отправляется: получателя с таким ником нет', async () => {
     const requesterUser = usersData[0];
     const notExistingUserName = 'nonexist';
 
@@ -115,7 +115,7 @@ describe('манипуляции с данными групп', () => {
   });
 
   
-  test('запрос дружбы отправляется. получатель - уже друг', async () => {
+  test('запрос дружбы отправляется: получатель - уже друг', async () => {
     
     const requesterUser = usersData[2];
     const requestedUser = usersData[3];

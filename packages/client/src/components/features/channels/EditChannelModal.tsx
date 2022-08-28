@@ -1,6 +1,6 @@
 import { ChannelPostData } from "@ordinem-megachat-2022/shared";
 import React, { FormEvent, useState } from "react";
-import { useCreateChannelMutation, useRemoveChannelMutation, useUpdateChannelMutation } from "../../../features/channels/channelsService";
+import { useRemoveChannelMutation, useUpdateChannelMutation } from "../../../features/channels/channelsService";
 import CreateChannelForm from "../../forms/CreateChannelForm";
 import ModalWindow from "../../layouts/ModalWindow";
 import Button from "../../shared/Button";
