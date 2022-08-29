@@ -5,7 +5,10 @@ import { RootState } from "../../store/store";
 import friendRequestApi from './friendRequestsService';
 import userApi from "../users/usersService";
 
-// принимает сообщения от вебсокет-сервера и правит стейт соответствующим образом
+
+/**
+ * принимает сообщения от вебсокет-сервера и правит стейт соответствующим образом
+ */
 const websocketFriendshipReceiver = (
   socket: Socket, store: Store<RootState, AnyAction>
 ) => {

@@ -9,6 +9,7 @@ import { usersDataReducer } from "../features/users/usersDataSlice";
 import { realtimeSystemReducer } from "../features/realtimeSystem/realtimeSystemSlice";
 import { imagesApi } from "../features/images/imageService";
 import { friendRequestApi } from "../features/friendshipSystem/friendRequestsService";
+import { contactApi } from "../features/contacts/contactsService";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     [channelsApi.reducerPath]: channelsApi.reducer,
     [imagesApi.reducerPath]: imagesApi.reducer,
     [friendRequestApi.reducerPath]: friendRequestApi.reducer,
+    [contactApi.reducerPath]: contactApi.reducer,
     chatSystem: chatSystemReducer,
     auth: authReducer,
     usersData: usersDataReducer,
@@ -29,7 +31,8 @@ export const store = configureStore({
     userApi.middleware,
     channelsApi.middleware,
     imagesApi.middleware,
-    friendRequestApi.middleware
+    friendRequestApi.middleware,
+    contactApi.middleware
   ])
 });
 

@@ -1,7 +1,5 @@
-import { GroupDetailsResponse, GroupPostData } from "@ordinem-megachat-2022/shared";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_API_URL } from "../../config";
-import { RootState } from "../../store/store";
+import { Contacts } from "@ordinem-megachat-2022/shared";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../../store/utils/reauthBaseQuery";
 
 export const contactApi = createApi({
@@ -11,7 +9,7 @@ export const contactApi = createApi({
 
   endpoints: build => ({
 
-    userGroups: build.query<any, any>({
+    userContacts: build.query<Contacts, void>({
       query: () => ({
         url: 'user-contacts',
         method: 'GET'
@@ -34,5 +32,5 @@ export const contactApi = createApi({
 });
 
 export const {
-
+  useUserContactsQuery
 } = contactApi;

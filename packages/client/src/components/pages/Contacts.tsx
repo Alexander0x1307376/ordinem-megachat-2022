@@ -1,37 +1,15 @@
+import { has } from "lodash";
 import React from "react";
 import { IoEllipsisVertical, IoPersonAddSharp } from "react-icons/io5";
+import { useUserContactsQuery } from "../../features/contacts/contactsService";
+import { selectUsersData } from "../../features/users/usersDataSlice";
+import { useAppSelector } from "../../store/utils/hooks";
 import ListWithHeader from "../layouts/ListWithHeader";
 import ContactItem from "../shared/ContactItem";
+import LoadingSpinner from "../shared/LoadingSpinner";
 import PopoverButton from "../shared/PopoverButton";
 
 
-const contactsData = [
-  {
-    uuid: '001',
-    name: 'Пользователь 1',
-    description: 'В сети'
-  },
-  {
-    uuid: '002',
-    name: 'Вася',
-    description: 'Оффлайн'
-  },
-  {
-    uuid: '003',
-    name: 'Петя',
-    description: 'Шкерится'
-  },
-  {
-    uuid: '004',
-    name: 'Pussy Destroyer',
-    description: 'Жызнь нужна пражыть как настаящий падонак'
-  },
-  {
-    uuid: '005',
-    name: 'Abrahan Abdul Ibn`Hattab de San-Paulo',
-    description: 'Статус'
-  },
-];
 
 const Contacts: React.FC = () => {
 
@@ -45,6 +23,10 @@ const Contacts: React.FC = () => {
     }
   ];
 
+  const {data: contacts, isLoading: isContactsLoading } = useUserContactsQuery();
+  const usersData = useAppSelector(selectUsersData);
+
+
   return (
     <ListWithHeader
       headerProps={{
@@ -57,16 +39,24 @@ const Contacts: React.FC = () => {
         )
       }}
     >
-      {contactsData.map(({ name, description, uuid }: any) => (
-
-        <ContactItem
-          key={uuid}
-          name={name}
-          link={`/chat/${uuid}`}
-          description={description}
-        />
-
-      ))}
+      {isContactsLoading? (
+        <div>
+          <LoadingSpinner size="2rem" />
+        </div>
+      ): (
+        contacts?.directChats?.map((item) => (
+          <ContactItem
+            key={item.uuid}
+            name={item.contactor.name}
+            link={`/chat/${item.uuid}`}
+            description={
+              has(usersData, item.contactor.uuid)
+                ? usersData[item.contactor.uuid].status
+                : 'не в сети'
+            }
+          />
+        ))
+      )}
     </ListWithHeader>
   )
 }

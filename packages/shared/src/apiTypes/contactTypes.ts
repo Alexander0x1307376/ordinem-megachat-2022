@@ -9,7 +9,7 @@ export type Contacts = {
   directChats: {
     uuid: string;
     chatRoomUuid: string;
-    contractor: {
+    contactor: {
       uuid: string;
       name: string;
       avaPath?: string;

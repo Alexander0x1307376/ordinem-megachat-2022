@@ -23,12 +23,6 @@ export class FriendRequestController extends BaseController implements IFriendRe
 
     this.bindRoutes([
       {
-        path: '/',
-        method: 'get',
-        func: this.requests,
-        middlewares: [authGuard]
-      },
-      {
         path: '/create',
         method: 'post',
         func: this.create,
@@ -52,6 +46,12 @@ export class FriendRequestController extends BaseController implements IFriendRe
         func: this.reject,
         middlewares: [authGuard]
       },
+      {
+        path: '/',
+        method: 'get',
+        func: this.requests,
+        middlewares: [authGuard]
+      }
     ]);
   }
 

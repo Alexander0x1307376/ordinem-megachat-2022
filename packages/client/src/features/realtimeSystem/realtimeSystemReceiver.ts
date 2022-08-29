@@ -10,15 +10,10 @@ import { AnyAction, Store } from "@reduxjs/toolkit";
 
 const realtimeSystemReceiver = (socket: Socket, store: Store<RootState, AnyAction>) => {
   socket.on('connect', () => {
-    console.log('RealtimeSystem: connection established!');
 
     const syncData = store.getState().realtimeSystem;
     if (syncData.rooms.length && syncData.users.length && syncData.groups.length)
       setTimeout(() => socket.emit(csEvents.SUBSCRIBE_TO_CHANGES, syncData), 200);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('RealtimeSystem: connection lost!');
   });
 
   socket.on(csEvents.USER_ONLINE, (userUuid: string) => {

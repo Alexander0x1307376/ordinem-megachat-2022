@@ -24,7 +24,6 @@ const usersDataSlice = createSlice({
       state.users = Object.assign(state.users, action.payload);
     },
     setUserStatus: (state, action: PayloadAction<{ userUuid: string, status: string }>) => {
-      console.log('setUserStatus');
       const { userUuid, status } = action.payload;
       state.users[userUuid] = { status };
     },

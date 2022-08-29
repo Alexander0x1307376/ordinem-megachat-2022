@@ -88,12 +88,8 @@ export class AuthService implements IAuthService {
 
   async login(email: string, password: string): Promise<LoginResponse> {
 
-
-    console.log('LOGIN', {email, password});
-
     const user = await this.userService.getAccountData(email);
-
-
+    
     const errorMessage = `Неверный логин или пароль`;
     if (!user) {
       throw ApiError.BadRequest(errorMessage);

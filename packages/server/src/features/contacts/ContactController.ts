@@ -20,7 +20,7 @@ export class ContactController extends BaseController implements IContactControl
 
     this.bindRoutes([
       {
-        path: '/user-contacts',
+        path: '/',
         method: 'get',
         func: this.getContactsData,
         middlewares: [authGuard]

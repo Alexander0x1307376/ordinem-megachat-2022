@@ -38,7 +38,6 @@ import { toInteger } from 'lodash';
 import { GroupEventEmitter } from './features/group/GroupEventEmitter';
 import { ChannelEventEmitter } from './features/channels/ChannelEventEmitter';
 import { IConfigService } from './features/config/IConfigService';
-import ApiError from './exceptions/apiError';
 
 
 // TODO: собрать конфиг где-нибудь в одном месте
@@ -143,7 +142,7 @@ export class App {
     await this.dataSource.dataSource.initialize();
 
     this.useExeptionFilters();
-    
+
     this.app.listen(this.port, () => {
       this.logger.log(`API сервер запущен на http://localhost:${this.port}`);
     });

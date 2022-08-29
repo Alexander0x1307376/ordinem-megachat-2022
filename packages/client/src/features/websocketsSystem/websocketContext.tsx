@@ -8,7 +8,6 @@ import { selectCurrentUser, selectCurrentUserTokens } from "../auth/authSlice";
 import websocketChatMessageReceiver from "../chatMessageSystem/websocketChatMessageReceiver";
 import websocketFriendshipReceiver from "../friendshipSystem/websocketFriendshipReceiver";
 import realtimeSystemReceiver from "../realtimeSystem/realtimeSystemReceiver";
-import websocketUsersDataReceiver from "../users/websocketUsersDataReceiver";
 
 export interface IWebsocketContext {
   socket?: Socket;
@@ -36,13 +35,18 @@ const WebsocketProvider = ({children}: { children: ReactNode; }) => {
         query: handshake
       });
       setSocket(socketInstance);
-      console.log('socket initiated');
+      console.log('web-socket: socket initiated');
+
+      socketInstance.on('connect', () => {
+        console.log('web-socket: connection established');
+      });
+      socketInstance.on('disconnect', () => {
+        console.log('web-socket: disconnected');
+      });
       
       realtimeSystemReceiver(socketInstance, store);
       websocketFriendshipReceiver(socketInstance, store);
       websocketChatMessageReceiver(socketInstance, store);
-      websocketUsersDataReceiver(socketInstance, store);
-
     }
 
   }, [store, user, setSocket, socket, tokens]);

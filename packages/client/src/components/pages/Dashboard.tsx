@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { BASE_API_URL } from "../../config";
 import ModalWindow from "../layouts/ModalWindow";
@@ -17,7 +17,6 @@ import {
   useRecallRequestMutation 
 } from "../../features/friendshipSystem/friendRequestsService";
 import { useFriendsQuery, useRemoveFriendMutation } from "../../features/users/usersService";
-import useRealtimeSystemEmitter from "../../features/realtimeSystem/useRealtimeSystemEmitter";
 import { useAppSelector } from "../../store/utils/hooks";
 import { selectUsersData } from "../../features/users/usersDataSlice";
 import { has } from "lodash";
@@ -59,27 +58,6 @@ const Dashboard: React.FC = () => {
   const removeFriendRequest = async (friendUuid: string) => {
     await removeFriend(friendUuid);
   }
-  
-  
-  const {
-    subscribeToChanges, unsubscibeToChanges
-  } = useRealtimeSystemEmitter();
-
-  useEffect(() => {
-
-    if (!friends) return;
-
-    subscribeToChanges({
-      users: friends?.map(item => item.uuid)
-    })
-
-    return () => {
-      unsubscibeToChanges({
-        users: friends?.map(item => item.uuid)
-      })
-    }
-
-  }, [friends, subscribeToChanges, unsubscibeToChanges]);
 
   const usersData = useAppSelector(selectUsersData);
 
