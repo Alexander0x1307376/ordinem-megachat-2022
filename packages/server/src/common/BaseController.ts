@@ -36,9 +36,9 @@ export abstract class BaseController {
       const middleware = route.middlewares?.map((m) => m.execute.bind(m));
       
       const bindedMethod = route.func.bind(this);
-      const handler = (req: Request, res: Response, next: NextFunction) => {
+      const handler = async (req: Request, res: Response, next: NextFunction) => {
         try {
-          bindedMethod(req, res, next);
+          await bindedMethod(req, res, next);
         }
         catch(e) {
           next(e);
