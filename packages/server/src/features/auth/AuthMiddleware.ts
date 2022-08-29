@@ -4,7 +4,11 @@ import { IMiddleware } from "../../common/IMiddleware";
 import { ITokenService } from "./ITokenService";
 import { verify } from 'jsonwebtoken';
 
-
+/**
+ * AuthMiddleware получает заголовок authorization в реквесте,
+ * извлекает из него данные юзера и крепит их к реквесту 
+ * для дальнейшего использования в AuthGuard
+ */
 export class AuthMiddleware implements IMiddleware {
   secret: string;
   constructor(
