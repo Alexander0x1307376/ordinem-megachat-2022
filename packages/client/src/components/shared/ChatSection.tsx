@@ -19,7 +19,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({ chatRoomUuid }) => {
 
   // #region выборка сообщений из хранилища
   const messages = useAppSelector((state: RootState) =>
-    selectMessagesOfRoom(state.chatSystem, chatRoomUuid || '')
+    selectMessagesOfRoom(state.chatSystem, chatRoomUuid)
   );
   // #endregion
 
