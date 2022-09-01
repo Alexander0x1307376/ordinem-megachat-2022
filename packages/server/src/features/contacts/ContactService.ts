@@ -2,18 +2,21 @@ import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { TYPES } from '../../injectableTypes';
-import { Contacts } from "@ordinem-megachat-2022/shared";
+import { Contacts, DirectChat as DirectChatType } from "@ordinem-megachat-2022/shared";
 import { User } from '../../entity/User';
 import { Conversation } from '../../entity/Conversation';
 import { DirectChat } from '../../entity/DirectChat';
 import { isNil, omitBy } from 'lodash';
 import { IContactService } from './IContactService';
 import { AppDataSource } from '../../AppDataSource'; 
+import ApiError from '../../exceptions/apiError';
 
 @injectable()
 export class ContactService implements IContactService {
 
   private userRepository: Repository<User>;
+  private directChatRepository: Repository<DirectChat>;
+
   private dataSource: DataSource;
 
   constructor(
@@ -21,6 +24,7 @@ export class ContactService implements IContactService {
   ) {
     this.dataSource = dataSource.dataSource;
     this.userRepository = this.dataSource.getRepository(User);
+    this.directChatRepository = this.dataSource.getRepository(DirectChat);
   }
 
   async getUserContacts(userUuid: string): Promise<Contacts> {
@@ -101,5 +105,54 @@ export class ContactService implements IContactService {
       directChats: processedDirectChats
     };
     return result as Contacts;
+  }
+
+  async getContact(userUuid: string, contactUuid: string): Promise<DirectChatType> {
+
+    const currentUser = await this.userRepository.findOneOrFail({
+      where: { uuid: userUuid },
+      select: ['id', 'uuid']
+    });
+
+    const directChat = await this.dataSource.createQueryBuilder(DirectChat, 'dc')
+      .select(`
+        dc.uuid, dc."chatRoomId", dc."user1Id", dc."user2Id", 
+        cr.uuid AS "chatRoomUuid",
+        u1.uuid AS "user1Uuid", u1.name AS "user1Name",
+        i1.path AS "user1AvaPath",
+        u2.uuid AS "user2Uuid", u2.name AS "user2Name",
+        i2.path AS "user2AvaPath"
+      `)
+      .where('dc.uuid = :contactUuid', { contactUuid })
+      .leftJoin('dc.chatRoom', 'cr')
+      .leftJoin('dc.user1', 'u1')
+      .leftJoin('dc.user2', 'u2')
+      .leftJoin('u1.ava', 'i1')
+      .leftJoin('u2.ava', 'i2')
+      .getRawOne();
+
+    if(!directChat)
+      throw ApiError.NotFound();
+
+    if (currentUser.id !== directChat.user1Id && currentUser.id !== directChat.user2Id)
+      throw ApiError.ForbiddenError();
+    
+
+    const contactor: DirectChatType['contactor'] = userUuid === directChat.user1Uuid ? {
+      uuid: directChat.user2Uuid,
+      name: directChat.user2Name,
+      avaPath: directChat.user2AvaPath
+    } : {
+      uuid: directChat.user1Uuid,
+      name: directChat.user1Name,
+      avaPath: directChat.user1AvaPath
+    };
+
+    const result: DirectChatType = {
+      uuid: userUuid,
+      chatRoomUuid: directChat.chatRoomUuid,
+      contactor
+    };
+    return result;
   }
 }

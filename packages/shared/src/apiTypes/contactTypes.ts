@@ -6,13 +6,15 @@ export type Contacts = {
     chatRoomUuid: string;
     ownerUuid: string;
   }[];
-  directChats: {
+  directChats: DirectChat[];
+}
+
+export type DirectChat = {
+  uuid: string;
+  chatRoomUuid: string;
+  contactor: {
     uuid: string;
-    chatRoomUuid: string;
-    contactor: {
-      uuid: string;
-      name: string;
-      avaPath?: string;
-    }
-  }[];
+    name: string;
+    avaPath?: string;
+  }
 }

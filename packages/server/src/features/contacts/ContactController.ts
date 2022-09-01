@@ -20,12 +20,29 @@ export class ContactController extends BaseController implements IContactControl
 
     this.bindRoutes([
       {
+        path: '/:contactUuid',
+        method: 'get',
+        func: this.contactDetails,
+        middlewares: [authGuard]
+      },
+      {
         path: '/',
         method: 'get',
         func: this.getContactsData,
         middlewares: [authGuard]
       }
     ]);
+  }
+
+  async contactDetails(
+    req: Request | any,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userUuid = req.user.uuid;
+    const contactUuid = req.params.contactUuid;
+    const result = await this.contactService.getContact(userUuid, contactUuid);
+    this.ok(res, result);
   }
 
   async getContactsData(

@@ -63,4 +63,5 @@ export class ChatRealtimeSystem extends BaseRealtimeSystem {
     const observeUserRoom = getObserveUserRoomName(userData.uuid);
     this.socketServer.in(observeUserRoom).emit(csEvents.USER_OFFLINE, userData.uuid);
   }
+  
 }

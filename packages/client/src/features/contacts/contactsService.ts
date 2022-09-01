@@ -17,6 +17,13 @@ export const contactApi = createApi({
       providesTags: ['userContacts']
     }),
 
+    userContact: build.query<any, string>({
+      query: (contactUuid) => ({
+        url: `user-contacts/${contactUuid}`,
+        method: 'GET'
+      })
+    })
+
     // createGroup: build.mutation<any, any>({
     //   query: body => ({
     //     url: 'contact/create',
@@ -32,5 +39,6 @@ export const contactApi = createApi({
 });
 
 export const {
-  useUserContactsQuery
+  useUserContactsQuery,
+  useUserContactQuery,
 } = contactApi;

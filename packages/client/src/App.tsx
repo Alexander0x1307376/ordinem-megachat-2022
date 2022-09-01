@@ -6,7 +6,7 @@ import Groups from './components/pages/Groups';
 import Contacts from './components/pages/Contacts';
 import Settings from './components/pages/Settings';
 import Group from './components/pages/Group';
-import Chat from './components/pages/Chat';
+import DirectChat from './components/pages/DirectChat';
 import Dashboard from './components/pages/Dashboard';
 import Register from './components/pages/Register';
 import Logout from './components/pages/Logout';
@@ -73,7 +73,7 @@ const App: React.FC = () => {
         </Route>
 
         <Route path='/chat/:chatId' element={
-          <ProtectedRoute><Chat /></ProtectedRoute>
+          <ProtectedRoute><DirectChat /></ProtectedRoute>
         } />
 
 
